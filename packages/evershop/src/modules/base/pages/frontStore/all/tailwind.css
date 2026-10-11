@@ -40,6 +40,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-header: var(--header);
+  --color-header-foreground: var(--header-foreground);
+  --color-brand: var(--brand);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -55,38 +58,43 @@
     Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
     monospace;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Bharat Textile — showroom ivory page, deep forest header.
+   * The two must stay far apart; sage is reserved for actions. */
+  --background: #f4f1eb;
+  --foreground: #1a1814;
+  --card: #fffcf8;
+  --card-foreground: #1a1814;
+  --popover: #fffcf8;
+  --popover-foreground: #1a1814;
+  --primary: #1f3d32;
+  --primary-foreground: #f6f1e7;
+  --secondary: #efeae2;
+  --secondary-foreground: #1a1814;
+  --muted: #ebe6de;
+  --muted-foreground: #6e675f;
+  --accent: #e7e1d6;
+  --accent-foreground: #1a1814;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --divider: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: #e3dcd1;
+  --divider: #e3dcd1;
+  --input: #ddd6cb;
+  --ring: #1f3d32;
+  --header: #495651;
+  --header-foreground: #f4efe6;
+  --brand: #1f3d32;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #f4f1eb;
+  --sidebar-foreground: #1a1814;
+  --sidebar-primary: #1f3d32;
+  --sidebar-primary-foreground: #f6f1e7;
+  --sidebar-accent: #efeae2;
+  --sidebar-accent-foreground: #1a1814;
+  --sidebar-border: #e3dcd1;
+  --sidebar-ring: #1f3d32;
 }
 
 /*

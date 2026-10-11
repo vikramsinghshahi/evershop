@@ -297,7 +297,7 @@ export default function BasicMenu({
               onClick={() => setMobileOpen((open) => !open)}
               aria-expanded={mobileOpen}
               aria-label={mobileOpen ? _('Close menu') : _('Open menu')}
-              className="evershop-basic-menu__toggle inline-flex items-center justify-center rounded-md p-2 text-foreground transition-colors hover:bg-muted/50 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+              className="evershop-basic-menu__toggle inline-flex items-center justify-center rounded-md p-2 text-current transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
             >
               {mobileOpen ? (
                 <X className="size-6" aria-hidden="true" />

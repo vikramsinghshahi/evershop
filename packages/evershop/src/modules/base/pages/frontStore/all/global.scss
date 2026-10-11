@@ -15,10 +15,12 @@
 
   body {
     /* Re-skin (2026-07-10): 16px base + 1.5 line-height + token text color,
-     * matching the design reference (was 14px, line-height up to 2.0, #3a3a3a). */
+     * matching the design reference (was 14px, line-height up to 2.0, #3a3a3a).
+     * Bharat Textile (2026-10-11): the page itself carries the pale mint. */
     font-size: 1rem;
     line-height: 1.5;
     color: var(--foreground);
+    background-color: var(--background);
 
     input[type='email'],
     input[type='password'],

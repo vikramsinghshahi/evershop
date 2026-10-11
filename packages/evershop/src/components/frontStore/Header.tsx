@@ -1,9 +1,10 @@
 import Area from '@components/common/Area.js';
 import React from 'react';
+import './Header.scss';
 
 export function Header() {
   return (
-    <header className="header bg-background">
+    <header className="header sticky top-0 z-30 border-b border-[#c4a574]/55 bg-header text-header-foreground">
       {/* Announcement bar area (Announcement bar widget lands here). */}
       <Area
         id="headerTop"
@@ -13,22 +14,22 @@ export function Header() {
       />
       {/* Re-skin (2026-07-10): reference layout — logo left, nav beside it,
           search / account / cart pushed right, constrained to the page width. */}
-      <div className="header__middle page-width flex items-center gap-6 py-6">
+      <div className="header__middle page-width flex flex-wrap items-center gap-x-3 gap-y-2 py-3 sm:flex-nowrap sm:gap-6 sm:py-3.5">
         <Area
           id="headerMiddleLeft"
-          className="header__middle__left flex justify-start items-center"
+          className="header__middle__left flex min-w-0 items-center gap-3 sm:gap-8"
           isGlobal
           editableInPageBuilder
         />
         <Area
           id="headerMiddleCenter"
-          className="header__middle__center flex justify-center items-center"
+          className="header__middle__center flex min-w-0 flex-1 items-center"
           isGlobal
           editableInPageBuilder
         />
         <Area
           id="headerMiddleRight"
-          className="header__middle__right flex justify-end items-center gap-3"
+          className="header__middle__right ml-auto flex basis-full items-center justify-end gap-1 sm:basis-auto sm:gap-3"
           isGlobal
           editableInPageBuilder
         />

@@ -7,7 +7,7 @@ interface FooterProps {
 
 export function Footer({ copyRight }: FooterProps) {
   return (
-    <footer className="footer mt-20 border-t border-border bg-muted/30 pt-14 pb-8">
+    <footer className="footer mt-20 bg-header pt-14 pb-8 text-header-foreground">
       <Area
         id="footerTop"
         className="footer__top"
@@ -36,7 +36,7 @@ export function Footer({ copyRight }: FooterProps) {
       </div>
       <Area
         id="footerBottom"
-        className="footer__bottom mt-12 border-t border-border pt-6"
+        className="footer__bottom mt-12 border-t border-white/15 pt-6"
         isGlobal
         editableInPageBuilder
         coreComponents={[
@@ -130,7 +130,7 @@ export function Footer({ copyRight }: FooterProps) {
                     </div>
                   </div>
                   <div className="self-center">
-                    <div className="copyright text-center text-sm text-muted-foreground md:text-right">
+                    <div className="copyright text-center text-sm opacity-70 md:text-right">
                       <span>{copyRight}</span>
                     </div>
                   </div>

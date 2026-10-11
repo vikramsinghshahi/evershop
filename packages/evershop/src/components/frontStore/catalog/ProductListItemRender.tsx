@@ -203,7 +203,7 @@ export const ProductListItemRender = ({
     const width = fabricSpecText(product, 'fabricWidth');
     const gsm = fabricSpecText(product, 'fabricGsm');
     return (
-      <div className="product__list__item__inner product__fabric__card group flex h-full flex-col rounded-[10px] border border-border bg-background p-4 shadow-sm">
+      <div className="product__list__item__inner product__fabric__card group flex h-full flex-col rounded-[10px] border border-border bg-card p-4 shadow-sm transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-primary hover:shadow-lg hover:shadow-primary/30 focus-within:-translate-y-0.5 focus-within:border-primary focus-within:shadow-lg focus-within:shadow-primary/30">
         <a
           href={product.url}
           className="product__list__link flex flex-1 flex-col"
@@ -239,7 +239,7 @@ export const ProductListItemRender = ({
               )}
             </div>
           )}
-          <div className="product__list__price mt-auto text-base font-semibold text-red-600">
+          <div className="product__list__price mt-auto text-base font-semibold text-[#8a6840]">
             {product.price.special &&
             product.price.regular < product.price.special ? (
               <>

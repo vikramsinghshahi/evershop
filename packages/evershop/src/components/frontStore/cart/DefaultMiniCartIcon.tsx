@@ -21,7 +21,7 @@ export const DefaultMiniCartIcon = ({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`mini-cart-icon relative rounded-md p-2 text-foreground/80 hover:bg-muted hover:text-foreground ${
+      className={`mini-cart-icon relative rounded-md p-2 text-current hover:bg-white/10 ${
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
       } ${isOpen ? 'active' : ''}`}
       aria-label={`Shopping cart with ${totalQty} items`}

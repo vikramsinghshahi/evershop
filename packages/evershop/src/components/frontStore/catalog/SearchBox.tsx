@@ -264,7 +264,7 @@ export function SearchBox({
       <a
         href="#"
         aria-label="Search"
-        className="search__icon inline-flex items-center rounded-md p-2 text-foreground/80 hover:bg-muted hover:text-foreground"
+        className="search__icon inline-flex items-center rounded-md p-2 text-current hover:bg-white/10"
         onClick={(e) => {
           e.preventDefault();
           setShowing(!showing);
@@ -273,7 +273,7 @@ export function SearchBox({
         {renderSearchIcon ? renderSearchIcon() : defaultSearchIcon()}
       </a>
       {showing && (
-        <div className="search__input__container fixed top-0 left-0 right-0 bottom-0 bg-white shadow-md z-50 p-10">
+        <div className="search__input__container fixed top-0 left-0 right-0 bottom-0 z-50 bg-white p-10 text-foreground shadow-md">
           <div className="search__input relative flex justify-between">
             {renderSearchInput
               ? renderSearchInput({
