@@ -62,6 +62,8 @@ query Query {
       metaTitle
       metaDescription
       sku
+      saleUnit
+      moq
       price {
         regular {
           value

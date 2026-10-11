@@ -305,6 +305,11 @@ export function registerCartItemBaseFields(fields) {
           } else if (product.manage_stock === true && product.qty < qty) {
             this.setError('qty', 'We do not have enough stock');
           }
+          const minimum = parseInt(product.moq, 10);
+          if (Number.isFinite(minimum) && minimum > 0 && qty < minimum) {
+            const unit = product.sale_unit ? ` ${product.sale_unit}` : '';
+            this.setError('qty', `Minimum order is ${minimum}${unit}`);
+          }
 
           return parseInt(qty, 10) ?? null;
         }

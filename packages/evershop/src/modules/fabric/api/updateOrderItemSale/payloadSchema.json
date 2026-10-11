@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "properties": {
+    "sale_unit": {
+      "type": ["string", "null"]
+    },
+    "moq": {
+      "type": ["integer", "number", "string", "null"]
+    }
+  },
+  "additionalProperties": false
+}

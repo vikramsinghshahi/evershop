@@ -4,6 +4,7 @@ import { AddToCart } from '@components/frontStore/cart/AddToCart.js';
 import { ProductData } from '@components/frontStore/catalog/ProductContext.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import { cn } from '@evershop/evershop/lib/util/cn';
+import { isFabricSku } from '../../../modules/fabric/services/printScale.js';
 import React from 'react';
 
 /**
@@ -28,9 +29,8 @@ export interface ProductListAddToCartProps {
  *
  * - A simple product: "Add to Cart", which adds one to the cart. When it is out of stock the
  *   button is disabled and says "Sold out", the word the product page's own button uses.
- * - A product with variants: "Select options", a link to its page. The customer has to choose
- *   (colour, size...) and a card cannot ask, so adding the card's own variant to the cart would
- *   put something in it the customer never picked.
+ * - A product with variants, or a fabric: "Select options", a link to its page. A fabric needs
+ *   a print scale and a design before it can be added, and a card cannot ask for those.
  *
  * A product with variants keeps "Select options" even when the card's own variant is sold
  * out: another variant may be in stock, and the card cannot tell, so the product page decides.
@@ -44,7 +44,7 @@ export function ProductListAddToCart({
   size,
   className
 }: ProductListAddToCartProps) {
-  if (hasVariants(product)) {
+  if (hasVariants(product) || isFabricSku(product.sku)) {
     // Nothing to send the customer to without a page; adding the variant is the one thing not to do.
     if (!product.url) {
       return null;

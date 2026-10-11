@@ -1,0 +1,5 @@
+{
+  "methods": ["PATCH"],
+  "path": "/order-items/:uuid/sale",
+  "access": "private"
+}

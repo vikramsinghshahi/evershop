@@ -148,10 +148,20 @@ describe('a product with variants', () => {
     expect(buttons(markup)).toBe(0);
   });
 
+  it('links a fabric to its page, because the card cannot choose a scale and design', () => {
+    const markup = list([{ ...product(1), sku: 'FABRIC-COTTON-LAWN' }]);
+    expect(markup).toMatch(/<a href="\/dress-1" data-slot="button" class="[^"]*">Select options<\/a>/);
+    expect(buttons(markup)).toBe(0);
+    expect(markup).toContain('aspect-ratio');
+    expect(markup).toContain('product__fabric__card');
+    expect(markup).toContain('>$100.00<');
+  });
+
   it('leaves the simple products beside it with "Add to Cart"', () => {
     const markup = list([product(1), configurable(2)]);
     expect(buttons(markup)).toBe(1);
     expect(optionLinks(markup)).toBe(1);
+    expect(markup.match(/product__fabric__card/g) ?? []).toHaveLength(0);
   });
 
   it('does the same in the list layout', () => {

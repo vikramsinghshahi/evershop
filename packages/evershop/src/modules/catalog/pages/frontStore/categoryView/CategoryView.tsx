@@ -118,6 +118,8 @@ export const fragments = `
     productId
     name
     sku
+    saleUnit
+    moq
     variantGroupId
     price {
       regular {

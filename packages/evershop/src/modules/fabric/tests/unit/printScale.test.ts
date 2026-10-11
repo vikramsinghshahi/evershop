@@ -6,7 +6,7 @@ import {
   printSpanCm,
   resolvePrintConfiguration
 } from '../../services/printScale.js';
-import { normalizeUploadedDesignUrl } from '../../services/printDesign.js';
+import { designDownload, normalizeUploadedDesignUrl } from '../../services/printDesign.js';
 import { resolveFabricCartOptions } from '../../services/printDesignFile.js';
 
 const fieldFlower = {
@@ -136,5 +136,45 @@ describe('fabric print scale', () => {
         }
       })
     ).rejects.toThrow(/no longer available/);
+  });
+
+  test('builds an admin download for a catalog svg and a saved upload', () => {
+    const stored = JSON.parse(
+      resolvePrintConfiguration('FABRIC-COTTON-POPLIN', {
+        scale: 40,
+        design: fieldFlower
+      }) as string
+    );
+    const catalog = designDownload(stored.design);
+    expect(catalog).toMatchObject({ kind: 'svg', fileName: 'Field Flower.svg' });
+    if (catalog?.kind === 'svg') {
+      expect(catalog.svg.startsWith('<svg')).toBe(true);
+    }
+
+    expect(
+      designDownload({
+        source: 'upload',
+        designId: 'upload',
+        name: 'Floral border',
+        image: '/en/assets/fabric-designs/11111111-1111-4111-8111-111111111111.png',
+        layout: 'tile',
+        rotation: 90
+      })
+    ).toEqual({
+      kind: 'file',
+      href: '/assets/fabric-designs/11111111-1111-4111-8111-111111111111.png',
+      fileName: 'Floral border.png'
+    });
+
+    expect(
+      designDownload({
+        source: 'upload',
+        designId: 'upload',
+        name: 'Remote',
+        image: 'https://example.com/a.png',
+        layout: 'center',
+        rotation: 0
+      })
+    ).toBeNull();
   });
 });

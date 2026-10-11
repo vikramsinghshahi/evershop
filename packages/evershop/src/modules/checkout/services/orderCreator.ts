@@ -169,11 +169,15 @@ async function saveOrderItems(
   const items = cart.getItems();
   const savedItems = await Promise.all(
     items.map(async (item) => {
+      const product = await item.getProduct();
+      const moq = parseInt(product?.moq, 10);
       await insert('order_item')
         .given({
           ...item.export(),
           uuid: uuidv4().replace(/-/g, ''),
-          order_item_order_id: orderId
+          order_item_order_id: orderId,
+          sale_unit: product?.sale_unit || null,
+          moq: Number.isFinite(moq) && moq > 0 ? moq : null
         })
         .execute(connection);
     })

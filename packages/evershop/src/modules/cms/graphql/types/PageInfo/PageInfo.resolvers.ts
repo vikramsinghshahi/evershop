@@ -74,8 +74,8 @@ export default {
         return presetCrumbs;
       }
       // Strip query string first — in page-builder preview the URL carries
-      // `?changeset=…&ajax=true`, so `originalUrl === '/'` would never match
-      // and the homepage would render a breadcrumb that production doesn't.
+      // `?changeset=…&ajax=true`, so a filter or preview query must not change
+      // which page the trail describes.
       let urlPath = (context.originalUrl ?? '').split('?')[0];
       // Strip the /<locale> prefix so the url_rewrite lookup matches the canonical
       // (unprefixed) request_path on a non-default-locale page (spec §6.18). No-op for
@@ -89,9 +89,29 @@ export default {
           urlPath = urlPath.slice(prefix.length);
         }
       }
-      // Check if the current page is home page
+      // The homepage is the fabric catalog, so it gets the same trail a
+      // category page does: Home, then the Fabrics category name.
       if (urlPath === '/' || urlPath === '') {
-        return [];
+        const fabrics = await context.pool.query(
+          `SELECT COALESCE(NULLIF(category_description.meta_title, ''), category_description.name) AS title
+           FROM category
+           INNER JOIN category_description
+             ON category_description.category_description_category_id = category.category_id
+           WHERE category_description.url_key = $1
+             AND category.status = true
+           LIMIT 1`,
+          ['fabrics']
+        );
+        return [
+          {
+            title: translate('Home'),
+            url: localizeUrl('/')
+          },
+          {
+            title: fabrics.rows[0]?.title || translate('Fabrics'),
+            url: localizeUrl('/')
+          }
+        ];
       }
       // Get the current path
       const path = urlPath.replace(/^\/|\/$/g, '').replace(/\./g, '');

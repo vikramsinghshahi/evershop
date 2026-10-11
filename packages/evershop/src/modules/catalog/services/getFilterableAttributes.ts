@@ -175,9 +175,36 @@ export const getFilterableAttributes = async (
  * ~2ms in exchange for up to five minutes of staleness — a new product's
  * option missing from the sidebar — was a bad trade, so the cache went.
  */
+const FABRIC_FACET_QUERY = `
+  SELECT
+    attribute.attribute_id,
+    attribute.attribute_name,
+    attribute.attribute_code,
+    attribute_option.attribute_option_id AS option_id,
+    attribute_option.option_text
+  FROM attribute
+  INNER JOIN attribute_option
+    ON attribute_option.attribute_id = attribute.attribute_id
+  WHERE attribute.type = 'select'
+    AND attribute.is_filterable = true
+    AND EXISTS (
+      SELECT 1 FROM product_attribute_value_index
+      INNER JOIN product
+        ON product.product_id = product_attribute_value_index.product_id
+      WHERE product_attribute_value_index.option_id = attribute_option.attribute_option_id
+        AND product.sku ILIKE $1
+    )
+  ORDER BY
+    attribute.sort_order,
+    attribute.attribute_id,
+    attribute_option.attribute_option_id`;
+
 export async function getStoreFilterableAttributes(
-  pool: PoolLike = appPool as unknown as PoolLike
+  pool: PoolLike = appPool as unknown as PoolLike,
+  skuLike?: string
 ): Promise<FilterableAttribute[]> {
-  const { rows } = await pool.query(STORE_FACET_QUERY);
+  const { rows } = skuLike
+    ? await pool.query(FABRIC_FACET_QUERY, [skuLike])
+    : await pool.query(STORE_FACET_QUERY);
   return toAttributes(rows as FacetRow[]);
 }

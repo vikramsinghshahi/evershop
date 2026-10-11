@@ -1,0 +1,12 @@
+extend type Product {
+  """Selling unit for the price: m, kg, g, lb, oz, or piece."""
+  saleUnit: String
+  """Minimum quantity a shopper can order, in `saleUnit`."""
+  moq: Int
+}
+
+extend type OrderItem {
+  saleUnit: String
+  moq: Int
+  updateSaleApi: String!
+}

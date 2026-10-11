@@ -1,4 +1,5 @@
 import { useProduct } from '@components/frontStore/catalog/ProductContext.js';
+import { saleUnitLabel } from '../../../modules/fabric/services/saleUnit.js';
 import React from 'react';
 
 /**
@@ -8,7 +9,8 @@ import React from 'react';
  * and the `productView/ProductPrice` block can move it.
  */
 export function ProductSinglePrice() {
-  const { price } = useProduct();
+  const { price, saleUnit } = useProduct();
+  const unit = saleUnitLabel(saleUnit);
   return (
     <div className="product__single__price flex items-baseline gap-3">
       {price.special && price.special.value < price.regular.value ? (
@@ -20,6 +22,9 @@ export function ProductSinglePrice() {
         </>
       ) : (
         <span className="text-2xl font-semibold">{price.regular.text}</span>
+      )}
+      {unit && (
+        <span className="text-base text-muted-foreground">/ {unit}</span>
       )}
     </div>
   );

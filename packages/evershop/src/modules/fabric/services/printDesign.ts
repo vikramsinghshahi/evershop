@@ -45,6 +45,58 @@ export function normalizeUploadedDesignUrl(image: string): string | null {
   return match[1];
 }
 
+export type DesignDownload =
+  | { kind: 'file'; href: string; fileName: string }
+  | { kind: 'svg'; svg: string; fileName: string };
+
+function downloadBaseName(name: string): string {
+  const base = name
+    .replace(/[\\/:*?"<>|\u0000]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80)
+    .replace(/\.(png|jpe?g|webp|gif|svg)$/i, '')
+    .trim();
+  return base || 'design';
+}
+
+/**
+ * The file an admin can save from an order line. Uploads point at the
+ * image already stored under media. Catalog artwork is the SVG snapshot
+ * embedded in the line, because those designs are not files on disk.
+ */
+export function designDownload(design: StoredDesign): DesignDownload | null {
+  if (design.source === 'upload') {
+    const href = normalizeUploadedDesignUrl(design.image);
+    if (!href) {
+      return null;
+    }
+    const extension = href.match(/\.(png|jpg|webp|gif)$/i)?.[1].toLowerCase() ?? 'png';
+    return {
+      kind: 'file',
+      href,
+      fileName: `${downloadBaseName(design.name)}.${extension}`
+    };
+  }
+  if (!design.image.startsWith('data:image/svg+xml,')) {
+    return null;
+  }
+  let svg: string;
+  try {
+    svg = decodeURIComponent(design.image.slice('data:image/svg+xml,'.length));
+  } catch {
+    return null;
+  }
+  if (!svg.startsWith('<svg')) {
+    return null;
+  }
+  return {
+    kind: 'svg',
+    svg,
+    fileName: `${downloadBaseName(design.name)}.svg`
+  };
+}
+
 /**
  * Turn the add-to-cart design payload into the snapshot stored on the line.
  * Catalog artwork is copied from the server catalog. Upload artwork must

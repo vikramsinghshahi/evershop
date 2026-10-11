@@ -87,6 +87,7 @@ export async function seedWidgets(): Promise<void> {
     const menus: MenuNode[] = categories.rows.map((row) =>
       menuNode(row.name, `/${row.url_key}`)
     );
+    menus.sort((a, b) => Number(b.url === '/fabrics') - Number(a.url === '/fabrics'));
     menus.push(menuNode('Blog', '/blog'));
     await insertWidget(
       MENU_WIDGET_NAME,

@@ -9,7 +9,10 @@ import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import { CheckCircle2, Package } from 'lucide-react';
 import React from 'react';
 import { NewShipmentDialog, type UnshippedItem } from './Shipments/NewShipmentDialog.js';
+import { OrderItemSale } from '../../../../fabric/components/OrderItemSale.js';
+import { PrintDesignDownload } from '../../../../fabric/components/PrintDesignDownload.js';
 import { PrintScaleLabel } from '../../../../fabric/components/PrintScaleLabel.js';
+import { saleUnitLabel } from '../../../../fabric/services/saleUnit.js';
 import { PhaseBadge } from './Shipments/phaseBadge.js';
 
 interface VariantOption {
@@ -30,6 +33,9 @@ interface OrderItem {
   productCustomOptions?: string | null;
   productPrice: { value: number; text: string };
   lineTotal: { value: number; text: string };
+  saleUnit: string | null;
+  moq: number | null;
+  updateSaleApi: string;
   fulfillmentBadge: string;
 }
 
@@ -106,6 +112,12 @@ function ItemRow({
           </div>
         )}
         <PrintScaleLabel value={item.productCustomOptions} />
+        <PrintDesignDownload value={item.productCustomOptions} />
+        <OrderItemSale
+          saleUnit={item.saleUnit}
+          moq={item.moq}
+          updateSaleApi={item.updateSaleApi}
+        />
         <div className="mt-2">
           <PhaseBadge code={item.fulfillmentBadge} />
         </div>
@@ -113,7 +125,8 @@ function ItemRow({
 
       <div className="flex flex-col items-end gap-0.5 shrink-0 text-right">
         <div className="text-xs text-muted-foreground whitespace-nowrap">
-          {item.productPrice.text} × {item.qty}
+          {item.productPrice.text}
+          {saleUnitLabel(item.saleUnit) ? ` / ${saleUnitLabel(item.saleUnit)}` : ''} × {item.qty}
         </div>
         <div className="font-bold text-sm whitespace-nowrap">
           {item.lineTotal.text}
@@ -231,6 +244,9 @@ export const query = `
           value
           text
         }
+        saleUnit
+        moq
+        updateSaleApi
         lineTotal {
           value
           text

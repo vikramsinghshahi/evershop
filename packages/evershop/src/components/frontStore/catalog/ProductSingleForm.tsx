@@ -10,6 +10,7 @@ import {
 } from '@components/frontStore/cart/AddToCart.js';
 import { useProduct } from '@components/frontStore/catalog/ProductContext.js';
 import { isFabricSku } from '../../../modules/fabric/services/printScale.js';
+import { parseMoq, saleUnitLabel } from '../../../modules/fabric/services/saleUnit.js';
 import { VariantSelector } from '@components/frontStore/catalog/VariantSelector.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import React from 'react';
@@ -26,8 +27,12 @@ import { useForm } from 'react-hook-form';
 export function ProductSingleForm() {
   const {
     sku,
+    saleUnit,
+    moq,
     inventory: { isInStock }
   } = useProduct();
+  const minimum = parseMoq(moq) ?? 1;
+  const unit = saleUnitLabel(saleUnit);
   const form = useForm();
   const watchedScale = form.watch('printScale');
   const watchedDesign = form.watch('printDesign');
@@ -76,13 +81,18 @@ export function ProductSingleForm() {
                         <>
                           <NumberField
                             name="qty"
-                            label={_('Quantity')}
+                            label={unit ? `${_('Quantity')} (${unit})` : _('Quantity')}
                             className="w-24"
-                            min={1}
+                            min={minimum}
                             required
                             placeholder={_('Quantity')}
-                            defaultValue={1}
+                            defaultValue={minimum}
                             wrapperClassName="w-1/2"
+                            helperText={
+                              unit
+                                ? `${_('MOQ')}: ${minimum} ${unit}`
+                                : undefined
+                            }
                           />
                           <Button
                             variant={'default'}

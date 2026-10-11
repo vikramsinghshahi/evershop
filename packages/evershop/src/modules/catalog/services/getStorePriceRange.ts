@@ -8,7 +8,8 @@ export interface StorePriceRange {
 
 /**
  * Lowest and highest price across the storefront-visible catalog, for the
- * `/products` price slider bounds.
+ * `/products` price slider bounds. Pass `skuLike` to bound a slice of that
+ * catalog (the homepage uses `FABRIC-%`).
  *
  * Unlike the category page's `priceRange` resolver, this applies `status` and
  * `visibility` — otherwise a disabled or hidden product silently widens the
@@ -22,13 +23,16 @@ export interface StorePriceRange {
  * to branch.
  */
 export async function getStorePriceRange(
-  pool: PoolLike = appPool as unknown as PoolLike
+  pool: PoolLike = appPool as unknown as PoolLike,
+  skuLike?: string
 ): Promise<StorePriceRange> {
   const { rows } = await pool.query(
     `SELECT MIN(product.price) AS min, MAX(product.price) AS max
      FROM product
      WHERE product.status = true
-       AND product.visibility = true`
+       AND product.visibility = true
+       AND ($1::text IS NULL OR product.sku ILIKE $1)`,
+    [skuLike ?? null]
   );
 
   const row = rows[0] ?? {};

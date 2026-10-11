@@ -155,6 +155,20 @@
         "pattern": "Price must be a valid number with maximum 2 decimal places (e.g., 10.99)"
       }
     },
+    "sale_unit": {
+      "type": ["string", "null"],
+      "enum": ["m", "kg", "g", "lb", "oz", "piece", "none", "", null],
+      "errorMessage": {
+        "type": "Selling unit must be a string",
+        "enum": "Selling unit must be meter, kilogram, gram, pound, ounce, or piece"
+      }
+    },
+    "moq": {
+      "type": ["integer", "number", "string", "null"],
+      "errorMessage": {
+        "type": "Minimum order must be a number"
+      }
+    },
     "weight": {
       "type": [
         "string",
