@@ -39,6 +39,7 @@ export interface OrderItem {
     optionId: number;
     optionText: string;
   }[];
+  productCustomOptions?: string | null;
   productPrice: {
     value: number;
     text: string;

@@ -3,6 +3,7 @@ import { Image } from '@components/common/Image.js';
 import { ProductNoThumbnail } from '@components/common/ProductNoThumbnail.js';
 import { useCatalogImageDimensions } from '@components/common/useCatalogImageDimensions.js';
 import { CartItem } from '@components/frontStore/cart/CartContext.js';
+import { PrintScaleLabel } from '../../../modules/fabric/components/PrintScaleLabel.js';
 import { ItemQuantity } from '@components/frontStore/cart/ItemQuantity.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import { deriveProductImageSize } from '@evershop/evershop/lib/util/deriveProductImageSize';
@@ -77,6 +78,7 @@ export const DefaultCartItemList: React.FC<CartItemsTableProps> = ({
                         {option.attributeName}: {option.optionText}
                       </div>
                     ))}
+                    <PrintScaleLabel value={row.productCustomOptions} />
                     {row.errors?.map((error, index) => (
                       <div key={index} className="mt-0.5 text-xs text-destructive">
                         {error}

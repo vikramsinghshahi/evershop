@@ -93,6 +93,7 @@ export const query = `
           optionId
           optionText
         }
+        productCustomOptions
         lineTotalInclTax {
           text
         }

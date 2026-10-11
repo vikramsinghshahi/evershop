@@ -9,6 +9,7 @@ import {
   AddToCartState
 } from '@components/frontStore/cart/AddToCart.js';
 import { useProduct } from '@components/frontStore/catalog/ProductContext.js';
+import { isFabricSku } from '../../../modules/fabric/services/printScale.js';
 import { VariantSelector } from '@components/frontStore/catalog/VariantSelector.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import React from 'react';
@@ -28,6 +29,14 @@ export function ProductSingleForm() {
     inventory: { isInStock }
   } = useProduct();
   const form = useForm();
+  const watchedScale = form.watch('printScale');
+  const watchedDesign = form.watch('printDesign');
+  const scale = isFabricSku(sku)
+    ? Number.isInteger(watchedScale)
+      ? (watchedScale as number)
+      : 100
+    : undefined;
+  const design = isFabricSku(sku) && watchedDesign?.designId ? watchedDesign : undefined;
   const [addingToCart, setAddingToCart] = React.useState(false);
   return (
     <Form id="productForm" method="POST" submitBtn={false} form={form}>
@@ -50,6 +59,8 @@ export function ProductSingleForm() {
                     isInStock: isInStock
                   }}
                   qty={form.watch('qty') || 1}
+                  scale={scale}
+                  design={design}
                   onSuccess={() => {
                     // To show the mini cart after adding a product to cart
                   }}
@@ -77,6 +88,12 @@ export function ProductSingleForm() {
                             variant={'default'}
                             size={'lg'}
                             onClick={() => {
+                              if (isFabricSku(sku) && !form.getValues('printDesign')?.designId) {
+                                toast.error(
+                                  'Upload a design or choose one before adding this fabric.'
+                                );
+                                return;
+                              }
                               form
                                 .trigger()
                                 .then((isValid) => {

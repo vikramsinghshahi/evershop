@@ -82,6 +82,11 @@ const coreModules = [
     path: path.resolve(__dirname, '../../modules/tax')
   },
   {
+    name: 'fabric',
+    resolve: path.resolve(__dirname, '../../modules/fabric'),
+    path: path.resolve(__dirname, '../../modules/fabric')
+  },
+  {
     name: 'pageBuilder',
     resolve: path.resolve(__dirname, '../../modules/pageBuilder'),
     path: path.resolve(__dirname, '../../modules/pageBuilder')

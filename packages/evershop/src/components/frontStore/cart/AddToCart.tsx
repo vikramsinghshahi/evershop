@@ -25,6 +25,15 @@ export interface AddToCartActions {
 export interface AddToCartProps {
   product: ProductInfo;
   qty: number; // Quantity to add to cart
+  scale?: number;
+  design?: {
+    source: 'catalog' | 'upload';
+    designId: string;
+    name?: string;
+    image?: string;
+    layout: string;
+    rotation: number;
+  };
   onSuccess?: (quantity: number) => void;
   onError?: (error: string) => void;
   children: (
@@ -36,6 +45,8 @@ export interface AddToCartProps {
 export const AddToCart: React.FC<AddToCartProps> = ({
   product,
   qty,
+  scale,
+  design,
   onSuccess,
   onError,
   children
@@ -70,7 +81,9 @@ export const AddToCart: React.FC<AddToCartProps> = ({
       cartDispatch.clearError();
       await cartDispatch.addItem({
         sku: product.sku,
-        qty: qty
+        qty: qty,
+        ...(typeof scale === 'number' ? { scale } : {}),
+        ...(design ? { design } : {})
       });
       onSuccess?.(qty);
     } catch (error) {
@@ -86,6 +99,8 @@ export const AddToCart: React.FC<AddToCartProps> = ({
     product.isInStock,
     product.sku,
     qty,
+    scale,
+    design,
     cartState.data,
     cartDispatch,
     onSuccess,

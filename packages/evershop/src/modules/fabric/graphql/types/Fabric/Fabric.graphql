@@ -1,0 +1,12 @@
+type FabricListing {
+  name: String!
+  sku: String!
+  url: String!
+  price: String!
+  summary: String
+  swatch: String!
+}
+
+extend type Query {
+  fabrics: [FabricListing!]!
+}

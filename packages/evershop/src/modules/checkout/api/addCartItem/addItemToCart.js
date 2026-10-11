@@ -7,6 +7,8 @@ import {
   OK
 } from '../../../../lib/util/httpStatus.js';
 import { setContextValue } from '../../../graphql/services/contextHelper.js';
+import { PrintScaleError } from '../../../fabric/services/printScale.js';
+import { resolveFabricCartOptions } from '../../../fabric/services/printDesignFile.js';
 import { getCartByUUID } from '../../services/getCartByUUID.js';
 import { saveCart } from '../../services/saveCart.js';
 
@@ -46,8 +48,31 @@ export default async (request, response, next) => {
       return;
     }
 
+    let printConfiguration = null;
+    try {
+      printConfiguration = await resolveFabricCartOptions(product.sku, {
+        scale: request.body?.scale,
+        design: request.body?.design
+      });
+    } catch (scaleError) {
+      if (scaleError instanceof PrintScaleError) {
+        response.status(INVALID_PAYLOAD);
+        response.json({
+          error: {
+            status: INVALID_PAYLOAD,
+            message: scaleError.message
+          }
+        });
+        return;
+      }
+      throw scaleError;
+    }
+
     // If everything is fine, add the product to the cart
-    const item = await cart.addItem(product.product_id, parseInt(qty, 10));
+    const item = await cart.addItem(product.product_id, parseInt(qty, 10), {
+      request,
+      printConfiguration
+    });
     await saveCart(cart);
     response.status(OK);
     response.$body = {

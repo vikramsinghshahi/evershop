@@ -395,6 +395,7 @@ export const fragments = `
       optionId
       optionText
     }
+    productCustomOptions
     productUrl
   }
 `;

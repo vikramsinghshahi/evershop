@@ -2,6 +2,15 @@ import { hookable, hookBefore, hookAfter } from '../../../lib/util/hookable.js';
 import { getValue } from '../../../lib/util/registry.js';
 import { Cart, Item } from './cart/Cart.js';
 
+function customOptionsKey(item: Item): string {
+  try {
+    const raw = item.getData('product_custom_options');
+    return raw == null || raw === '' ? '' : String(raw);
+  } catch {
+    return '';
+  }
+}
+
 async function addCartItem(
   cart: Cart,
   productID: number,
@@ -20,10 +29,17 @@ async function addCartItem(
     // Get the first error from the item.getErrors() object
     throw new Error(Object.values(item.getErrors())[0]);
   } else {
+    if (typeof context.printConfiguration === 'string') {
+      await item.setData('product_custom_options', context.printConfiguration);
+    }
     let items = cart.getItems();
     let duplicateItem;
     for (let i = 0; i < items.length; i += 1) {
-      if (items[i].getData('product_sku') === item.getData('product_sku')) {
+      // Same cloth at a different print scale stays a separate line.
+      if (
+        items[i].getData('product_sku') === item.getData('product_sku') &&
+        customOptionsKey(items[i]) === customOptionsKey(item)
+      ) {
         await items[i].setData(
           'qty',
           item.getData('qty') + items[i].getData('qty')

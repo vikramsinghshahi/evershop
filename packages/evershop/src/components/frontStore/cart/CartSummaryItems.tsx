@@ -3,6 +3,7 @@ import { ProductNoThumbnail } from '@components/common/ProductNoThumbnail.js';
 import { Skeleton } from '@components/common/ui/Skeleton.js';
 import { useCatalogImageDimensions } from '@components/common/useCatalogImageDimensions.js';
 import { CartItem } from '@components/frontStore/cart/CartContext.js';
+import { PrintScaleLabel } from '../../../modules/fabric/components/PrintScaleLabel.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import { deriveProductImageSize } from '@evershop/evershop/lib/util/deriveProductImageSize';
 import React from 'react';
@@ -86,6 +87,7 @@ const CartSummaryItemsList: React.FC<{
                 ))}
               </div>
             )}
+            <PrintScaleLabel value={item.productCustomOptions} />
           </div>
           <div className="ml-auto text-right self-center">
             <div className="text-sm font-medium tabular-nums">

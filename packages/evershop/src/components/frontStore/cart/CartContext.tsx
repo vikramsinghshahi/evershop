@@ -62,6 +62,7 @@ export interface CartItem {
     optionId: number;
     optionText: string;
   }[];
+  productCustomOptions?: string | null;
   productPrice: {
     value: number;
     text: string;
@@ -309,7 +310,19 @@ type CartAction =
 
 // The shape of the functions that will be returned by the useCartDispatch hook
 interface CartDispatch {
-  addItem: (payload: { sku: string; qty: number }) => Promise<void>;
+  addItem: (payload: {
+    sku: string;
+    qty: number;
+    scale?: number;
+    design?: {
+      source: 'catalog' | 'upload';
+      designId: string;
+      name?: string;
+      image?: string;
+      layout: string;
+      rotation: number;
+    };
+  }) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   updateItem: (
     itemId: string,
@@ -601,7 +614,19 @@ export const CartProvider = ({
   }, [cart]);
 
   const addItem = useCallback(
-    async (payload: { sku: string; qty: number }) => {
+    async (payload: {
+      sku: string;
+      qty: number;
+      scale?: number;
+      design?: {
+        source: 'catalog' | 'upload';
+        designId: string;
+        name?: string;
+        image?: string;
+        layout: string;
+        rotation: number;
+      };
+    }) => {
       if (!state.data) {
         throw new Error('Cannot add item: cart not initialized');
       }

@@ -9,6 +9,7 @@ import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import { CheckCircle2, Package } from 'lucide-react';
 import React from 'react';
 import { NewShipmentDialog, type UnshippedItem } from './Shipments/NewShipmentDialog.js';
+import { PrintScaleLabel } from '../../../../fabric/components/PrintScaleLabel.js';
 import { PhaseBadge } from './Shipments/phaseBadge.js';
 
 interface VariantOption {
@@ -26,6 +27,7 @@ interface OrderItem {
   thumbnail: string | null;
   noShippingRequired: boolean;
   variantOptions: VariantOption[] | null;
+  productCustomOptions?: string | null;
   productPrice: { value: number; text: string };
   lineTotal: { value: number; text: string };
   fulfillmentBadge: string;
@@ -103,6 +105,7 @@ function ItemRow({
             ))}
           </div>
         )}
+        <PrintScaleLabel value={item.productCustomOptions} />
         <div className="mt-2">
           <PhaseBadge code={item.fulfillmentBadge} />
         </div>
@@ -223,6 +226,7 @@ export const query = `
           optionId
           optionText
         }
+        productCustomOptions
         productPrice {
           value
           text

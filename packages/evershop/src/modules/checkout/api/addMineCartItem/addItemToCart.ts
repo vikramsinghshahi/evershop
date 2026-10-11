@@ -9,6 +9,8 @@ import {
 } from '../../../../lib/util/httpStatus.js';
 import { EvershopRequest } from '../../../../types/request.js';
 import { setContextValue } from '../../../graphql/services/contextHelper.js';
+import { PrintScaleError } from '../../../fabric/services/printScale.js';
+import { resolveFabricCartOptions } from '../../../fabric/services/printDesignFile.js';
 import { createNewCart } from '../../services/createNewCart.js';
 import { getMyCart } from '../../services/getMyCart.js';
 import { saveCart } from '../../services/saveCart.js';
@@ -41,9 +43,30 @@ export default async (request: EvershopRequest, response, next) => {
       return;
     }
 
+    let printConfiguration: string | null = null;
+    try {
+      printConfiguration = await resolveFabricCartOptions(product.sku, {
+        scale: request.body?.scale,
+        design: request.body?.design
+      });
+    } catch (scaleError) {
+      if (scaleError instanceof PrintScaleError) {
+        response.status(INVALID_PAYLOAD);
+        response.json({
+          error: {
+            status: INVALID_PAYLOAD,
+            message: scaleError.message
+          }
+        });
+        return;
+      }
+      throw scaleError;
+    }
+
     // If everything is fine, add the product to the cart
     const item = await myCart.addItem(product.product_id, parseInt(qty, 10), {
-      request
+      request,
+      printConfiguration
     });
     await saveCart(myCart);
     response.status(OK);

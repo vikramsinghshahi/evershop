@@ -1,0 +1,5 @@
+{
+  "methods": ["POST"],
+  "path": "/fabric/designs",
+  "access": "public"
+}

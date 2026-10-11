@@ -370,6 +370,26 @@ export function registerCartItemBaseFields(fields) {
         }
       ],
       dependencies: ['cart_item_id', 'uuid']
+    },
+    {
+      // Snapshot of line extras (print scale JSON for fabrics). Kept when the
+      // cart is reloaded; only an explicit setData overwrites it.
+      key: 'product_custom_options',
+      resolvers: [
+        async function resolver(value) {
+          if (this.getTriggeredField() === 'product_custom_options') {
+            const requested = this.getRequestedValue();
+            if (requested == null || requested === '') {
+              return null;
+            }
+            if (typeof requested !== 'string') {
+              throw new Error('Print scale could not be saved');
+            }
+            return requested;
+          }
+          return value ?? null;
+        }
+      ]
     }
   ]);
   return newFields;
