@@ -169,6 +169,26 @@
         "type": "Minimum order must be a number"
       }
     },
+    "fabric_color": {
+      "type": ["string", "null"],
+      "maxLength": 80
+    },
+    "fabric_count": {
+      "type": ["string", "null"],
+      "maxLength": 80
+    },
+    "fabric_construction": {
+      "type": ["string", "null"],
+      "maxLength": 80
+    },
+    "fabric_width": {
+      "type": ["string", "null"],
+      "maxLength": 80
+    },
+    "fabric_gsm": {
+      "type": ["string", "null"],
+      "maxLength": 80
+    },
     "weight": {
       "type": [
         "string",

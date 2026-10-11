@@ -118,6 +118,11 @@ export const fragments = `
     sku
     saleUnit
     moq
+    fabricColor
+    fabricCount
+    fabricConstruction
+    fabricWidth
+    fabricGsm
     variantGroupId
     price {
       regular {

@@ -10,6 +10,30 @@ import {
 import { saleUnitLabel } from '../../../modules/fabric/services/saleUnit.js';
 import React, { CSSProperties, ReactNode } from 'react';
 
+function fabricSpecText(product: ProductData, field: string): string | null {
+  const value = product[field];
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function SpecHalf({
+  label,
+  value,
+  align
+}: {
+  label: string;
+  value: string | null;
+  align?: 'right';
+}) {
+  if (!value) {
+    return <span />;
+  }
+  return (
+    <span className={`min-w-0 truncate ${align === 'right' ? 'text-right' : ''}`}>
+      <span className="font-semibold">{_(label)}</span> {value}
+    </span>
+  );
+}
+
 function isFabricListingCard(product: ProductData): boolean {
   if (isFabricSku(product.sku)) {
     return true;
@@ -171,11 +195,19 @@ export const ProductListItemRender = ({
       aspectRatio: '1 / 1',
       width: '100%',
       height: 'auto',
-      objectFit: 'contain'
+      objectFit: 'cover'
     };
+    const color = fabricSpecText(product, 'fabricColor');
+    const count = fabricSpecText(product, 'fabricCount');
+    const cons = fabricSpecText(product, 'fabricConstruction');
+    const width = fabricSpecText(product, 'fabricWidth');
+    const gsm = fabricSpecText(product, 'fabricGsm');
     return (
       <div className="product__list__item__inner product__fabric__card group flex h-full flex-col rounded-[10px] border border-border bg-background p-4 shadow-sm">
-        <a href={product.url} className="product__list__link flex flex-1 flex-col">
+        <a
+          href={product.url}
+          className="product__list__link flex flex-1 flex-col"
+        >
           <p className="text-xs text-muted-foreground">{_('Fabric')}</p>
           <h3 className="product__list__name mt-1 line-clamp-2 min-h-10 text-sm font-medium leading-5">
             {product.name}
@@ -186,30 +218,60 @@ export const ProductListItemRender = ({
               imageWidth={imageWidth}
               imageHeight={imageWidth || imageHeight}
               loading="lazy"
-              objectFit="contain"
-              className="w-full transition-transform duration-500 ease-in-out hover:scale-105"
+              objectFit="cover"
+              className="w-full origin-center transition-transform duration-500 ease-in-out group-hover:scale-110"
               style={imageBox}
             />
           </div>
-          <div className="product__list__price mt-auto text-sm">
+          {(color || count || cons || width) && (
+            <div className="mb-2 space-y-1 text-xs">
+              {(color || count) && (
+                <div className="flex items-baseline justify-between gap-3">
+                  <SpecHalf label="Color" value={color} />
+                  <SpecHalf label="Count" value={count} align="right" />
+                </div>
+              )}
+              {(cons || width) && (
+                <div className="flex items-baseline justify-between gap-3">
+                  <SpecHalf label="Cons" value={cons} />
+                  <SpecHalf label="Width" value={width} align="right" />
+                </div>
+              )}
+            </div>
+          )}
+          <div className="product__list__price mt-auto text-base font-semibold text-red-600">
             {product.price.special &&
             product.price.regular < product.price.special ? (
               <>
-                <span className="regular-price">{product.price.regular.text}</span>
-                <span className="special-price">{product.price.special.text}</span>
+                <span className="regular-price">
+                  {product.price.regular.text}
+                </span>
+                <span className="special-price">
+                  {product.price.special.text}
+                </span>
               </>
             ) : (
-              <span className="regular-price">{product.price.regular.text}</span>
-            )}
-            {product.saleUnit && (
-              <span className="text-muted-foreground">
-                {' '}
-                / {saleUnitLabel(product.saleUnit)}
+              <span className="regular-price">
+                {product.price.regular.text}
               </span>
             )}
             {product.saleUnit && (
-              <div className="mt-1 text-xs text-muted-foreground">
-                {_('MOQ')}: {product.moq ?? 1} {saleUnitLabel(product.saleUnit)}
+              <span> / {saleUnitLabel(product.saleUnit)}</span>
+            )}
+            {(product.saleUnit || gsm) && (
+              <div className="mt-1 flex items-baseline justify-between gap-3 text-xs font-normal text-muted-foreground">
+                {product.saleUnit ? (
+                  <span>
+                    {_('MOQ')}: {product.moq ?? 1} {saleUnitLabel(product.saleUnit)}
+                  </span>
+                ) : (
+                  <span />
+                )}
+                {gsm && (
+                  <span className="font-semibold text-foreground">
+                    {_('GSM')} {gsm}
+                  </span>
+                )}
               </div>
             )}
           </div>

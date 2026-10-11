@@ -20,22 +20,6 @@ import {
 } from '../../../services/printDesignView.js';
 import { DesignLayout } from '../../../components/DesignLayout.js';
 
-const PRINT_ARTWORK = `data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-    <g fill="#1c1410" transform="translate(100 100)">
-      <circle r="10"/>
-      <ellipse cy="-36" rx="16" ry="26"/>
-      <ellipse cy="36" rx="16" ry="26"/>
-      <ellipse cx="-36" rx="26" ry="16"/>
-      <ellipse cx="36" rx="26" ry="16"/>
-      <circle cx="-52" cy="-52" r="8"/>
-      <circle cx="52" cy="-52" r="8"/>
-      <circle cx="-52" cy="52" r="8"/>
-      <circle cx="52" cy="52" r="8"/>
-    </g>
-  </svg>`
-)}`;
-
 const toneClass = {
   poor: 'text-red-600',
   acceptable: 'text-amber-600',
@@ -129,7 +113,7 @@ function HorizontalRuler({ spanCm }: { spanCm: number }) {
 }
 
 export default function FabricMaterial() {
-  const { sku, name } = useProduct();
+  const { sku, name, image } = useProduct();
   const scale = React.useSyncExternalStore(subscribePrintScale, getPrintScale, () => 100);
   const designView = React.useSyncExternalStore(
     subscribePrintDesign,
@@ -165,26 +149,13 @@ export default function FabricMaterial() {
           style={{ backgroundColor: swatch }}
           aria-label={`Print preview, ${sizeCm.toFixed(1)} centimetres at ${scale} percent`}
         >
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(0deg, rgba(255,255,255,0.18) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(0,0,0,0.06) 0 1px, transparent 1px 3px)'
-          }}
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url("${PRINT_ARTWORK}")`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            backgroundSize: `${scale}% ${scale}%`,
-            mixBlendMode: 'multiply',
-            display: designView.selection ? 'none' : undefined
-          }}
-          aria-hidden="true"
-        />
+        {image?.url && (
+          <img
+            src={image.url}
+            alt={image.alt || name}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
         {designView.selection && (
           <div className="absolute inset-0" style={{ mixBlendMode: 'multiply' }}>
             <DesignLayout

@@ -1,0 +1,12 @@
+extend type Product {
+  """Cloth color, for example White/RFD. Blank hides the line on the card."""
+  fabricColor: String
+  """Yarn count, for example 40x40."""
+  fabricCount: String
+  """Construction, for example 132*72."""
+  fabricConstruction: String
+  """Cloth width, for example 145cm."""
+  fabricWidth: String
+  """Grams per square metre."""
+  fabricGsm: String
+}
