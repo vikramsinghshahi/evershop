@@ -9,12 +9,14 @@ import {
 } from '@components/common/ui/Card.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import React from 'react';
+import { DEFAULT_PRINT_FEE } from '../../../services/printFee.js';
 import { SALE_UNITS } from '../../../services/saleUnit.js';
 
 interface SaleUnitProps {
   product?: {
     saleUnit?: string | null;
     moq?: number | null;
+    printFee?: number | null;
   } | null;
 }
 
@@ -54,6 +56,18 @@ export default function SaleUnit({ product }: SaleUnitProps) {
             defaultValue={product?.moq ?? undefined}
             min={1}
           />
+          <NumberField
+            name="print_fee"
+            label={_('Printing fee')}
+            placeholder={String(DEFAULT_PRINT_FEE)}
+            defaultValue={product ? product.printFee ?? undefined : DEFAULT_PRINT_FEE}
+            min={0}
+            step={0.01}
+            helperText={_(
+              'Added to each unit when a shopper prints a design on this fabric.'
+            )}
+            wrapperClassName="col-span-2"
+          />
         </div>
       </CardContent>
     </Card>
@@ -70,6 +84,7 @@ export const query = `
     product(id: getContextValue("productId", null)) {
       saleUnit
       moq
+      printFee
     }
   }
 `;

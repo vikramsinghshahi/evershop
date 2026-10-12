@@ -1,4 +1,5 @@
 import { parseDesignSelection, type StoredDesign } from './printDesign.js';
+import { readPrintFee } from './printFee.js';
 
 /**
  * Print scale stored on a cart/order line.
@@ -147,12 +148,18 @@ export function resolvePrintConfiguration(sku: string, raw: unknown): string | n
     throw new PrintScaleError(design.message);
   }
   const printPpi = printPpiForScale(scale);
+  const printFee = readPrintFee(
+    raw !== null && typeof raw === 'object' && !Array.isArray(raw)
+      ? (raw as { printFee?: unknown }).printFee
+      : undefined
+  );
   return JSON.stringify({
     printScale: scale,
     referencePpi: REFERENCE_PPI,
     printPpi,
     quality: qualityForPpi(printPpi),
-    design: design.design
+    design: design.design,
+    ...(printFee ? { printFee } : {})
   });
 }
 
@@ -161,6 +168,7 @@ export interface StoredPrintScale {
   printPpi: number;
   quality: PrintQuality;
   design: StoredDesign | null;
+  printFee: number;
 }
 
 /** True when the line was saved as cloth with no design. */
@@ -187,6 +195,7 @@ export function parseStoredPrintOptions(
       printScale?: unknown;
       printPpi?: unknown;
       design?: StoredDesign;
+      printFee?: unknown;
     };
     if (typeof data.printScale !== 'number' || !Number.isInteger(data.printScale)) {
       return null;
@@ -205,11 +214,13 @@ export function parseStoredPrintOptions(
       typeof design.rotation === 'number'
         ? design
         : null;
+    const printFee = readPrintFee(data.printFee) ?? 0;
     return {
       printScale: data.printScale,
       printPpi,
       quality: qualityForPpi(printPpi),
-      design: storedDesign
+      design: storedDesign,
+      printFee
     };
   } catch {
     return null;

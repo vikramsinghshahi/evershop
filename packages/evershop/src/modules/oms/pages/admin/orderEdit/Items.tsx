@@ -32,6 +32,7 @@ interface OrderItem {
   variantOptions: VariantOption[] | null;
   productCustomOptions?: string | null;
   productPrice: { value: number; text: string };
+  finalPrice: { value: number; text: string };
   lineTotal: { value: number; text: string };
   saleUnit: string | null;
   moq: number | null;
@@ -125,7 +126,7 @@ function ItemRow({
 
       <div className="flex flex-col items-end gap-0.5 shrink-0 text-right">
         <div className="text-xs text-muted-foreground whitespace-nowrap">
-          {item.productPrice.text}
+          {item.finalPrice.text}
           {saleUnitLabel(item.saleUnit) ? ` / ${saleUnitLabel(item.saleUnit)}` : ''} × {item.qty}
         </div>
         <div className="font-bold text-sm whitespace-nowrap">
@@ -241,6 +242,10 @@ export const query = `
         }
         productCustomOptions
         productPrice {
+          value
+          text
+        }
+        finalPrice {
           value
           text
         }

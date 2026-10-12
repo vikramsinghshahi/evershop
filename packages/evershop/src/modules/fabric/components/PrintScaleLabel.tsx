@@ -33,6 +33,9 @@ export function PrintScaleLabel({
         Print scale {stored.printScale}% · {stored.printPpi} PPI ·{' '}
         {qualityLabel(stored.quality)}
       </div>
+      {stored.printFee > 0 && (
+        <div className="text-neutral-700">Printing fee {stored.printFee.toFixed(2)}</div>
+      )}
       {stored.design && (
         <div className="mt-1 flex items-center gap-2 text-neutral-700">
           <img

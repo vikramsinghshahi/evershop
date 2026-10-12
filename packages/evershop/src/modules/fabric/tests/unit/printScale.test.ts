@@ -30,6 +30,16 @@ describe('fabric print scale', () => {
       printPpi: 48,
       quality: 'poor'
     });
+    expect(stored.printFee).toBeUndefined();
+    expect(
+      JSON.parse(
+        resolvePrintConfiguration('FABRIC-COTTON-POPLIN', {
+          scale: 100,
+          design: fieldFlower,
+          printFee: '5'
+        }) as string
+      ).printFee
+    ).toBe(5);
     expect(stored.design).toMatchObject({
       source: 'catalog',
       designId: 'field-flower',
@@ -66,7 +76,8 @@ describe('fabric print scale', () => {
     const stored = resolvePrintConfiguration('FABRIC-COTTON-POPLIN', {
       mode: 'plain',
       scale: 40,
-      design: fieldFlower
+      design: fieldFlower,
+      printFee: 5
     });
     expect(stored).toBe('{"mode":"plain"}');
     expect(isPlainFabricLine(stored)).toBe(true);
@@ -131,6 +142,7 @@ describe('fabric print scale', () => {
       design: fieldFlower
     });
     expect(parseStoredPrintOptions(stored)?.printScale).toBe(80);
+    expect(parseStoredPrintOptions(stored)?.printFee).toBe(0);
     expect(parseStoredPrintOptions(stored)?.design?.name).toBe('Field Flower');
     expect(parseStoredPrintOptions('{"printScale":80,"printPpi":60,"quality":"poor"}')?.design).toBe(
       null

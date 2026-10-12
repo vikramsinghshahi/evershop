@@ -169,6 +169,12 @@
         "type": "Minimum order must be a number"
       }
     },
+    "print_fee": {
+      "type": ["integer", "number", "string", "null"],
+      "errorMessage": {
+        "type": "Printing fee must be a number"
+      }
+    },
     "fabric_color": {
       "type": ["string", "null"],
       "maxLength": 80

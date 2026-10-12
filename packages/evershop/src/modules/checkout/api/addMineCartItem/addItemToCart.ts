@@ -48,7 +48,8 @@ export default async (request: EvershopRequest, response, next) => {
       printConfiguration = await resolveFabricCartOptions(product.sku, {
         scale: request.body?.scale,
         design: request.body?.design,
-        mode: request.body?.mode
+        mode: request.body?.mode,
+        printFee: product.print_fee
       });
     } catch (scaleError) {
       if (scaleError instanceof PrintScaleError) {

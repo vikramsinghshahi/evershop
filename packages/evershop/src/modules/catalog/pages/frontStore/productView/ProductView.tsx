@@ -64,6 +64,7 @@ query Query {
       sku
       saleUnit
       moq
+      printFee
       price {
         regular {
           value

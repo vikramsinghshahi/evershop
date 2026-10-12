@@ -3,6 +3,8 @@ extend type Product {
   saleUnit: String
   """Minimum quantity a shopper can order, in `saleUnit`."""
   moq: Int
+  """Added to each unit when a shopper prints a design on this fabric."""
+  printFee: Float
 }
 
 extend type OrderItem {
