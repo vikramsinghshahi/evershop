@@ -1,5 +1,6 @@
 import {
   PrintScaleError,
+  isPlainFabricLine,
   parseStoredPrintOptions,
   printPpiForScale,
   printSizeCm,
@@ -58,6 +59,22 @@ describe('fabric print scale', () => {
     expect(
       resolvePrintConfiguration('CUP-WHITE', { scale: 40, design: fieldFlower })
     ).toBeNull();
+    expect(resolvePrintConfiguration('CUP-WHITE', { mode: 'plain' })).toBeNull();
+  });
+
+  test('stores a fabric-only line and ignores any design sent with it', async () => {
+    const stored = resolvePrintConfiguration('FABRIC-COTTON-POPLIN', {
+      mode: 'plain',
+      scale: 40,
+      design: fieldFlower
+    });
+    expect(stored).toBe('{"mode":"plain"}');
+    expect(isPlainFabricLine(stored)).toBe(true);
+    expect(parseStoredPrintOptions(stored)).toBeNull();
+    expect(isPlainFabricLine('{"printScale":80}')).toBe(false);
+    await expect(
+      resolveFabricCartOptions('FABRIC-COTTON-LAWN', { mode: 'plain' })
+    ).resolves.toBe('{"mode":"plain"}');
   });
 
   test('rejects missing, zero, fractional, out-of-range and non-numeric scales', () => {

@@ -260,7 +260,7 @@ export function SearchBox({
   );
 
   return (
-    <div className="search__box">
+    <div className="search__box shrink-0">
       <a
         href="#"
         aria-label="Search"

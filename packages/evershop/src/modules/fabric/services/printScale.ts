@@ -97,14 +97,27 @@ function scaleFromInput(raw: unknown): unknown {
   return raw;
 }
 
+function isPlainPurchase(raw: unknown): boolean {
+  return (
+    raw !== null &&
+    typeof raw === 'object' &&
+    !Array.isArray(raw) &&
+    (raw as { mode?: unknown }).mode === 'plain'
+  );
+}
+
 /**
  * JSON saved in `product_custom_options`, or null when the product is not a fabric.
- * Throws PrintScaleError when a fabric is added without a usable scale and design.
- * A non-fabric product ignores both, so a cup cannot pick up a print design.
+ * `{ mode: 'plain' }` is cloth with no design: scale and design on that payload
+ * are ignored. Any other fabric payload still needs a usable scale and design.
+ * A non-fabric product ignores all of it, so a cup cannot pick up a print.
  */
 export function resolvePrintConfiguration(sku: string, raw: unknown): string | null {
   if (!isFabricSku(sku)) {
     return null;
+  }
+  if (isPlainPurchase(raw)) {
+    return JSON.stringify({ mode: 'plain' });
   }
   const scale = parseScaleInput(scaleFromInput(raw));
   if (scale === 'absent') {
@@ -148,6 +161,19 @@ export interface StoredPrintScale {
   printPpi: number;
   quality: PrintQuality;
   design: StoredDesign | null;
+}
+
+/** True when the line was saved as cloth with no design. */
+export function isPlainFabricLine(raw: string | null | undefined): boolean {
+  if (!raw) {
+    return false;
+  }
+  try {
+    const data = JSON.parse(raw) as { mode?: unknown };
+    return data.mode === 'plain';
+  } catch {
+    return false;
+  }
 }
 
 export function parseStoredPrintOptions(

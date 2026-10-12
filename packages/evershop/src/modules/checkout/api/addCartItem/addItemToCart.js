@@ -52,7 +52,8 @@ export default async (request, response, next) => {
     try {
       printConfiguration = await resolveFabricCartOptions(product.sku, {
         scale: request.body?.scale,
-        design: request.body?.design
+        design: request.body?.design,
+        mode: request.body?.mode
       });
     } catch (scaleError) {
       if (scaleError instanceof PrintScaleError) {

@@ -539,6 +539,114 @@ export default (context: { command?: string } = {}) => {
   });
 
   registerWidget({
+    type: 'store_footer',
+    settingComponent: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/StoreFooterSetting.js'
+    ),
+    component: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/StoreFooter.js'
+    ),
+    previewComponent: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/StoreFooterPreview.js'
+    ),
+    name: 'Store footer',
+    description:
+      'Brand line, contact details, and link columns for the storefront footer. Empty contact fields stay hidden. A line with no link is shown as text.',
+    category: 'navigation',
+    icon: 'PanelBottom',
+    defaultSettings: {
+      heading: 'Bharat Textile',
+      tagline: 'Standards set in thread',
+      email: '',
+      phone: '',
+      whatsapp: '',
+      city: '',
+      contactTitle: 'Contact',
+      columns: [
+        {
+          id: 'col-shop',
+          title: 'Shop',
+          links: [
+            { id: 'lnk-fabrics', label: 'Fabrics', url: '/' },
+            {
+              id: 'lnk-accessories',
+              label: 'Accessories',
+              url: '/accessories'
+            }
+          ]
+        },
+        {
+          id: 'col-ordering',
+          title: 'Ordering',
+          links: [
+            { id: 'lnk-metre', label: 'Sold by the metre', url: '' },
+            {
+              id: 'lnk-moq',
+              label: 'Minimum order on each cloth',
+              url: ''
+            },
+            {
+              id: 'lnk-print',
+              label: 'Print scale and design on the cloth',
+              url: ''
+            }
+          ]
+        },
+        {
+          id: 'col-policies',
+          title: 'Policies',
+          links: [
+            { id: 'lnk-about', label: 'About us', url: '/about-us' },
+            {
+              id: 'lnk-cut',
+              label: 'Cut fabric is not returnable',
+              url: ''
+            },
+            {
+              id: 'lnk-uncut',
+              label: 'Uncut cloth can be returned',
+              url: ''
+            }
+          ]
+        }
+      ]
+    },
+    enabled: true,
+    schema: {
+      type: 'object',
+      additionalProperties: true,
+      properties: {
+        heading: { type: 'string' },
+        tagline: { type: 'string' },
+        email: { type: 'string' },
+        phone: { type: 'string' },
+        whatsapp: { type: 'string' },
+        city: { type: 'string' },
+        contactTitle: { type: 'string' },
+        columns: { type: 'array', items: { type: 'object' } as any }
+      }
+    },
+    graphql: {
+      typeDefs: `
+        type StoreFooterWidgetSettings {
+          heading: String
+          tagline: String
+          email: String
+          phone: String
+          whatsapp: String
+          city: String
+          contactTitle: String
+          columns: JSON
+        }
+      `,
+      settingsType: 'StoreFooterWidgetSettings'
+    }
+  });
+
+  registerWidget({
     type: 'banner',
     settingComponent: path.resolve(
       CONSTANTS.MODULESPATH,

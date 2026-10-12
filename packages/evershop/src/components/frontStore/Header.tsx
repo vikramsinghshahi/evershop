@@ -14,10 +14,10 @@ export function Header() {
       />
       {/* Re-skin (2026-07-10): reference layout — logo left, nav beside it,
           search / account / cart pushed right, constrained to the page width. */}
-      <div className="header__middle page-width flex flex-wrap items-center gap-x-3 gap-y-2 py-3 sm:flex-nowrap sm:gap-6 sm:py-3.5">
+      <div className="header__middle page-width flex flex-nowrap items-center gap-x-2 py-2 sm:gap-6 sm:py-3.5">
         <Area
           id="headerMiddleLeft"
-          className="header__middle__left flex min-w-0 items-center gap-3 sm:gap-8"
+          className="header__middle__left flex shrink-0 items-center gap-1 sm:gap-8"
           isGlobal
           editableInPageBuilder
         />
@@ -29,7 +29,7 @@ export function Header() {
         />
         <Area
           id="headerMiddleRight"
-          className="header__middle__right ml-auto flex basis-full items-center justify-end gap-1 sm:basis-auto sm:gap-3"
+          className="header__middle__right ml-auto flex min-w-0 items-center justify-end gap-0.5 sm:gap-3"
           isGlobal
           editableInPageBuilder
         />

@@ -18,6 +18,11 @@ import {
   resetPrintDesignView,
   subscribePrintDesign
 } from '../../../services/printDesignView.js';
+import {
+  getFabricPurchaseMode,
+  resetFabricPurchaseMode,
+  subscribeFabricPurchase
+} from '../../../services/fabricPurchaseView.js';
 import { DesignLayout } from '../../../components/DesignLayout.js';
 
 const toneClass = {
@@ -120,10 +125,16 @@ export default function FabricMaterial() {
     getPrintDesignView,
     getPrintDesignView
   );
+  const purchaseMode = React.useSyncExternalStore(
+    subscribeFabricPurchase,
+    getFabricPurchaseMode,
+    () => 'plain' as const
+  );
 
   React.useLayoutEffect(() => {
     setPrintScaleView(100);
     resetPrintDesignView();
+    resetFabricPurchaseMode();
   }, [sku]);
 
   if (!isFabricSku(sku)) {
@@ -131,6 +142,27 @@ export default function FabricMaterial() {
   }
 
   const swatch = FABRIC_SWATCHES[sku] || '#e7e0d6';
+
+  if (purchaseMode === 'plain') {
+    return (
+      <div className="fabric-material">
+        <div
+          className="aspect-square min-w-0 overflow-hidden border border-border"
+          style={{ backgroundColor: swatch }}
+          aria-label={name}
+        >
+          {image?.url && (
+            <img
+              src={image.url}
+              alt={image.alt || name}
+              className="h-full w-full object-cover"
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
   const ppi = printPpiForScale(scale);
   const quality = qualityForPpi(ppi);
   const spanCm = printSpanCm();

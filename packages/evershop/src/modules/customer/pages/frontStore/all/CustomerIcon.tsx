@@ -141,7 +141,7 @@ export default function UserIcon({
   }, []);
 
   return (
-    <div className="customer-icon flex items-center">
+    <div className="customer-icon flex min-w-0 items-center">
       <a
         href={signedIn ? accountUrl : loginUrl}
         aria-label={
@@ -149,7 +149,7 @@ export default function UserIcon({
             ? `${line}, ${place}. ${signedIn ? _('Account') : _('Sign in')}`
             : `${line}. ${signedIn ? _('Account') : _('Sign in')}`
         }
-        className="flex items-center gap-2 rounded-md py-1 pl-1 pr-1.5 text-current hover:bg-white/10 sm:pr-2"
+        className="flex min-w-0 items-center gap-2 rounded-md py-1 pl-1 pr-1.5 text-current hover:bg-white/10 sm:pr-2"
       >
         <span
           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${

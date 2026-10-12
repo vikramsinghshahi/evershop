@@ -3,6 +3,7 @@ import {
   type FabricLayoutId
 } from '../services/designCatalog.js';
 import {
+  isPlainFabricLine,
   parseStoredPrintOptions,
   qualityLabel
 } from '../services/printScale.js';
@@ -19,6 +20,9 @@ export function PrintScaleLabel({
 }: {
   value?: string | null;
 }): React.ReactElement | null {
+  if (isPlainFabricLine(value)) {
+    return <div className="mt-0.5 text-xs text-neutral-700">Fabric only</div>;
+  }
   const stored = parseStoredPrintOptions(value);
   if (!stored) {
     return null;

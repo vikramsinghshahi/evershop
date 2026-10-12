@@ -65,7 +65,7 @@ export function MiniCart({
   }, [syncStatus.synced, syncStatus.trigger]);
 
   return (
-    <div className={`mini__cart__wrapper relative ${className}`}>
+    <div className={`mini__cart__wrapper relative shrink-0 ${className}`}>
       {CartIconComponent ? (
         <CartIconComponent
           totalQty={cart?.totalQty || 0}

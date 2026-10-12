@@ -717,6 +717,41 @@ export default {
       );
       return { columns: resolvedColumns };
     },
+    storeFooterWidget: async (
+      _,
+      { heading, tagline, email, phone, whatsapp, city, contactTitle, columns },
+      { linkLoaders }
+    ) => {
+      const text = (value) => (typeof value === 'string' ? value : '');
+      const safeColumns = (Array.isArray(columns) ? columns : []).filter(
+        (c) => c && typeof c === 'object'
+      );
+      const resolvedColumns = await Promise.all(
+        safeColumns.map(async (c) => ({
+          ...c,
+          links: Array.isArray(c.links)
+            ? await Promise.all(
+                c.links.map(async (l) => ({
+                  ...l,
+                  url: l
+                    ? (await resolveLink(l.url, linkLoaders)) ?? null
+                    : null
+                }))
+              )
+            : []
+        }))
+      );
+      return {
+        heading: text(heading),
+        tagline: text(tagline),
+        email: text(email),
+        phone: text(phone),
+        whatsapp: text(whatsapp),
+        city: text(city),
+        contactTitle: text(contactTitle),
+        columns: resolvedColumns
+      };
+    },
     separatorWidget(_, { size, showLine, lineColor }) {
       const allowedSizes = ['xs', 'sm', 'md', 'lg', 'xl'];
       return {

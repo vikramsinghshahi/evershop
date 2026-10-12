@@ -6,6 +6,10 @@ import {
   qualityForPpi
 } from '../../../services/printScale.js';
 import {
+  getFabricPurchaseMode,
+  subscribeFabricPurchase
+} from '../../../services/fabricPurchaseView.js';
+import {
   getPrintScale,
   subscribePrintScale
 } from '../../../services/printScaleView.js';
@@ -26,15 +30,20 @@ export default function FabricScale() {
   const { sku } = useProduct();
   const { setValue } = useFormContext();
   const scale = React.useSyncExternalStore(subscribePrintScale, getPrintScale, () => 100);
+  const purchaseMode = React.useSyncExternalStore(
+    subscribeFabricPurchase,
+    getFabricPurchaseMode,
+    () => 'plain' as const
+  );
 
   React.useEffect(() => {
-    if (!isFabricSku(sku)) {
+    if (!isFabricSku(sku) || purchaseMode !== 'print') {
       return;
     }
     setValue('printScale', scale);
-  }, [scale, setValue, sku]);
+  }, [purchaseMode, scale, setValue, sku]);
 
-  if (!isFabricSku(sku)) {
+  if (!isFabricSku(sku) || purchaseMode !== 'print') {
     return null;
   }
 

@@ -9,6 +9,10 @@ import {
 } from '../../../services/designCatalog.js';
 import { isFabricSku } from '../../../services/printScale.js';
 import {
+  getFabricPurchaseMode,
+  subscribeFabricPurchase
+} from '../../../services/fabricPurchaseView.js';
+import {
   getPrintDesignView,
   rotatePrintDesign,
   setPrintDesignSelection,
@@ -26,6 +30,11 @@ export default function FabricDesign() {
   const { sku } = useProduct();
   const { setValue } = useFormContext();
   const view = React.useSyncExternalStore(subscribePrintDesign, getPrintDesignView, getPrintDesignView);
+  const purchaseMode = React.useSyncExternalStore(
+    subscribeFabricPurchase,
+    getFabricPurchaseMode,
+    () => 'plain' as const
+  );
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [catalogOpen, setCatalogOpen] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
@@ -35,7 +44,7 @@ export default function FabricDesign() {
       return;
     }
     const { selection, layout, rotation } = view;
-    if (!selection) {
+    if (purchaseMode !== 'print' || !selection) {
       setValue('printDesign', null);
       return;
     }
@@ -47,9 +56,9 @@ export default function FabricDesign() {
       layout,
       rotation
     });
-  }, [setValue, sku, view]);
+  }, [purchaseMode, setValue, sku, view]);
 
-  if (!isFabricSku(sku)) {
+  if (!isFabricSku(sku) || purchaseMode !== 'print') {
     return null;
   }
 

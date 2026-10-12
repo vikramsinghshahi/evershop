@@ -509,6 +509,22 @@ type FooterMenuWidget {
 }
 
 """
+Store footer — brand line, contact details, and titled columns.
+A link with an empty URL is returned as text. Contact fields are hidden
+on the storefront when blank.
+"""
+type StoreFooterWidget {
+  heading: String
+  tagline: String
+  email: String
+  phone: String
+  whatsapp: String
+  city: String
+  contactTitle: String
+  columns: JSON
+}
+
+"""
 Bento grid widget — asymmetric mosaic of CTA tiles. First tile is the
 hero; remaining tiles are supporting (max 4). `tiles` JSON:
 { id, image, imageAlt, backgroundColor, eyebrow, heading, body, link, textColor, size }.
@@ -762,6 +778,16 @@ extend type Query {
     showParentLink: Boolean
   ): TieredCategoriesWidget
   footerMenuWidget(columns: JSON): FooterMenuWidget
+  storeFooterWidget(
+    heading: String
+    tagline: String
+    email: String
+    phone: String
+    whatsapp: String
+    city: String
+    contactTitle: String
+    columns: JSON
+  ): StoreFooterWidget
   bentoGridWidget(
     tiles: JSON
     gap: String
