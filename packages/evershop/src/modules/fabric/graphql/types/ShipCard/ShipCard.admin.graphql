@@ -1,0 +1,34 @@
+type FabricShipCountry {
+  countryCode: String!
+  countryName: String!
+  zone: Int!
+}
+
+type FabricShipRate {
+  band: String!
+  weightKg: Float!
+  zone: Int!
+  amountInr: Float!
+}
+
+extend type Query {
+  fabricShipCountries: [FabricShipCountry!]!
+  fabricShipRates: [FabricShipRate!]!
+}
+
+"""The zone, weight and rupee charge frozen when the order was placed."""
+type FabricShipLock {
+  zone: Int!
+  weightKg: Float!
+  billedWeightKg: Float!
+  amountInr: Float!
+  exchangeRate: Float!
+  currency: String!
+  perKgRateInr: Float
+  extraKg: Float
+  charged: Float!
+}
+
+extend type Order {
+  fabricShipLock: FabricShipLock
+}
