@@ -1,10 +1,15 @@
 import {
   getAdditionalLanguages,
   getAdminLanguage,
+  getSetting,
   getStoreCurrency,
   getStoreLanguage,
   getStoreTimezone
 } from '../../../services/setting.js';
+import {
+  DEFAULT_EXCHANGE_RATES,
+  DEFAULT_EXPORT_MARGIN
+} from '../../../../fabric/services/shopCurrency.js';
 
 export default {
   Setting: {
@@ -35,6 +40,15 @@ export default {
     storeLanguages: () => getAdditionalLanguages(),
     adminLanguage: () => getAdminLanguage(),
     storeCurrency: () => getStoreCurrency(),
+    exchangeRateUsd: () =>
+      getSetting('exchangeRateUsd', String(DEFAULT_EXCHANGE_RATES.USD)),
+    exchangeRateEur: () =>
+      getSetting('exchangeRateEur', String(DEFAULT_EXCHANGE_RATES.EUR)),
+    exchangeRateAud: () =>
+      getSetting('exchangeRateAud', String(DEFAULT_EXCHANGE_RATES.AUD)),
+    exchangeRateGbp: () =>
+      getSetting('exchangeRateGbp', String(DEFAULT_EXCHANGE_RATES.GBP)),
+    defaultExportMargin: () => getSetting('defaultExportMargin', String(DEFAULT_EXPORT_MARGIN)),
     storeTimeZone: () => getStoreTimezone(),
     storePhoneNumber: (setting) => {
       const storePhoneNumber = setting.find(

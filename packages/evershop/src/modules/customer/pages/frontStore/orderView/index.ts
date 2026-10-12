@@ -1,4 +1,6 @@
+import { select } from '@evershop/postgres-query-builder';
 import { translate } from '../../../../../lib/locale/translate/translate.js';
+import { pool } from '../../../../../lib/postgres/connection.js';
 import { buildUrl } from '../../../../../lib/router/buildUrl.js';
 import { EvershopRequest } from '../../../../../types/request.js';
 import { EvershopResponse } from '../../../../../types/response.js';
@@ -19,7 +21,7 @@ import { setContextValue } from '../../../../graphql/services/contextHelper.js';
  * Stores the URL param as `orderUuid` context value so the page-component
  * query export can read it via `getContextValue("orderUuid")`.
  */
-export default (
+export default async (
   request: EvershopRequest,
   response: EvershopResponse,
   next
@@ -29,6 +31,13 @@ export default (
     return;
   }
   setContextValue(request, 'orderUuid', request.params.uuid);
+  const order = await select('currency')
+    .from('order')
+    .where('uuid', '=', request.params.uuid)
+    .load(pool);
+  if (order?.currency) {
+    setContextValue(request, 'orderCurrency', order.currency);
+  }
   setPageMetaInfo(request, {
     title: translate('Order detail'),
     description: translate('Order detail')

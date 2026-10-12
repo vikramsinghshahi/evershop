@@ -34,7 +34,7 @@ export const DefaultMiniCartIcon = ({
         <ShoppingBag className="h-5 w-5" />
       )}
       {showItemCount && totalQty > 0 && !syncStatus.syncing && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+        <span className="absolute -top-1 right-0 z-10 flex h-[1.125rem] min-w-[1.125rem] translate-x-1/4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none tracking-tight whitespace-nowrap text-primary-foreground ring-2 ring-header tabular-nums">
           {totalQty > 99 ? '99+' : totalQty}
         </span>
       )}

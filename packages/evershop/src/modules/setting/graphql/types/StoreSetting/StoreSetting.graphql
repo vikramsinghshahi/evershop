@@ -5,6 +5,11 @@ extend type Setting {
   storeLanguages: [String]
   adminLanguage: String
   storeCurrency: String
+  exchangeRateUsd: String
+  exchangeRateEur: String
+  exchangeRateAud: String
+  exchangeRateGbp: String
+  defaultExportMargin: String
   storeTimeZone: String
   storePhoneNumber: String
   storeEmail: String

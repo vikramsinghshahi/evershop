@@ -46,9 +46,15 @@ Handlebars.registerHelper('currency', function (value) {
   const options = arguments[arguments.length - 1];
   const locale = safeLocale(options?.data?.locale);
 
+  const requested = options?.data?.currency;
+  const currencyCode =
+    typeof requested === 'string' && /^[A-Z]{3}$/.test(requested)
+      ? requested
+      : getStoreCurrency();
+
   return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: getStoreCurrency(),
+    currency: currencyCode,
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
   }).format(number);
@@ -300,8 +306,14 @@ export async function buildEmailBodyFromTemplate(
     const preparedData = await prepareData(data);
     // Pass the locale through Handlebars' private `data` frame so the currency/date
     // helpers can read it (`options.data.locale`) without polluting the template context.
+    const orderCurrency =
+      preparedData.order &&
+      typeof preparedData.order === 'object' &&
+      typeof (preparedData.order as { currency?: unknown }).currency === 'string'
+        ? (preparedData.order as { currency: string }).currency
+        : undefined;
     const body = Handlebars.compile(template)(preparedData, {
-      data: { locale: locale || getStoreLanguageSync() }
+      data: { locale: locale || getStoreLanguageSync(), currency: orderCurrency }
     });
     return body;
   } catch (error) {

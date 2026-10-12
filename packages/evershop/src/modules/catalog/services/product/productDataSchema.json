@@ -187,6 +187,12 @@
         "type": "Big swatch price must be a number"
       }
     },
+    "export_margin": {
+      "type": ["integer", "number", "string", "null"],
+      "errorMessage": {
+        "type": "Export margin must be a number"
+      }
+    },
     "fabric_color": {
       "type": ["string", "null"],
       "maxLength": 80

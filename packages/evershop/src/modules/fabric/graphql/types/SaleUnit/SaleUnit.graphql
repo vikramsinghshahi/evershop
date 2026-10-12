@@ -9,6 +9,8 @@ extend type Product {
   priceTestSwatch: Float
   """Price of one 75×100 cm big swatch. Blank follows 80% of the product price."""
   priceBigSwatch: Float
+  """Percent added when this product is sold outside India. Blank uses the store default on a fabric."""
+  exportMargin: Float
 }
 
 extend type OrderItem {

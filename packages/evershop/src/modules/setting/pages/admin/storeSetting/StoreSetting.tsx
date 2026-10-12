@@ -6,6 +6,7 @@ import Area from '@components/common/Area.js';
 import { EmailField } from '@components/common/form/EmailField.js';
 import { Form, useFormContext } from '@components/common/form/Form.js';
 import { InputField } from '@components/common/form/InputField.js';
+import { NumberField } from '@components/common/form/NumberField.js';
 import { ReactSelectField } from '@components/common/form/ReactSelectField.js';
 import { SelectField } from '@components/common/form/SelectField.js';
 import { TelField } from '@components/common/form/TelField.js';
@@ -359,6 +360,11 @@ interface StoreSettingProps {
     storePostalCode: string;
     metaData?: Record<string, unknown>;
     storeCurrency?: string;
+    exchangeRateUsd?: string;
+    exchangeRateEur?: string;
+    exchangeRateAud?: string;
+    exchangeRateGbp?: string;
+    defaultExportMargin?: string;
     weightUnit?: string;
     dimensionUnit?: string;
     shopMetafieldsApi?: string;
@@ -392,6 +398,11 @@ export default function StoreSetting({
     storePostalCode,
     metaData,
     storeCurrency,
+    exchangeRateUsd,
+    exchangeRateEur,
+    exchangeRateAud,
+    exchangeRateGbp,
+    defaultExportMargin,
     weightUnit,
     dimensionUnit,
     shopMetafieldsApi,
@@ -593,6 +604,62 @@ export default function StoreSetting({
                 </div>
               </CardContent>
               <CardContent className="pt-3 border-t border-border">
+                <CardTitle>{_('Exchange rates')}</CardTitle>
+                <CardDescription>
+                  {_(
+                    'Product prices are the India price, in rupees. These are how many rupees buy one unit of each currency. The export margin is added before that division, and only outside India. A fabric can set its own margin.'
+                  )}
+                </CardDescription>
+                <div className="grid grid-cols-2 gap-5 mt-5">
+                  <NumberField
+                    name="exchangeRateUsd"
+                    label={_('INR per 1 USD')}
+                    defaultValue={exchangeRateUsd ? Number(exchangeRateUsd) : undefined}
+                    min={0.0001}
+                    step={0.0001}
+                    required
+                  />
+                  <NumberField
+                    name="exchangeRateEur"
+                    label={_('INR per 1 EUR')}
+                    defaultValue={exchangeRateEur ? Number(exchangeRateEur) : undefined}
+                    min={0.0001}
+                    step={0.0001}
+                    required
+                  />
+                  <NumberField
+                    name="exchangeRateAud"
+                    label={_('INR per 1 AUD')}
+                    defaultValue={exchangeRateAud ? Number(exchangeRateAud) : undefined}
+                    min={0.0001}
+                    step={0.0001}
+                    required
+                  />
+                  <NumberField
+                    name="exchangeRateGbp"
+                    label={_('INR per 1 GBP')}
+                    defaultValue={exchangeRateGbp ? Number(exchangeRateGbp) : undefined}
+                    min={0.0001}
+                    step={0.0001}
+                    required
+                  />
+                  <NumberField
+                    name="defaultExportMargin"
+                    label={_('Default export margin %')}
+                    defaultValue={
+                      defaultExportMargin ? Number(defaultExportMargin) : undefined
+                    }
+                    min={0}
+                    step={0.01}
+                    required
+                    helperText={_(
+                      'Used when a fabric margin is left blank. Accessories add a margin only when one is set on that product.'
+                    )}
+                    wrapperClassName="col-span-2"
+                  />
+                </div>
+              </CardContent>
+              <CardContent className="pt-3 border-t border-border">
                 <CardTitle>{_('Branding')}</CardTitle>
                 <CardDescription>
                   {_(
@@ -741,6 +808,11 @@ export const query = `
       storePostalCode
       metaData
       storeCurrency
+      exchangeRateUsd
+      exchangeRateEur
+      exchangeRateAud
+      exchangeRateGbp
+      defaultExportMargin
       weightUnit
       dimensionUnit
       shopMetafieldsApi

@@ -19,6 +19,7 @@ interface SaleUnitProps {
     printFee?: number | null;
     priceTestSwatch?: number | null;
     priceBigSwatch?: number | null;
+    exportMargin?: number | null;
   } | null;
 }
 
@@ -33,7 +34,7 @@ export default function SaleUnit({ product }: SaleUnitProps) {
         <CardTitle>{_('Selling unit')}</CardTitle>
         <CardDescription>
           {_(
-            'How this price is sold. Meter, kilogram, and the store weight units. Minimum order starts at 1 in that unit.'
+            'The product price is the India price, in rupees. Meter, kilogram, and the store weight units. Minimum order starts at 1 in that unit.'
           )}
         </CardDescription>
       </CardHeader>
@@ -88,6 +89,18 @@ export default function SaleUnit({ product }: SaleUnitProps) {
             step={0.01}
             helperText={_('75×100 cm. Blank uses 80% of the product price. Linear meter uses the product price, and its ruler is 100×140 cm.')}
           />
+          <NumberField
+            name="export_margin"
+            label={_('Export margin %')}
+            placeholder={_('Store default')}
+            defaultValue={product?.exportMargin ?? undefined}
+            min={0}
+            step={0.01}
+            helperText={_(
+              'Added only when this fabric is paid in USD, EUR, AUD, or GBP. Blank uses the store default. India pays the product price.'
+            )}
+            wrapperClassName="col-span-2"
+          />
         </div>
       </CardContent>
     </Card>
@@ -107,6 +120,7 @@ export const query = `
       printFee
       priceTestSwatch
       priceBigSwatch
+      exportMargin
     }
   }
 `;

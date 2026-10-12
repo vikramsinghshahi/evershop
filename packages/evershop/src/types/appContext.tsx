@@ -41,6 +41,8 @@ interface AppStateContextValue {
   defaultLocale?: string;
   availableLocales?: string[];
   translations?: Record<string, string>;
+  /** Shopper currency for this storefront request. Catalog prices are rupees. */
+  shopCurrency?: string;
 }
 
 interface AppContextDispatchValue {

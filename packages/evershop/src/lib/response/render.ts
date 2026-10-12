@@ -13,6 +13,7 @@ import { EvershopResponse } from '../../types/response.js';
 import { CONSTANTS } from '../helpers.js';
 import { getPageDictionary } from '../locale/dictionary.js';
 import { getLocaleContext } from '../locale/localeContext.js';
+import { getShopCurrency } from '../../modules/fabric/services/shopCurrencyContext.js';
 import { error } from '../log/logger.js';
 import { get } from '../util/get.js';
 import isProductionMode from '../util/isProductionMode.js';
@@ -71,7 +72,8 @@ function buildContextData(
     locale,
     defaultLocale: localeCtx?.defaultLocale ?? locale,
     availableLocales: localeCtx?.available ?? [locale],
-    translations: localeCtx ? getPageDictionary(request.currentRoute, locale) : {}
+    translations: localeCtx ? getPageDictionary(request.currentRoute, locale) : {},
+    shopCurrency: getShopCurrency()
   };
   return contextValue;
 }

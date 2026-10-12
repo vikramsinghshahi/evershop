@@ -23,6 +23,7 @@ export default async (request: EvershopRequest, response, next) => {
       description: translate('Checkout success')
     });
     setContextValue(request, 'orderId', order.uuid);
+    setContextValue(request, 'orderCurrency', order.currency);
     // The query above matched the order to this browser session (`sid`). Tell
     // the GraphQL `order` resolver, which cannot see the session itself.
     grantOrderAccess(request, order.uuid, 'session');

@@ -1,0 +1,9 @@
+extend type Order {
+  """Rupees for one unit of `currency` when the order was placed. 1 for INR."""
+  exchangeRate: Float
+}
+
+extend type OrderItem {
+  """Export margin percent applied to this line. Zero when the order is in INR."""
+  exportMargin: Float
+}
