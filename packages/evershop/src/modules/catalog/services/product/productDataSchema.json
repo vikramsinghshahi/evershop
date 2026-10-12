@@ -175,6 +175,18 @@
         "type": "Printing fee must be a number"
       }
     },
+    "price_test_swatch": {
+      "type": ["integer", "number", "string", "null"],
+      "errorMessage": {
+        "type": "Test swatch price must be a number"
+      }
+    },
+    "price_big_swatch": {
+      "type": ["integer", "number", "string", "null"],
+      "errorMessage": {
+        "type": "Big swatch price must be a number"
+      }
+    },
     "fabric_color": {
       "type": ["string", "null"],
       "maxLength": 80

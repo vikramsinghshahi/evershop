@@ -28,6 +28,7 @@ export interface AddToCartProps {
   scale?: number;
   /** Plain cloth. When set, scale and design are not sent. */
   mode?: 'plain';
+  orderSize?: 'linear' | 'test' | 'big';
   design?: {
     source: 'catalog' | 'upload';
     designId: string;
@@ -50,6 +51,7 @@ export const AddToCart: React.FC<AddToCartProps> = ({
   scale,
   design,
   mode,
+  orderSize,
   onSuccess,
   onError,
   children
@@ -85,6 +87,7 @@ export const AddToCart: React.FC<AddToCartProps> = ({
       await cartDispatch.addItem({
         sku: product.sku,
         qty: qty,
+        ...(orderSize ? { orderSize } : {}),
         ...(mode === 'plain'
           ? { mode: 'plain' as const }
           : {
@@ -109,6 +112,7 @@ export const AddToCart: React.FC<AddToCartProps> = ({
     scale,
     design,
     mode,
+    orderSize,
     cartState.data,
     cartDispatch,
     onSuccess,

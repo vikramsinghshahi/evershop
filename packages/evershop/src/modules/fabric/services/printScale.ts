@@ -1,4 +1,5 @@
 import { parseDesignSelection, type StoredDesign } from './printDesign.js';
+import { orderSizeSnapshot } from './orderSize.js';
 import { readPrintFee } from './printFee.js';
 
 /**
@@ -117,8 +118,14 @@ export function resolvePrintConfiguration(sku: string, raw: unknown): string | n
   if (!isFabricSku(sku)) {
     return null;
   }
+  let size;
+  try {
+    size = orderSizeSnapshot(raw);
+  } catch (error) {
+    throw new PrintScaleError((error as Error).message);
+  }
   if (isPlainPurchase(raw)) {
-    return JSON.stringify({ mode: 'plain' });
+    return JSON.stringify({ mode: 'plain', ...(size ?? {}) });
   }
   const scale = parseScaleInput(scaleFromInput(raw));
   if (scale === 'absent') {
@@ -159,7 +166,8 @@ export function resolvePrintConfiguration(sku: string, raw: unknown): string | n
     printPpi,
     quality: qualityForPpi(printPpi),
     design: design.design,
-    ...(printFee ? { printFee } : {})
+    ...(printFee ? { printFee } : {}),
+    ...(size ?? {})
   });
 }
 

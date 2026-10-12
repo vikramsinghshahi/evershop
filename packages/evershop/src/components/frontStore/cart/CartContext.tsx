@@ -315,6 +315,7 @@ interface CartDispatch {
     qty: number;
     scale?: number;
     mode?: 'plain';
+    orderSize?: 'linear' | 'test' | 'big';
     design?: {
       source: 'catalog' | 'upload';
       designId: string;
@@ -620,6 +621,7 @@ export const CartProvider = ({
       qty: number;
       scale?: number;
       mode?: 'plain';
+      orderSize?: 'linear' | 'test' | 'big';
       design?: {
         source: 'catalog' | 'upload';
         designId: string;

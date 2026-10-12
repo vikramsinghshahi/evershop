@@ -13,6 +13,11 @@ import {
   getFabricPurchaseMode,
   subscribeFabricPurchase
 } from '../../../modules/fabric/services/fabricPurchaseView.js';
+import { orderSizeLabel } from '../../../modules/fabric/services/orderSize.js';
+import {
+  getOrderSize,
+  subscribeOrderSize
+} from '../../../modules/fabric/services/orderSizeView.js';
 import { isFabricSku } from '../../../modules/fabric/services/printScale.js';
 import { parseMoq, saleUnitLabel } from '../../../modules/fabric/services/saleUnit.js';
 import { VariantSelector } from '@components/frontStore/catalog/VariantSelector.js';
@@ -44,6 +49,12 @@ export function ProductSingleForm() {
     () => 'plain' as const
   );
   const printing = isFabricSku(sku) && purchaseMode === 'print';
+  const orderSize = React.useSyncExternalStore(
+    subscribeOrderSize,
+    getOrderSize,
+    () => 'linear' as const
+  );
+  const swatch = isFabricSku(sku) && orderSize !== 'linear';
   const watchedScale = form.watch('printScale');
   const watchedDesign = form.watch('printDesign');
   const scale = printing
@@ -77,6 +88,7 @@ export function ProductSingleForm() {
                   scale={scale}
                   design={design}
                   mode={isFabricSku(sku) && purchaseMode === 'plain' ? 'plain' : undefined}
+                  orderSize={isFabricSku(sku) ? orderSize : undefined}
                   onSuccess={() => {
                     // To show the mini cart after adding a product to cart
                   }}
@@ -92,17 +104,25 @@ export function ProductSingleForm() {
                         <>
                           <NumberField
                             name="qty"
-                            label={unit ? `${_('Quantity')} (${unit})` : _('Quantity')}
+                            label={
+                              swatch
+                                ? _('Quantity')
+                                : unit
+                                  ? `${_('Quantity')} (${unit})`
+                                  : _('Quantity')
+                            }
                             className="w-24"
-                            min={minimum}
+                            min={swatch ? 1 : minimum}
                             required
                             placeholder={_('Quantity')}
                             defaultValue={minimum}
                             wrapperClassName="w-1/2"
                             helperText={
-                              unit
-                                ? `${_('MOQ')}: ${minimum} ${unit}`
-                                : undefined
+                              swatch
+                                ? orderSizeLabel(orderSize)
+                                : unit
+                                  ? `${_('MOQ')}: ${minimum} ${unit}`
+                                  : undefined
                             }
                           />
                           <Button

@@ -80,6 +80,37 @@ describe('fabric print scale', () => {
       printFee: 5
     });
     expect(stored).toBe('{"mode":"plain"}');
+    expect(
+      JSON.parse(
+        resolvePrintConfiguration('FABRIC-COTTON-POPLIN', {
+          mode: 'plain',
+          orderSize: 'test',
+          priceLinear: 18,
+          priceTestSwatch: 9
+        }) as string
+      )
+    ).toEqual({
+      mode: 'plain',
+      orderSize: 'test',
+      widthCm: 20,
+      heightCm: 20,
+      sizePrice: 9
+    });
+    expect(
+      JSON.parse(
+        resolvePrintConfiguration('FABRIC-COTTON-POPLIN', {
+          mode: 'plain',
+          orderSize: 'big',
+          priceLinear: 18
+        }) as string
+      ).sizePrice
+    ).toBe(14.4);
+    expect(() =>
+      resolvePrintConfiguration('FABRIC-COTTON-POPLIN', {
+        mode: 'plain',
+        orderSize: 'roll'
+      })
+    ).toThrow(/Linear meter/);
     expect(isPlainFabricLine(stored)).toBe(true);
     expect(parseStoredPrintOptions(stored)).toBeNull();
     expect(isPlainFabricLine('{"printScale":80}')).toBe(false);

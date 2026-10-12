@@ -54,7 +54,11 @@ export default async (request, response, next) => {
         scale: request.body?.scale,
         design: request.body?.design,
         mode: request.body?.mode,
-        printFee: product.print_fee
+        printFee: product.print_fee,
+        orderSize: request.body?.orderSize,
+        priceLinear: product.price,
+        priceTestSwatch: product.price_test_swatch,
+        priceBigSwatch: product.price_big_swatch
       });
     } catch (scaleError) {
       if (scaleError instanceof PrintScaleError) {

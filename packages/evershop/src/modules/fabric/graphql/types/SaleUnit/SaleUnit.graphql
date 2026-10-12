@@ -5,6 +5,10 @@ extend type Product {
   moq: Int
   """Added to each unit when a shopper prints a design on this fabric."""
   printFee: Float
+  """Price of one 20×20 cm test swatch. Blank follows 40% of the product price."""
+  priceTestSwatch: Float
+  """Price of one 75×100 cm big swatch. Blank follows 80% of the product price."""
+  priceBigSwatch: Float
 }
 
 extend type OrderItem {

@@ -65,6 +65,8 @@ query Query {
       saleUnit
       moq
       printFee
+      priceTestSwatch
+      priceBigSwatch
       price {
         regular {
           value

@@ -15,7 +15,11 @@ export default {
   Product: {
     saleUnit: (product) => readUnit(product ?? {}),
     moq: (product) => readMoq(product ?? {}),
-    printFee: (product) => readPrintFee(product?.printFee ?? product?.print_fee)
+    printFee: (product) => readPrintFee(product?.printFee ?? product?.print_fee),
+    priceTestSwatch: (product) =>
+      readPrintFee(product?.priceTestSwatch ?? product?.price_test_swatch),
+    priceBigSwatch: (product) =>
+      readPrintFee(product?.priceBigSwatch ?? product?.price_big_swatch)
   },
   OrderItem: {
     saleUnit: (item) => readUnit(item ?? {}),

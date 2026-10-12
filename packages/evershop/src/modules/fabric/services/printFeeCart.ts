@@ -1,6 +1,7 @@
 import { calculateTaxAmount } from '../../tax/services/calculateTaxAmount.js';
 import { getPriceIncludingTax } from '../../tax/services/taxSettings.js';
 import { toPrice } from '../../checkout/services/toPrice.js';
+import { orderSizeFromOptions, sizePriceFromOptions } from './orderSize.js';
 import { printFeeFromOptions } from './printFee.js';
 
 /**
@@ -17,23 +18,27 @@ export function unitPriceWithPrintFee(
   priceIncludesTax: boolean,
   taxPercent: number
 ): number {
+  const base = sizePriceFromOptions(rawOptions) ?? unitPrice;
   const fee = printFeeFromOptions(rawOptions);
-  if (!fee) {
+  if (!fee && base === unitPrice) {
     return toPrice(String(unitPrice));
   }
   const percent = Number.isFinite(taxPercent) ? taxPercent : 0;
+  if (!fee) {
+    return toPrice(String(base));
+  }
   if (priceIncludesTax) {
     if (side === 'incl') {
-      return toPrice(String(unitPrice + fee));
+      return toPrice(String(base + fee));
     }
     const tax = calculateTaxAmount(percent, fee, 1, true);
-    return toPrice(String(unitPrice + fee - tax));
+    return toPrice(String(base + fee - tax));
   }
   if (side === 'excl') {
-    return toPrice(String(unitPrice + fee));
+    return toPrice(String(base + fee));
   }
   const tax = calculateTaxAmount(percent, fee, 1, false);
-  return toPrice(String(unitPrice + fee + tax));
+  return toPrice(String(base + fee + tax));
 }
 
 export function registerPrintFeeOnCartItem(fields: unknown[]): unknown[] {
@@ -68,6 +73,19 @@ export function registerPrintFeeOnCartItem(fields: unknown[]): unknown[] {
         }
       ],
       dependencies: ['product_price_incl_tax', 'product_custom_options', 'tax_percent']
+    },
+    {
+      key: 'qty',
+      resolvers: [
+        async function resolver(qty: number) {
+          const size = orderSizeFromOptions(this.getData('product_custom_options'));
+          if ((size === 'test' || size === 'big') && Number(qty) >= 1) {
+            this.setError('qty');
+          }
+          return qty;
+        }
+      ],
+      dependencies: ['product_custom_options']
     }
   ]);
 }

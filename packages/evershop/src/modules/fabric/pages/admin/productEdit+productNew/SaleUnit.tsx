@@ -17,6 +17,8 @@ interface SaleUnitProps {
     saleUnit?: string | null;
     moq?: number | null;
     printFee?: number | null;
+    priceTestSwatch?: number | null;
+    priceBigSwatch?: number | null;
   } | null;
 }
 
@@ -68,6 +70,24 @@ export default function SaleUnit({ product }: SaleUnitProps) {
             )}
             wrapperClassName="col-span-2"
           />
+          <NumberField
+            name="price_test_swatch"
+            label={_('Test swatch price')}
+            placeholder="40% of the product price"
+            defaultValue={product?.priceTestSwatch ?? undefined}
+            min={0}
+            step={0.01}
+            helperText={_('20×20 cm. Blank uses 40% of the product price.')}
+          />
+          <NumberField
+            name="price_big_swatch"
+            label={_('Big swatch price')}
+            placeholder="80% of the product price"
+            defaultValue={product?.priceBigSwatch ?? undefined}
+            min={0}
+            step={0.01}
+            helperText={_('75×100 cm. Blank uses 80% of the product price. Linear meter uses the product price, and its ruler is 100×140 cm.')}
+          />
         </div>
       </CardContent>
     </Card>
@@ -85,6 +105,8 @@ export const query = `
       saleUnit
       moq
       printFee
+      priceTestSwatch
+      priceBigSwatch
     }
   }
 `;

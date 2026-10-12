@@ -38,6 +38,30 @@ describe('printing fee', () => {
     expect(printFeeFromOptions(printed)).toBe(5);
 
     expect(unitPriceWithPrintFee(18, printed, 'excl', false, 0)).toBe(23);
+    expect(
+      unitPriceWithPrintFee(
+        18,
+        JSON.stringify({ orderSize: 'test', sizePrice: 7.2, mode: 'plain' }),
+        'excl',
+        false,
+        0
+      )
+    ).toBe(7.2);
+    expect(
+      unitPriceWithPrintFee(
+        18,
+        JSON.stringify({
+          printScale: 100,
+          design: { name: 'Field Flower' },
+          printFee: 5,
+          orderSize: 'big',
+          sizePrice: 14.4
+        }),
+        'excl',
+        false,
+        0
+      )
+    ).toBe(19.4);
     expect(unitPriceWithPrintFee(18, '{"mode":"plain"}', 'excl', false, 10)).toBe(18);
     expect(unitPriceWithPrintFee(18, null, 'incl', false, 10)).toBe(18);
 
