@@ -15,6 +15,7 @@ import { lockCarrierRegistry } from '../../modules/oms/services/carrier/registry
 import { getEnabledExtensions } from '../extension/index.js';
 import { createApp } from './app.js';
 import { loadBootstrapScript } from './bootstrap/bootstrap.js';
+import { ensureAdminUser } from './bootstrap/ensureAdminUser.js';
 import { migrate } from './bootstrap/migrate.js';
 import { getCoreModules } from './loadModules.js';
 import { normalizePort } from './normalizePort.js';
@@ -52,6 +53,7 @@ export const start = async function start(context, cb) {
   /** Migration */
   try {
     await migrate(modules);
+    await ensureAdminUser();
   } catch (e) {
     error(e);
     process.exit(0);

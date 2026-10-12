@@ -1,0 +1,67 @@
+# Trial on Render's free plan. A push to `branch` rebuilds and deploys.
+# Paid cutover, same service: set the web plan to `standard` (2 GB) if the
+# free 512 MB instance runs out of memory, otherwise `starter`; set the
+# database plan to a paid id before the free database expires (30 days);
+# uncomment the disk so uploads survive restarts.
+
+services:
+  - type: web
+    name: evershop
+    runtime: docker
+    plan: free
+    region: singapore
+    repo: https://github.com/vikramsinghshahi/evershop
+    branch: feature/bharat_textile
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: commit
+    healthCheckPath: /
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: evershop-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: evershop-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: evershop-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: evershop-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: evershop-db
+          property: password
+      - key: DB_SSLMODE
+        value: disable
+      - key: JWT_ADMIN_SECRET
+        generateValue: true
+      - key: JWT_ADMIN_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_CUSTOMER_SECRET
+        generateValue: true
+      - key: JWT_CUSTOMER_REFRESH_SECRET
+        generateValue: true
+      - key: ADMIN_NAME
+        value: Trial Admin
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+    # disk:
+    #   name: media
+    #   mountPath: /app/media
+    #   sizeGB: 1
+
+databases:
+  - name: evershop-db
+    plan: free
+    region: singapore
+    databaseName: evershop
+    user: evershop
+    postgresMajorVersion: "16"
