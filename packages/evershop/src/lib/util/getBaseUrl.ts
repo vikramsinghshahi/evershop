@@ -12,14 +12,17 @@ export const HOME_URL_ENV = 'EVERSHOP_HOME_URL';
  * Resolve the store's base URL. Precedence (highest first):
  *   1. process.env.EVERSHOP_HOME_URL
  *   2. config `shop.homeUrl`
- *   3. http://localhost:<PORT>
+ *   3. process.env.RENDER_EXTERNAL_URL (set by Render to the public https URL)
+ *   4. http://localhost:<PORT>
  * Trailing slashes are always stripped.
  */
 export function getBaseUrl(): string {
   const port = normalizePort();
   const envUrl = process.env[HOME_URL_ENV]?.trim();
+  const configured = getConfig('shop.homeUrl', '');
+  const renderUrl = process.env.RENDER_EXTERNAL_URL?.trim();
   const baseUrl =
-    envUrl || getConfig('shop.homeUrl', `http://localhost:${port}`);
+    envUrl || configured || renderUrl || `http://localhost:${port}`;
   return baseUrl.replace(/\/+$/, ''); // Remove trailing slashes
 }
 

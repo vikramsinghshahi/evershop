@@ -35,6 +35,7 @@ describe('getBaseUrl — EVERSHOP_HOME_URL override precedence', () => {
   beforeEach(() => {
     mockConfigValue = undefined;
     delete process.env[HOME_URL_ENV];
+    delete process.env.RENDER_EXTERNAL_URL;
   });
   afterEach(restoreEnv);
 
@@ -57,6 +58,11 @@ describe('getBaseUrl — EVERSHOP_HOME_URL override precedence', () => {
 
   it('falls back to http://localhost:<port> when neither env nor config is set', () => {
     expect(getBaseUrl()).toMatch(/^http:\/\/localhost:\d+$/);
+  });
+
+  it('uses RENDER_EXTERNAL_URL when the store URL is not configured', () => {
+    process.env.RENDER_EXTERNAL_URL = 'https://evershop-6aah.onrender.com/';
+    expect(getBaseUrl()).toBe('https://evershop-6aah.onrender.com');
   });
 
   it('strips trailing slashes from the env value', () => {

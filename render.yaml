@@ -39,6 +39,11 @@ services:
           property: password
       - key: DB_SSLMODE
         value: disable
+      - key: EVERSHOP_HOME_URL
+        fromService:
+          name: evershop
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
       - key: JWT_ADMIN_SECRET
         generateValue: true
       - key: JWT_ADMIN_REFRESH_SECRET
