@@ -8,6 +8,13 @@ import {
 } from '../../../services/orderSizeView.js';
 import { isFabricSku } from '../../../services/printScale.js';
 
+/** Sizes offered on the page. The swatches are hidden for now; the cart still accepts them. */
+const SHOWN_SIZES: OrderSizeId[] = [
+  'linear'
+  // 'test',
+  // 'big'
+];
+
 /**
  * Cut of cloth, directly above quantity. Linear meter is the start.
  * The preview rulers and the price follow this choice.
@@ -24,7 +31,7 @@ export default function FabricOrderSize() {
     <div className="fabric-order-size mt-4">
       <div className="text-xs font-semibold tracking-wide">SIZE</div>
       <div className="mt-2 grid grid-cols-3 gap-1.5" role="group" aria-label="Order size">
-        {ORDER_SIZES.map((option) => {
+        {ORDER_SIZES.filter((option) => SHOWN_SIZES.includes(option.id)).map((option) => {
           const selected = size === option.id;
           return (
             <button
