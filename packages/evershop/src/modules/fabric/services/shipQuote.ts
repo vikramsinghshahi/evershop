@@ -10,7 +10,7 @@ export interface ShipRateRow {
 /** What was read off the card. This is the record copied onto the order. */
 export interface ShipQuote {
   zone: number;
-  /** Cart weight in kilograms. Zero is billed as the 0.5 kg minimum. */
+  /** Cart weight in kilograms. Zero is billed as the 1 kg minimum. */
   weightKg: number;
   /** The slab row used, or 20 when the per-kilogram rows take over. */
   billedWeightKg: number;
@@ -40,7 +40,9 @@ export function weightToKilograms(weight: number, unit: string): number {
 
 const ZONES = 13;
 const SLAB_CAP_KG = 20;
-const MIN_SLAB_KG = 0.5;
+const SLAB_STEP_KG = 0.5;
+/** Nothing is billed below 1 kg. The 0.5 kg row on the card is not used. */
+export const MIN_BILLED_KG = 1;
 
 function round3(value: number): number {
   return Math.round(value * 1000) / 1000;
@@ -56,12 +58,12 @@ function weightKey(weightKg: number): string {
 
 /**
  * Next half-kilogram that covers the weight. 1.0 stays 1.0. 1.01 becomes 1.5.
- * 0 and anything under 0.5 kg becomes the 0.5 kg minimum.
+ * 0 and anything up to 1 kg becomes the 1 kg minimum.
  */
 export function billableSlabKg(weightKg: number): number {
   const grams = Math.max(0, Math.round(weightKg * 1000));
-  const steps = Math.max(1, Math.ceil(grams / 500));
-  return Math.min(SLAB_CAP_KG, steps * MIN_SLAB_KG);
+  const steps = Math.ceil(grams / 500);
+  return Math.min(SLAB_CAP_KG, Math.max(MIN_BILLED_KG, steps * SLAB_STEP_KG));
 }
 
 function indexRates(rates: ShipRateRow[]): {
@@ -113,8 +115,8 @@ function nextSlab(
 }
 
 /**
- * Rupee charge for one parcel.
- * Up to 20 kg, the half-kilogram row that covers the weight.
+ * Rupee charge for one parcel, as printed on the card.
+ * Up to 20 kg, the half-kilogram row that covers the weight, never below 1 kg.
  * Above 20 kg, the 20 kg row plus whole extra kilograms at the 21 / 45 / 71 rate.
  * A missing row does not fall through to a cheaper one.
  */
@@ -129,7 +131,7 @@ export function quoteShipInr(
   if (!Number.isFinite(weightKg) || weightKg < 0) {
     return null;
   }
-  const weight = weightKg === 0 ? MIN_SLAB_KG : round3(weightKg);
+  const weight = weightKg === 0 ? MIN_BILLED_KG : round3(weightKg);
   const { slab, perKg } = indexRates(rates);
 
   if (weight <= SLAB_CAP_KG) {

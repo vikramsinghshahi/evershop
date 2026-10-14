@@ -7,6 +7,8 @@ interface FabricShipLockProps {
       weightKg?: number | null;
       billedWeightKg?: number | null;
       amountInr?: number | null;
+      surchargePercent?: number | null;
+      chargedInr?: number | null;
       exchangeRate?: number | null;
       currency?: string | null;
       perKgRateInr?: number | null;
@@ -49,9 +51,17 @@ export default function ShipLock({ order }: FabricShipLockProps) {
     lock.extraKg != null && lock.perKgRateInr != null
       ? ` The 20 kg row plus ${lock.extraKg} kg at ${rupees(lock.perKgRateInr)} per kg.`
       : '';
+  const billed =
+    lock.billedWeightKg != null && lock.billedWeightKg !== lock.weightKg
+      ? ` (billed ${lock.billedWeightKg} kg)`
+      : '';
+  const surcharge =
+    lock.surchargePercent != null && lock.chargedInr != null
+      ? ` + ${lock.surchargePercent}% surcharge = ${rupees(lock.chargedInr)}`
+      : '';
   return (
     <p className="mt-1 text-sm text-muted-foreground">
-      {`Shipping zone ${lock.zone}, ${lock.weightKg} kg, card ${rupees(lock.amountInr)}, charged ${chargedAmount(lock.charged, lock.currency)} at ${lock.exchangeRate} INR per 1 ${lock.currency}.${extra}`}
+      {`Shipping zone ${lock.zone}, ${lock.weightKg} kg${billed}, card ${rupees(lock.amountInr)}${surcharge}, charged ${chargedAmount(lock.charged, lock.currency)} at ${lock.exchangeRate} INR per 1 ${lock.currency}.${extra}`}
     </p>
   );
 }
@@ -69,6 +79,8 @@ export const query = `
         weightKg
         billedWeightKg
         amountInr
+        surchargePercent
+        chargedInr
         exchangeRate
         currency
         perKgRateInr

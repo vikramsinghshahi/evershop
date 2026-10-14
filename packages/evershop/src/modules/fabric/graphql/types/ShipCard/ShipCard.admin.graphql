@@ -14,6 +14,8 @@ type FabricShipRate {
 extend type Query {
   fabricShipCountries: [FabricShipCountry!]!
   fabricShipRates: [FabricShipRate!]!
+  """Percent added to the card price at checkout. Shoppers see only the total."""
+  fabricShipSurcharge: Float!
 }
 
 """The zone, weight and rupee charge frozen when the order was placed."""
@@ -22,6 +24,9 @@ type FabricShipLock {
   weightKg: Float!
   billedWeightKg: Float!
   amountInr: Float!
+  """Empty on orders placed before the surcharge existed."""
+  surchargePercent: Float
+  chargedInr: Float
   exchangeRate: Float!
   currency: String!
   perKgRateInr: Float

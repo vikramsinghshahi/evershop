@@ -1,4 +1,5 @@
 import { loadShipCountries, loadShipRates } from '../../../services/shipStore.js';
+import { loadShipSurcharge } from '../../../services/shipSurchargeStore.js';
 
 function readNumber(value: unknown): number | null {
   if (value == null || value === '') {
@@ -38,6 +39,8 @@ function shipLock(order: {
     weightKg,
     billedWeightKg: readNumber(metadata.billedWeightKg) ?? weightKg,
     amountInr,
+    surchargePercent: readNumber(metadata.surchargePercent),
+    chargedInr: readNumber(metadata.chargedInr),
     exchangeRate,
     currency,
     perKgRateInr: readNumber(metadata.perKgRateInr),
@@ -49,7 +52,8 @@ function shipLock(order: {
 export default {
   Query: {
     fabricShipCountries: () => loadShipCountries(),
-    fabricShipRates: () => loadShipRates()
+    fabricShipRates: () => loadShipRates(),
+    fabricShipSurcharge: () => loadShipSurcharge()
   },
   Order: {
     fabricShipLock: shipLock

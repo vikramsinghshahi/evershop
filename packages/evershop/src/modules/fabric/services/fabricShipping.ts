@@ -8,6 +8,8 @@ import type {
 import { quoteCountryShip } from './shipStore.js';
 import { weightToKilograms } from './shipQuote.js';
 import { exchangeRateFor } from './shopCurrencyRates.js';
+import { applyShipSurcharge } from './shipSurcharge.js';
+import { storeShipSurcharge } from './shipSurchargeStore.js';
 import {
   isShopCurrency,
   quotePrice,
@@ -36,15 +38,19 @@ export async function fabricShipMethod(
     return null;
   }
   const rate = exchangeRateFor(currency);
+  const surchargePercent = storeShipSurcharge();
+  const chargedInr = applyShipSurcharge(quote.amountInr, surchargePercent);
   return {
     code: FABRIC_SHIP_METHOD,
     name: 'Standard delivery',
-    cost: quotePrice(quote.amountInr, currency, rate, 0),
+    cost: quotePrice(chargedInr, currency, rate, 0),
     metadata: {
       zone: quote.zone,
       weightKg: quote.weightKg,
       billedWeightKg: quote.billedWeightKg,
       amountInr: quote.amountInr,
+      surchargePercent,
+      chargedInr,
       exchangeRate: rate,
       currency,
       perKgRateInr: quote.perKgRateInr,
@@ -57,7 +63,7 @@ export const fabricShippingProvider: ShippingProvider = {
   code: 'fabric',
   name: 'Export rate card',
   description:
-    'Shipping from the zone and weight card. The rupee charge is divided by the order rate, with no export margin.',
+    'Shipping from the zone and weight card, plus the export shipping surcharge. The rupee charge is divided by the order rate, with no export margin.',
   quoteTtlSeconds: 120,
   async getMethods(ctx) {
     const method = await fabricShipMethod(ctx);

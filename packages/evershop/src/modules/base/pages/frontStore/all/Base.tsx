@@ -34,7 +34,29 @@ export default function Base({
   registerApi
 }: BaseProps) {
   const { config } = useAppState();
-  const isLandingPage = config?.pageMeta?.route?.id === 'landingPageView';
+  const routeId = config?.pageMeta?.route?.id;
+  const isLandingPage = routeId === 'landingPageView';
+  // Every product listing (home, all products, a category such as Accessories,
+  // search). On a wide desktop these drop the 1200px column so the filter and
+  // the grid use the side margins. The header does this on every page.
+  const wideListing =
+    routeId === 'homepage' ||
+    routeId === 'productListing' ||
+    routeId === 'categoryView' ||
+    routeId === 'catalogSearch';
+  const shell = (
+    <>
+      <LoadingBar />
+      <Header />
+      <Area
+        id={isLandingPage ? 'landing_page_content' : 'content'}
+        className="page-width min-h-36"
+        wrapper="main"
+        editableInPageBuilder
+      />
+      <Footer copyRight={themeConfig.copyRight} />
+    </>
+  );
   return (
     <CustomerProvider
       initialCustomer={customer}
@@ -47,15 +69,7 @@ export default function Base({
         query={`${query}\n${fragments}`}
         addMineCartItemApi={addMineCartItemApi}
       >
-        <LoadingBar />
-        <Header />
-        <Area
-          id={isLandingPage ? 'landing_page_content' : 'content'}
-          className="page-width min-h-36"
-          wrapper="main"
-          editableInPageBuilder
-        />
-        <Footer copyRight={themeConfig.copyRight} />
+        {wideListing ? <div className="listing-screen">{shell}</div> : shell}
       </CartProvider>
     </CustomerProvider>
   );

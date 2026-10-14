@@ -7,7 +7,13 @@ import {
   FABRIC_LAYOUTS,
   layoutLabel
 } from '../../../services/designCatalog.js';
-import { isFabricSku } from '../../../services/printScale.js';
+import {
+  isFabricSku,
+  printPpiForScale,
+  printSizeCm,
+  qualityForPpi
+} from '../../../services/printScale.js';
+import { getPrintScale, setPrintScaleView, subscribePrintScale } from '../../../services/printScaleView.js';
 import {
   getFabricPurchaseMode,
   subscribeFabricPurchase
@@ -22,14 +28,21 @@ import {
 
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 
+const toneClass = {
+  poor: 'text-red-600',
+  acceptable: 'text-amber-600',
+  sharp: 'text-emerald-700'
+} as const;
+
 /**
  * Upload or choose a design, then pick how it repeats. The cloth preview
  * reads the same store. The form value is what add-to-cart posts.
  */
 export default function FabricDesign() {
-  const { sku } = useProduct();
+  const { sku, name } = useProduct();
   const { setValue } = useFormContext();
   const view = React.useSyncExternalStore(subscribePrintDesign, getPrintDesignView, getPrintDesignView);
+  const scale = React.useSyncExternalStore(subscribePrintScale, getPrintScale, () => 100);
   const purchaseMode = React.useSyncExternalStore(
     subscribeFabricPurchase,
     getFabricPurchaseMode,
@@ -191,6 +204,40 @@ export default function FabricDesign() {
           {layoutLabel(view.layout)} · {view.rotation}°
         </p>
       )}
+      <ImageScale name={name} scale={scale} />
+    </div>
+  );
+}
+
+function ImageScale({ name, scale }: { name: string; scale: number }) {
+  const ppi = printPpiForScale(scale);
+  const quality = qualityForPpi(ppi);
+  const sizeCm = printSizeCm(scale);
+
+  return (
+    <div className="mt-4 min-w-0">
+      <div className="mb-2 flex items-baseline justify-between gap-3">
+        <span className="text-xs font-semibold tracking-wide">IMAGE SCALE</span>
+        <span className="text-sm font-semibold tabular-nums">{scale}%</span>
+      </div>
+      <input
+        type="range"
+        min={1}
+        max={100}
+        step={1}
+        value={scale}
+        aria-label={`Image scale for ${name}`}
+        className="block h-2 w-full max-w-full cursor-pointer accent-neutral-900"
+        onChange={(event) => {
+          setPrintScaleView(Number(event.target.value));
+        }}
+      />
+      <div className="mt-2 text-sm">
+        Print File Resolution{' '}
+        <span className={`font-semibold ${toneClass[quality]}`}>{ppi}</span>
+        <span className="text-neutral-500"> · </span>
+        Print size <span className="font-semibold tabular-nums">{sizeCm.toFixed(1)} cm</span>
+      </div>
     </div>
   );
 }

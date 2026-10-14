@@ -1,12 +1,6 @@
 import { useProduct } from '@components/frontStore/catalog/ProductContext.js';
 import React from 'react';
-import {
-  FABRIC_SWATCHES,
-  isFabricSku,
-  printPpiForScale,
-  printSizeCm,
-  qualityForPpi
-} from '../../../services/printScale.js';
+import { FABRIC_SWATCHES, isFabricSku } from '../../../services/printScale.js';
 import {
   getPrintScale,
   setPrintScaleView,
@@ -29,12 +23,6 @@ import {
 } from '../../../services/orderSizeView.js';
 import { DesignLayout } from '../../../components/DesignLayout.js';
 import { orderSizeById } from '../../../services/orderSize.js';
-
-const toneClass = {
-  poor: 'text-red-600',
-  acceptable: 'text-amber-600',
-  sharp: 'text-emerald-700'
-} as const;
 
 /**
  * Centimetre marks for the cloth being ordered. A short swatch is marked
@@ -170,9 +158,6 @@ export default function FabricMaterial() {
   const swatch = FABRIC_SWATCHES[sku] || '#e7e0d6';
   const piece = orderSizeById(orderSize);
   const printing = purchaseMode === 'print';
-  const ppi = printPpiForScale(scale);
-  const quality = qualityForPpi(ppi);
-  const sizeCm = printSizeCm(scale);
 
   return (
     <div className="fabric-material">
@@ -191,7 +176,9 @@ export default function FabricMaterial() {
             <img
               src={image.url}
               alt={image.alt || name}
-              className="absolute inset-0 h-full w-full object-cover"
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+                printing && designView.selection ? 'opacity-[0.14]' : 'opacity-100'
+              }`}
             />
           )}
           {printing && designView.selection && (
@@ -211,32 +198,6 @@ export default function FabricMaterial() {
           )}
         </div>
       </div>
-      {printing && (
-        <div className="mt-3">
-          <div className="mb-2 flex items-baseline justify-between">
-            <span className="text-xs font-semibold tracking-wide">IMAGE SCALE</span>
-            <span className="text-sm font-semibold tabular-nums">{scale}%</span>
-          </div>
-          <input
-            type="range"
-            min={1}
-            max={100}
-            step={1}
-            value={scale}
-            aria-label={`Image scale for ${name}`}
-            className="h-2 w-full cursor-pointer accent-neutral-900"
-            onChange={(event) => {
-              setPrintScaleView(Number(event.target.value));
-            }}
-          />
-          <div className="mt-2 text-sm">
-            Print File Resolution{' '}
-            <span className={`font-semibold ${toneClass[quality]}`}>{ppi}</span>
-            <span className="text-neutral-500"> · </span>
-            Print size <span className="font-semibold tabular-nums">{sizeCm.toFixed(1)} cm</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

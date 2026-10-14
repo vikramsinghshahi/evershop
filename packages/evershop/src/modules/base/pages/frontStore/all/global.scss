@@ -144,3 +144,27 @@
     }
   }
 }
+
+/* Wide desktop only. A 1200px column with a 240px filter and three cards
+ * leaves each card about 269px. Four cards at that same size need the column
+ * to be about 1500px, so below that nothing here applies — phones, tablets
+ * and smaller desktops stay as they are. Card styles are not touched.
+ *
+ * The header and the footer always span the viewport, on every page. Product
+ * listings (`.listing-screen`: home, all products, category, search) do the
+ * same so the filter sits at the left and the grid can hold four cards. The
+ * grid rule is unlayered so it wins over `lg:grid-cols-3`. */
+@media screen and (min-width: 1500px) {
+  .header,
+  .footer {
+    --page-max-width: none;
+  }
+
+  .listing-screen {
+    --page-max-width: none;
+  }
+
+  .listing-screen .product__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

@@ -28,6 +28,8 @@ interface ExportShippingProps {
   fabricShipRates?: RateRow[];
   saveShipCountriesApi: string;
   saveShipRatesApi: string;
+  fabricShipSurcharge?: number;
+  saveShipSurchargeApi: string;
 }
 
 const ZONES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
@@ -56,8 +58,10 @@ async function postJson(url: string, body: unknown): Promise<string | null> {
 export default function ExportShipping({
   fabricShipCountries = [],
   fabricShipRates = [],
+  fabricShipSurcharge,
   saveShipCountriesApi,
-  saveShipRatesApi
+  saveShipRatesApi,
+  saveShipSurchargeApi
 }: ExportShippingProps) {
   const [countries, setCountries] = useState(fabricShipCountries);
   const [rates, setRates] = useState(fabricShipRates);
@@ -67,6 +71,17 @@ export default function ExportShipping({
   const [rateMessage, setRateMessage] = useState('');
   const [savingCountries, setSavingCountries] = useState(false);
   const [savingRates, setSavingRates] = useState(false);
+  const [surcharge, setSurcharge] = useState(String(fabricShipSurcharge ?? 80));
+  const [surchargeMessage, setSurchargeMessage] = useState('');
+  const [savingSurcharge, setSavingSurcharge] = useState(false);
+  const surchargeText = surcharge.replace(/%/g, '').trim();
+  const surchargePreview =
+    surchargeText !== '' &&
+    Number.isFinite(Number(surchargeText)) &&
+    Number(surchargeText) >= 0 &&
+    Number(surchargeText) <= 1000
+      ? Number(surchargeText)
+      : null;
 
   const shown = useMemo(() => {
     const text = filter.trim().toLowerCase();
@@ -134,13 +149,69 @@ export default function ExportShipping({
         <div className="lg:col-span-4 space-y-5">
           <Card>
             <CardHeader>
+              <CardTitle>Shipping surcharge</CardTitle>
+              <CardDescription>
+                Added on top of the card price before checkout shows it, to cover
+                GST and taxes. Shoppers see one shipping amount.
+                {surchargePreview != null &&
+                  ` At ${surchargePreview}%, a ₹1,134 card price is charged as ₹${(
+                    Math.round(1134 * (1 + surchargePreview / 100) * 100) / 100
+                  ).toLocaleString('en-IN', { maximumFractionDigits: 2 })}.`}{' '}
+                Enter 0 for no surcharge. A new value reaches open carts within
+                about two minutes. Orders already placed keep their price.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="flex items-center gap-2">
+                  <input
+                    aria-label="Shipping surcharge percent"
+                    className="h-9 w-28 rounded-md border border-input bg-background px-2 text-right tabular-nums"
+                    inputMode="decimal"
+                    value={surcharge}
+                    onChange={(event) => setSurcharge(event.target.value)}
+                  />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+                <Button
+                  type="button"
+                  disabled={savingSurcharge}
+                  onClick={async () => {
+                    setSavingSurcharge(true);
+                    setSurchargeMessage('');
+                    try {
+                      const error = await postJson(saveShipSurchargeApi, {
+                        percent: surcharge
+                      });
+                      setSurchargeMessage(error ?? 'Surcharge saved');
+                    } catch {
+                      setSurchargeMessage('Could not save');
+                    } finally {
+                      setSavingSurcharge(false);
+                    }
+                  }}
+                >
+                  Save surcharge
+                </Button>
+                {surchargeMessage && (
+                  <p className="text-sm text-muted-foreground">{surchargeMessage}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Export rates</CardTitle>
               <CardDescription>
-                Prices are rupees. Up to 20 kg, the half-kilogram row that covers
-                the parcel is charged. Above that, the 20 kg price plus each extra
-                kilogram at the 21+, 45+, or 71+ rate. Checkout divides that rupee
-                amount by the exchange rate and does not add the fabric margin.
-                The zone, weight, rupee price, and rate are stored on the order.
+                Prices are rupees, before the surcharge above. Nothing is billed
+                under 1 kg: a lighter parcel is charged the 1 kg row, and above
+                1 kg the half-kilogram row that covers the parcel is charged, up
+                to 20 kg. Above that, the 20 kg price plus each extra kilogram at
+                the 21+, 45+, or 71+ rate. Checkout adds the surcharge, divides
+                that rupee amount by the exchange rate, and does not add the
+                fabric margin. The zone, weight, rupee price, surcharge, and rate
+                are stored on the order.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -345,5 +416,7 @@ export const query = `
     }
     saveShipCountriesApi: url(routeId: "saveShipCountries")
     saveShipRatesApi: url(routeId: "saveShipRates")
+    fabricShipSurcharge
+    saveShipSurchargeApi: url(routeId: "saveShipSurcharge")
   }
 `;
