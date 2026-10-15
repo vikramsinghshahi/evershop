@@ -1,0 +1,5 @@
+{
+  "methods": ["GET"],
+  "path": "/designs",
+  "name": "Design gallery"
+}

@@ -114,7 +114,9 @@ export default async (
     request.url = request.originalUrl.replace('/assets', '');
   }
 
-  if (path.endsWith('/')) {
+  // serve-static only skips dot*files*; files inside a dot-directory (private
+  // uploads such as designer originals) would otherwise be served.
+  if (path.endsWith('/') || path.split(/[\\/]/).some((part) => part.startsWith('.'))) {
     return response.status(404).send('Not Found');
   }
 

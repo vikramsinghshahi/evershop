@@ -6,7 +6,9 @@ import { setPageMetaInfo } from '../../../../cms/services/pageMetaInfo.js';
 
 export default (request: EvershopRequest, response: EvershopResponse, next) => {
   if (request.getCurrentCustomer()) {
-    response.redirect(buildUrl('homepage'));
+    response.redirect(
+      buildUrl(request.query?.as === 'designer' ? 'designerDashboard' : 'homepage')
+    );
   } else {
     setPageMetaInfo(request, {
       title: translate('Create an account'),

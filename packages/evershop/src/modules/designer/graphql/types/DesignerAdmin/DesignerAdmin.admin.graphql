@@ -1,0 +1,8 @@
+extend type Query {
+  """Designer accounts with design counts. Pending accounts first."""
+  adminDesigners(status: String): JSON
+  """Submitted designs for review. Pending designs first."""
+  adminDesignReview(status: String): JSON
+  """Wallet balances per designer and recent payouts."""
+  adminDesignerPayouts: JSON
+}

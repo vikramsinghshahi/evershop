@@ -1,0 +1,19 @@
+extend type Query {
+  """The signed-in shopper's designer workspace: profile, designs and wallet. Null when signed out."""
+  designerWorkspace: JSON
+  """Live designs by verified designers."""
+  designGallery(
+    category: String
+    color: String
+    designer: String
+    q: String
+    sort: String
+    page: Int
+  ): JSON
+  """A verified designer's public profile. Null when unknown or not verified."""
+  designerPublicProfile(slug: String!): JSON
+  """Categories, colours and designers with live designs, for filters."""
+  designFilterOptions: JSON
+  """Fabrics a design can be printed on: name, url, image."""
+  printFabrics: JSON
+}

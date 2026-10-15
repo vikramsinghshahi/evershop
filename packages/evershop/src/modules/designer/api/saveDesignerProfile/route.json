@@ -1,0 +1,5 @@
+{
+  "methods": ["POST"],
+  "path": "/designer/profile",
+  "access": "public"
+}

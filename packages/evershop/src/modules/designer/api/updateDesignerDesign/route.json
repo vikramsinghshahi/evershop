@@ -1,0 +1,5 @@
+{
+  "methods": ["PATCH"],
+  "path": "/designer/designs/:id",
+  "access": "public"
+}

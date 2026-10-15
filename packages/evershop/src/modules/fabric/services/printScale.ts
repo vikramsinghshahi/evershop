@@ -1,5 +1,9 @@
-import { parseDesignSelection, type StoredDesign } from './printDesign.js';
 import { orderSizeSnapshot } from './orderSize.js';
+import {
+  parseDesignSelection,
+  type ResolvedDesignerDesign,
+  type StoredDesign
+} from './printDesign.js';
 import { readPrintFee } from './printFee.js';
 
 /**
@@ -99,7 +103,7 @@ function scaleFromInput(raw: unknown): unknown {
   return raw;
 }
 
-function isPlainPurchase(raw: unknown): boolean {
+export function isPlainPurchase(raw: unknown): boolean {
   return (
     raw !== null &&
     typeof raw === 'object' &&
@@ -114,7 +118,11 @@ function isPlainPurchase(raw: unknown): boolean {
  * are ignored. Any other fabric payload still needs a usable scale and design.
  * A non-fabric product ignores all of it, so a cup cannot pick up a print.
  */
-export function resolvePrintConfiguration(sku: string, raw: unknown): string | null {
+export function resolvePrintConfiguration(
+  sku: string,
+  raw: unknown,
+  designer?: ResolvedDesignerDesign | null
+): string | null {
   if (!isFabricSku(sku)) {
     return null;
   }
@@ -150,7 +158,7 @@ export function resolvePrintConfiguration(sku: string, raw: unknown): string | n
     raw !== null && typeof raw === 'object' && !Array.isArray(raw)
       ? (raw as { design?: unknown }).design
       : undefined;
-  const design = parseDesignSelection(designInput);
+  const design = parseDesignSelection(designInput, designer);
   if (!design.ok) {
     throw new PrintScaleError(design.message);
   }
@@ -215,7 +223,7 @@ export function parseStoredPrintOptions(
     const design = data.design;
     const storedDesign =
       design &&
-      (design.source === 'catalog' || design.source === 'upload') &&
+      (design.source === 'catalog' || design.source === 'upload' || design.source === 'designer') &&
       typeof design.name === 'string' &&
       typeof design.image === 'string' &&
       typeof design.layout === 'string' &&

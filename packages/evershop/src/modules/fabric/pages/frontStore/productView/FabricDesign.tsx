@@ -3,19 +3,19 @@ import { useProduct } from '@components/frontStore/catalog/ProductContext.js';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
-  CATALOG_DESIGNS,
+  designerSelection,
+  DesignLibrary,
+  fetchLiveDesign,
+  PENDING_DESIGN_KEY
+} from '../../../components/DesignLibrary.js';
+import {
   FABRIC_LAYOUTS,
+  isFabricLayout,
   layoutLabel
 } from '../../../services/designCatalog.js';
 import {
-  isFabricSku,
-  printPpiForScale,
-  printSizeCm,
-  qualityForPpi
-} from '../../../services/printScale.js';
-import { getPrintScale, setPrintScaleView, subscribePrintScale } from '../../../services/printScaleView.js';
-import {
   getFabricPurchaseMode,
+  setFabricPurchaseMode,
   subscribeFabricPurchase
 } from '../../../services/fabricPurchaseView.js';
 import {
@@ -23,10 +23,25 @@ import {
   rotatePrintDesign,
   setPrintDesignSelection,
   setPrintLayout,
-  subscribePrintDesign
+  subscribePrintDesign,
+  type PrintDesignSelection
 } from '../../../services/printDesignView.js';
+import {
+  isFabricSku,
+  printPpiForScale,
+  printSizeCm,
+  qualityForPpi
+} from '../../../services/printScale.js';
+import { getPrintScale, setPrintScaleView, subscribePrintScale } from '../../../services/printScaleView.js';
 
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+
+function pickDesign(selection: PrintDesignSelection): void {
+  setPrintDesignSelection(selection);
+  if (selection.repeatType && isFabricLayout(selection.repeatType)) {
+    setPrintLayout(selection.repeatType);
+  }
+}
 
 const toneClass = {
   poor: 'text-red-600',
@@ -51,6 +66,47 @@ export default function FabricDesign() {
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [catalogOpen, setCatalogOpen] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
+
+  // A design chosen in the gallery (?design=<id>, or remembered while the
+  // shopper picked a fabric) is preselected if it is still live.
+  React.useEffect(() => {
+    if (!isFabricSku(sku)) {
+      return;
+    }
+    let wanted: string | null = null;
+    try {
+      wanted =
+        new URLSearchParams(window.location.search).get('design') ||
+        window.sessionStorage.getItem(PENDING_DESIGN_KEY);
+    } catch {
+      wanted = null;
+    }
+    if (!wanted || !/^[0-9a-f-]{36}$/i.test(wanted)) {
+      return;
+    }
+    let cancelled = false;
+    fetchLiveDesign(wanted)
+      .then((design) => {
+        if (cancelled) {
+          return;
+        }
+        try {
+          window.sessionStorage.removeItem(PENDING_DESIGN_KEY);
+        } catch {
+          // Storage can be blocked; the URL parameter still works.
+        }
+        if (!design) {
+          toast.error('That design is no longer available. Choose another one.');
+          return;
+        }
+        setFabricPurchaseMode('print');
+        pickDesign(designerSelection(design));
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [sku]);
 
   React.useEffect(() => {
     if (!isFabricSku(sku)) {
@@ -147,34 +203,19 @@ export default function FabricDesign() {
         />
       </div>
       {catalogOpen && (
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {CATALOG_DESIGNS.map((design) => {
-            const selected = view.selection?.designId === design.id;
-            return (
-              <button
-                key={design.id}
-                type="button"
-                className={`border p-1 text-left text-xs ${selected ? 'border-neutral-900' : 'border-neutral-200'}`}
-                onClick={() => {
-                  setPrintDesignSelection({
-                    source: 'catalog',
-                    designId: design.id,
-                    name: design.name,
-                    image: design.image
-                  });
-                  setCatalogOpen(false);
-                }}
-              >
-                <img src={design.image} alt="" className="aspect-square w-full object-contain" />
-                <span className="mt-1 block">{design.name}</span>
-              </button>
-            );
-          })}
-        </div>
+        <DesignLibrary
+          selectedId={view.selection?.designId ?? null}
+          onPick={(selection) => {
+            pickDesign(selection);
+            setCatalogOpen(false);
+          }}
+        />
       )}
       <p className="mt-2 text-sm text-neutral-600">
         {view.selection
-          ? view.selection.name
+          ? `${view.selection.name}${
+              view.selection.designerName ? ` by ${view.selection.designerName}` : ''
+            }`
           : 'Upload a design or choose one from the catalog.'}
       </p>
       <div className="mt-3 text-xs font-semibold tracking-wide">LAYOUT</div>

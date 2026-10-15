@@ -30,7 +30,7 @@ export interface AddToCartProps {
   mode?: 'plain';
   orderSize?: 'linear' | 'test' | 'big';
   design?: {
-    source: 'catalog' | 'upload';
+    source: 'catalog' | 'upload' | 'designer';
     designId: string;
     name?: string;
     image?: string;

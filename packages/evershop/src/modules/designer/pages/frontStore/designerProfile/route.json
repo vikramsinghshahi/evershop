@@ -1,0 +1,5 @@
+{
+  "methods": ["GET"],
+  "path": "/designer/:slug",
+  "name": "Designer profile"
+}

@@ -6,10 +6,13 @@ import type { FabricLayoutId, FabricRotation } from './designCatalog.js';
  * snapshot — that is written when the fabric is added to the cart.
  */
 export interface PrintDesignSelection {
-  source: 'catalog' | 'upload';
+  source: 'catalog' | 'upload' | 'designer';
   designId: string;
   name: string;
   image: string;
+  designerName?: string;
+  /** Repeat the designer recommends; picking the design applies it. */
+  repeatType?: string;
 }
 
 export interface PrintDesignViewState {

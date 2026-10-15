@@ -1,0 +1,5 @@
+{
+  "methods": ["PATCH"],
+  "path": "/designer/profiles/:id",
+  "access": "private"
+}

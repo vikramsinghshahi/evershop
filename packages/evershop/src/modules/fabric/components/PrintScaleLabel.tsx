@@ -52,8 +52,12 @@ export function PrintScaleLabel({
             className="h-8 w-8 border border-neutral-200 bg-white object-contain"
           />
           <span>
-            {stored.design.name} · {layoutLabel(stored.design.layout as FabricLayoutId)} ·{' '}
-            {stored.design.rotation}°
+            {stored.design.name}
+            {stored.design.source === 'designer' && stored.design.designerName
+              ? ` by ${stored.design.designerName}`
+              : ''}
+            {stored.design.designSku ? ` (${stored.design.designSku})` : ''} ·{' '}
+            {layoutLabel(stored.design.layout as FabricLayoutId)} · {stored.design.rotation}°
           </span>
         </div>
       )}

@@ -37,7 +37,7 @@ export function PrintDesignDownload({
   }
   if (target.kind === 'file') {
     return (
-      <a href={target.href} download={target.fileName} className={linkClass}>
+      <a href={target.href} download={target.fileName || true} className={linkClass}>
         {_('Download design')}
       </a>
     );

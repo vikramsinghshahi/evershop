@@ -7,12 +7,26 @@ import {
 } from './designCatalog.js';
 
 export interface StoredDesign {
-  source: 'catalog' | 'upload';
+  source: 'catalog' | 'upload' | 'designer';
   designId: string;
   name: string;
   image: string;
   layout: FabricLayoutId;
   rotation: FabricRotation;
+  /** Designer designs only: the approved code and who earns the commission. */
+  designSku?: string | null;
+  designerName?: string;
+  designerSlug?: string;
+}
+
+/** A live designer design, looked up on the server before the cart line is built. */
+export interface ResolvedDesignerDesign {
+  uuid: string;
+  sku: string | null;
+  name: string;
+  image: string;
+  designerName: string;
+  designerSlug: string;
 }
 
 export type DesignParse =
@@ -66,6 +80,18 @@ function downloadBaseName(name: string): string {
  * embedded in the line, because those designs are not files on disk.
  */
 export function designDownload(design: StoredDesign): DesignDownload | null {
+  if (design.source === 'designer') {
+    if (!/^[0-9a-f-]{36}$/i.test(design.designId)) {
+      return null;
+    }
+    // The print file is private. The admin API streams it and names it,
+    // extension included, so the link leaves the name to the server.
+    return {
+      kind: 'file',
+      href: `/api/designer/originals/${design.designId}`,
+      fileName: ''
+    };
+  }
   if (design.source === 'upload') {
     const href = normalizeUploadedDesignUrl(design.image);
     if (!href) {
@@ -102,7 +128,10 @@ export function designDownload(design: StoredDesign): DesignDownload | null {
  * Catalog artwork is copied from the server catalog. Upload artwork must
  * already be a file this shop saved.
  */
-export function parseDesignSelection(raw: unknown): DesignParse {
+export function parseDesignSelection(
+  raw: unknown,
+  designer?: ResolvedDesignerDesign | null
+): DesignParse {
   if (raw === undefined || raw === null) {
     return {
       ok: false,
@@ -139,6 +168,29 @@ export function parseDesignSelection(raw: unknown): DesignParse {
         image: found.image,
         layout: body.layout,
         rotation: body.rotation
+      }
+    };
+  }
+  if (body.source === 'designer') {
+    // Name, image and owner come from the server lookup, never from the browser.
+    if (typeof body.designId !== 'string' || !designer || designer.uuid !== body.designId) {
+      return {
+        ok: false,
+        message: 'That design is no longer available. Choose another design.'
+      };
+    }
+    return {
+      ok: true,
+      design: {
+        source: 'designer',
+        designId: designer.uuid,
+        name: designer.name,
+        image: designer.image,
+        layout: body.layout,
+        rotation: body.rotation,
+        designSku: designer.sku,
+        designerName: designer.designerName,
+        designerSlug: designer.designerSlug
       }
     };
   }
