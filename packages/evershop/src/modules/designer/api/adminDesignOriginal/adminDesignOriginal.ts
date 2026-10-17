@@ -1,7 +1,6 @@
-import fs from 'fs';
 import { NOT_FOUND } from '../../../../lib/util/httpStatus.js';
 import type { EvershopRequest } from '../../../../types/request.js';
-import { designByUuid, originalFilePath } from '../../services/designs.js';
+import { designByUuid, openDesignOriginal } from '../../services/designs.js';
 import { sendError, sendFailure } from '../../services/http.js';
 
 function downloadName(name: string, sku: string | null, file: string): string {
@@ -18,12 +17,27 @@ function downloadName(name: string, sku: string | null, file: string): string {
 export default async function adminDesignOriginal(request: EvershopRequest, response, next) {
   try {
     const design = await designByUuid(String(request.params.id));
-    const filePath = design ? originalFilePath(design) : null;
-    if (!design || !filePath || !fs.existsSync(filePath)) {
+    const file = design ? await openDesignOriginal(design) : null;
+    if (!design || !file) {
       sendError(response, NOT_FOUND, 'The print file for this design was not found.');
       return;
     }
-    response.download(filePath, downloadName(design.name, design.sku, design.original_file));
+    response.set({
+      'Content-Type': file.contentType || 'application/octet-stream',
+      'Content-Disposition': `attachment; filename="${downloadName(
+        design.name,
+        design.sku,
+        design.original_file
+      )}"`
+    });
+    file.stream.on('error', (failure) => {
+      if (!response.headersSent) {
+        sendFailure(response, failure);
+      } else {
+        response.destroy();
+      }
+    });
+    file.stream.pipe(response);
   } catch (failure) {
     sendFailure(response, failure);
   }

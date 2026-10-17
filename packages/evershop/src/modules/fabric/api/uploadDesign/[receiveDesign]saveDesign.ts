@@ -1,6 +1,6 @@
-import { randomUUID } from 'crypto';
 import { INTERNAL_SERVER_ERROR, OK } from '../../../../lib/util/httpStatus.js';
 import { error } from '../../../../lib/log/logger.js';
+import { uniqueStoredImageName } from '../../../cms/services/uniqueStoredImageName.js';
 import { uploadFile } from '../../../cms/services/uploadFile.js';
 
 const EXTENSIONS: Record<string, string> = {
@@ -24,8 +24,8 @@ export default async function saveDesign(request, response, next) {
   try {
     const file = request.file;
     const extension = EXTENSIONS[file.mimetype];
-    file.filename = `${randomUUID()}${extension}`;
-    const [saved] = await uploadFile([file], 'fabric-designs');
+    file.filename = await uniqueStoredImageName(String(file.originalname || ''), extension);
+    const [saved] = await uploadFile([file], '');
     response.status(OK).json({
       data: {
         url: saved.url,

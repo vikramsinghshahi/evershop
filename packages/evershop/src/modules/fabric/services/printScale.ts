@@ -121,7 +121,8 @@ export function isPlainPurchase(raw: unknown): boolean {
 export function resolvePrintConfiguration(
   sku: string,
   raw: unknown,
-  designer?: ResolvedDesignerDesign | null
+  designer?: ResolvedDesignerDesign | null,
+  uploadUrlPrefix = ''
 ): string | null {
   if (!isFabricSku(sku)) {
     return null;
@@ -158,7 +159,7 @@ export function resolvePrintConfiguration(
     raw !== null && typeof raw === 'object' && !Array.isArray(raw)
       ? (raw as { design?: unknown }).design
       : undefined;
-  const design = parseDesignSelection(designInput, designer);
+  const design = parseDesignSelection(designInput, designer, uploadUrlPrefix);
   if (!design.ok) {
     throw new PrintScaleError(design.message);
   }

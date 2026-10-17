@@ -7,6 +7,7 @@ import { defaultPaginationFilters } from '../../lib/util/defaultPaginationFilter
 import { merge } from '../../lib/util/merge.js';
 import { addProcessor } from '../../lib/util/registry.js';
 import { registerAllowedImageHostsProvider } from '../../lib/util/secureFetch.js';
+import { refreshSetting } from '../setting/services/setting.js';
 import { registerWidget } from '../../lib/widget/widgetManager.js';
 import { registerDefaultPageCollectionFilters } from '../../modules/cms/services/registerDefaultPageCollectionFilters.js';
 import { registerDefaultWidgetCollectionFilters } from '../../modules/cms/services/registerDefaultWidgetCollectionFilters.js';
@@ -35,7 +36,7 @@ import {
 } from './services/storage/s3/s3Storage.js';
 import { getFileStorageImageHosts } from './services/storage/storageConfig.js';
 
-export default (context: { command?: string } = {}) => {
+export default async (context: { command?: string } = {}) => {
   // The /images proxy automatically allows the host of the active cloud file
   // storage (S3 bucket / Azure account / GCS / CDN base URL) — without this,
   // every storefront image stored in the cloud would be refused by the
@@ -43,19 +44,22 @@ export default (context: { command?: string } = {}) => {
   // The callback runs per check, so it sees settings saved after boot.
   registerAllowedImageHostsProvider(getFileStorageImageHosts);
 
-  // Warn (non-blocking) at server boot if the image proxy allowlist is unset.
-  // Without IMAGE_ALLOWED_HOSTS the /images endpoint will not fetch any external
-  // image — only local media/public/theme images are processed. Storage hosts
-  // derivable from config/env suppress the warning; settings-only setups are
-  // not visible here (the setting cache is warmed after this module loads).
-  if (
-    (context.command === 'start' || context.command === 'dev') &&
-    !process.env.IMAGE_ALLOWED_HOSTS?.trim() &&
-    getFileStorageImageHosts().length === 0
-  ) {
-    warning(
-      'IMAGE_ALLOWED_HOSTS is not set. The /images endpoint will not optimize external images — only local media/public/theme images are processed. Set IMAGE_ALLOWED_HOSTS to a comma-separated list of trusted hosts (e.g. "cdn.example.com,images.internal") to allow fetching external images. (When S3/Azure/GCS file storage is configured, its host is allowed automatically.)'
-    );
+  // Warn only when nothing can be fetched. Admin-panel S3 settings live in the
+  // database, and this module loads before the setting module warms that cache,
+  // so a check here used to report "no hosts" even after the bucket was saved.
+  if (context.command === 'start' || context.command === 'dev') {
+    try {
+      await refreshSetting();
+    } catch {
+      // The setting table may not exist yet on a fresh install, and the setting
+      // module reports a real database failure. A cold cache leaves the
+      // warning below in place.
+    }
+    if (!process.env.IMAGE_ALLOWED_HOSTS?.trim() && getFileStorageImageHosts().length === 0) {
+      warning(
+        'IMAGE_ALLOWED_HOSTS is not set. The /images endpoint will not optimize external images — only local media/public/theme images are processed. Set IMAGE_ALLOWED_HOSTS to a comma-separated list of trusted hosts (e.g. "cdn.example.com,images.internal") to allow fetching external images. (When S3/Azure/GCS file storage is configured, its host is allowed automatically.)'
+      );
+    }
   }
 
   addProcessor('configurationSchema', (schema) => {

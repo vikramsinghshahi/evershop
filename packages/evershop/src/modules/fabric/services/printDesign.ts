@@ -36,6 +36,11 @@ export type DesignParse =
 const UPLOAD_IMAGE =
   /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?(\/assets\/fabric-designs\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.(png|jpg|webp|gif))$/i;
 
+const LOCAL_IMAGE =
+  /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?(\/assets\/([a-z0-9][a-z0-9.-]{0,140}\.(png|jpg|webp|gif)))$/i;
+
+const SAFE_IMAGE = /^[a-z0-9][a-z0-9.-]{0,140}\.(png|jpg|webp|gif)$/i;
+
 function sanitizeName(raw: unknown): string {
   if (typeof raw !== 'string') {
     return 'Uploaded design';
@@ -48,15 +53,81 @@ function sanitizeName(raw: unknown): string {
   return name || 'Uploaded design';
 }
 
-export function normalizeUploadedDesignUrl(image: string): string | null {
+export function fabricDesignFileRef(image: string): { name: string; sig: string } | null {
   if (image.includes('..') || image.includes('\\') || image.includes('\0')) {
     return null;
   }
-  const match = image.split('?')[0].match(UPLOAD_IMAGE);
-  if (!match) {
+  let url: URL;
+  try {
+    url = new URL(image, 'http://shop.local');
+  } catch {
     return null;
   }
-  return match[1];
+  if (!url.pathname.endsWith('/fabric/design-file')) {
+    return null;
+  }
+  const name = url.searchParams.get('name') || '';
+  const sig = url.searchParams.get('sig') || '';
+  if (!SAFE_IMAGE.test(name) || !/^[A-Za-z0-9_-]{43}$/.test(sig)) {
+    return null;
+  }
+  return { name, sig };
+}
+
+export function normalizeUploadedDesignUrl(image: string, uploadUrlPrefix = ''): string | null {
+  if (image.includes('..') || image.includes('\\') || image.includes('\0')) {
+    return null;
+  }
+  const fabricFile = fabricDesignFileRef(image);
+  if (fabricFile) {
+    return `/api/fabric/design-file?name=${encodeURIComponent(fabricFile.name)}&sig=${fabricFile.sig}`;
+  }
+  const bare = image.split('?')[0];
+  const legacy = bare.match(UPLOAD_IMAGE);
+  if (legacy) {
+    return legacy[1];
+  }
+  const local = bare.match(LOCAL_IMAGE);
+  if (local) {
+    return local[1];
+  }
+  const prefix = uploadUrlPrefix.trim();
+  if (!prefix || !bare.startsWith(prefix)) {
+    return null;
+  }
+  let name = bare.slice(prefix.length);
+  try {
+    name = decodeURIComponent(name);
+  } catch {
+    return null;
+  }
+  if (!SAFE_IMAGE.test(name) || name.includes('/')) {
+    return null;
+  }
+  return bare;
+}
+
+/** A stored https image whose last path segment is a picture file name. */
+export function storedImageHref(image: string): string | null {
+  if (image.includes('..') || image.includes('\\') || image.includes('\0')) {
+    return null;
+  }
+  let url: URL;
+  try {
+    url = new URL(image.split('?')[0]);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== 'https:') {
+    return null;
+  }
+  let name = url.pathname.split('/').filter(Boolean).pop() || '';
+  try {
+    name = decodeURIComponent(name);
+  } catch {
+    return null;
+  }
+  return SAFE_IMAGE.test(name) ? url.toString() : null;
 }
 
 export type DesignDownload =
@@ -93,7 +164,7 @@ export function designDownload(design: StoredDesign): DesignDownload | null {
     };
   }
   if (design.source === 'upload') {
-    const href = normalizeUploadedDesignUrl(design.image);
+    const href = normalizeUploadedDesignUrl(design.image) || storedImageHref(design.image);
     if (!href) {
       return null;
     }
@@ -130,7 +201,8 @@ export function designDownload(design: StoredDesign): DesignDownload | null {
  */
 export function parseDesignSelection(
   raw: unknown,
-  designer?: ResolvedDesignerDesign | null
+  designer?: ResolvedDesignerDesign | null,
+  uploadUrlPrefix = ''
 ): DesignParse {
   if (raw === undefined || raw === null) {
     return {
@@ -198,7 +270,7 @@ export function parseDesignSelection(
     if (typeof body.image !== 'string') {
       return { ok: false, message: 'Upload the design again before adding this fabric.' };
     }
-    const image = normalizeUploadedDesignUrl(body.image);
+    const image = normalizeUploadedDesignUrl(body.image, uploadUrlPrefix);
     if (!image) {
       return { ok: false, message: 'Upload the design again before adding this fabric.' };
     }

@@ -1,0 +1,5 @@
+{
+  "methods": ["GET"],
+  "path": "/fabric/design-file",
+  "access": "public"
+}

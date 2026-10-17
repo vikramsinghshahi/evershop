@@ -22,6 +22,15 @@ export function designerUrl(slug: string): string {
   return buildUrl('designerProfile', { slug });
 }
 
+/**
+ * The address stored for the preview. A cloud upload is already the public
+ * Neon URL, so the browser loads it from the bucket on this machine and on
+ * Render. A local upload stays an `/assets` path.
+ */
+export function shopDesignImage(_uuid: string, image: string): string {
+  return image;
+}
+
 /** What shoppers see. No file paths beyond the preview. */
 export function publicDesign(row: PublicDesignRow) {
   return {
@@ -33,7 +42,7 @@ export function publicDesign(row: PublicDesignRow) {
     colors: row.colors ?? [],
     tags: row.tags ?? [],
     repeatType: row.repeat_type,
-    image: row.image,
+    image: shopDesignImage(row.uuid, row.image),
     salesCount: row.sales_count,
     designer: {
       name: row.designer_name,
@@ -53,7 +62,7 @@ export function ownDesign(row: DesignRow) {
     colors: row.colors ?? [],
     tags: row.tags ?? [],
     repeatType: row.repeat_type,
-    image: row.image,
+    image: shopDesignImage(row.uuid, row.image),
     width: row.width_px,
     height: row.height_px,
     dpi: row.dpi,

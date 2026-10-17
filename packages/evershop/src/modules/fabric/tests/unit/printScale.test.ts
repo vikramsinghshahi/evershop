@@ -235,6 +235,20 @@ describe('fabric print scale', () => {
         layout: 'center',
         rotation: 0
       })
+    ).toEqual({
+      kind: 'file',
+      href: 'https://example.com/a.png',
+      fileName: 'Remote.png'
+    });
+    expect(
+      designDownload({
+        source: 'upload',
+        designId: 'upload',
+        name: 'Remote',
+        image: 'https://example.com/secret.txt',
+        layout: 'center',
+        rotation: 0
+      })
     ).toBeNull();
   });
 });

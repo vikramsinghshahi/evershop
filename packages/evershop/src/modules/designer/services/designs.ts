@@ -1,9 +1,15 @@
 import { createHash, randomUUID } from 'crypto';
+import { createReadStream } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import sharp from 'sharp';
 import { CONSTANTS } from '../../../lib/helpers.js';
 import { error as logError } from '../../../lib/log/logger.js';
+import { deleteFile } from '../../cms/services/deleteFile.js';
+import { openStoredObject, type StoredObject } from '../../cms/services/openStoredObject.js';
+import { getFileStorageProvider } from '../../cms/services/storage/storageConfig.js';
+import { uniqueStoredImageName } from '../../cms/services/uniqueStoredImageName.js';
+import { uploadFile } from '../../cms/services/uploadFile.js';
 import { DesignerError, inTransaction, one, rows } from './db.js';
 import {
   checkDesignDetails,
@@ -47,13 +53,17 @@ export interface DesignRow {
   updated_at: Date;
 }
 
-/** Shopper-facing preview. Served from media like other catalog images. */
+/** Shopper-facing preview. Served from media, or from the configured bucket. */
 const PREVIEW_DIR = 'designer-designs';
 /**
- * The print file. A dot-folder inside media is never served by the static
- * middleware, and it still lives on the same persistent disk.
+ * Local print file. A dot-folder inside media is never served by the static
+ * middleware.
  */
 const ORIGINAL_DIR = '.designer-originals';
+/** Print file in the configured bucket. Visible in the bucket browser. */
+const CLOUD_ORIGINAL_DIR = 'designer-originals';
+const STORED_FILE_NAME = /^[0-9a-f-]{36}\.(png|jpg|tif|webp)$/i;
+const ROOT_FILE_NAME = /^[a-z0-9][a-z0-9.-]{0,160}\.(png|jpg|tif|webp)$/i;
 const PREVIEW_MAX_PX = 1600;
 
 const EXTENSIONS: Record<string, string> = {
@@ -71,15 +81,137 @@ const SHARP_FORMATS: Record<string, string> = {
 };
 
 export function originalFilePath(design: Pick<DesignRow, 'original_file'>): string | null {
-  if (!/^[0-9a-f-]{36}\.(png|jpg|tif|webp)$/i.test(design.original_file)) {
+  if (!STORED_FILE_NAME.test(design.original_file)) {
     return null;
   }
   return path.join(CONSTANTS.MEDIAPATH, ORIGINAL_DIR, design.original_file);
 }
 
-function previewFilePath(image: string): string | null {
-  const match = /^\/assets\/designer-designs\/([0-9a-f-]{36}\.webp)$/i.exec(image);
-  return match ? path.join(CONSTANTS.MEDIAPATH, PREVIEW_DIR, match[1]) : null;
+const ORIGINAL_MIME: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  tif: 'image/tiff',
+  webp: 'image/webp'
+};
+
+function asUpload(filename: string, buffer: Buffer, mimetype: string): Express.Multer.File {
+  return { filename, buffer, mimetype, size: buffer.length } as Express.Multer.File;
+}
+
+async function storeDesignFiles(
+  id: string,
+  extension: string,
+  originalBuffer: Buffer,
+  previewBuffer: Buffer,
+  mimetype: string,
+  originalFilename: string
+): Promise<{ imageUrl: string; originalName: string; previewName: string }> {
+  if (getFileStorageProvider() === 'local') {
+    const originalName = `${id}.${extension}`;
+    const previewName = `${id}.webp`;
+    const originalPath = path.join(CONSTANTS.MEDIAPATH, ORIGINAL_DIR, originalName);
+    const previewPath = path.join(CONSTANTS.MEDIAPATH, PREVIEW_DIR, previewName);
+    await fs.mkdir(path.dirname(originalPath), { recursive: true });
+    await fs.mkdir(path.dirname(previewPath), { recursive: true });
+    await fs.writeFile(originalPath, originalBuffer);
+    await fs.writeFile(previewPath, previewBuffer);
+    return { imageUrl: `/assets/${PREVIEW_DIR}/${previewName}`, originalName, previewName };
+  }
+  const originalName = await uniqueStoredImageName(originalFilename || `design.${extension}`, `.${extension}`);
+  const stem = originalName.slice(0, originalName.lastIndexOf('.'));
+  let previewName = originalName.toLowerCase().endsWith('.webp') ? `${stem}-preview.webp` : `${stem}.webp`;
+  if (previewName.toLowerCase() === originalName.toLowerCase()) {
+    previewName = `${stem}-preview.webp`;
+  }
+  previewName = await uniqueStoredImageName(previewName, '.webp');
+  try {
+    const [preview] = await uploadFile([asUpload(previewName, previewBuffer, 'image/webp')], '');
+    await uploadFile([asUpload(originalName, originalBuffer, mimetype)], '');
+    return { imageUrl: preview.url, originalName, previewName };
+  } catch (failure) {
+    await removeStoredDesignFiles(originalName, previewName);
+    throw failure;
+  }
+}
+
+function remoteKey(name: string, legacyDir: string): string {
+  if (STORED_FILE_NAME.test(name)) {
+    return `${legacyDir}/${name}`;
+  }
+  return ROOT_FILE_NAME.test(name) ? name : '';
+}
+
+async function removeStoredDesignFiles(originalName: string, previewName: string): Promise<void> {
+  const localFiles = [
+    STORED_FILE_NAME.test(originalName) ? path.join(CONSTANTS.MEDIAPATH, ORIGINAL_DIR, originalName) : '',
+    STORED_FILE_NAME.test(previewName) ? path.join(CONSTANTS.MEDIAPATH, PREVIEW_DIR, previewName) : ''
+  ].filter((file) => file);
+  await Promise.all(
+    localFiles.map((file) => fs.rm(file, { force: true }).catch((failure) => logError(failure)))
+  );
+  if (getFileStorageProvider() === 'local') {
+    return;
+  }
+  const remote = [remoteKey(originalName, CLOUD_ORIGINAL_DIR), remoteKey(previewName, PREVIEW_DIR)].filter(
+    (key) => key
+  );
+  await Promise.all(remote.map((key) => deleteFile(key).catch((failure) => logError(failure))));
+}
+
+function previewNameFromImage(image: string, uuid: string): string {
+  const legacy = `${uuid}.webp`;
+  if (image.endsWith(`/assets/${PREVIEW_DIR}/${legacy}`)) {
+    return legacy;
+  }
+  try {
+    const pathname = image.startsWith('http') ? new URL(image).pathname : image;
+    const last = decodeURIComponent(pathname.split('/').filter(Boolean).pop() || '');
+    if (STORED_FILE_NAME.test(last) || ROOT_FILE_NAME.test(last)) {
+      return last;
+    }
+  } catch {
+    // Keep the legacy preview name below.
+  }
+  return legacy;
+}
+
+/** Preview bytes for the shop. Never the print original. */
+export async function openDesignPreview(
+  design: Pick<DesignRow, 'uuid' | 'image'>
+): Promise<StoredObject | null> {
+  const name = previewNameFromImage(design.image, design.uuid);
+  if (design.image.startsWith('/assets/')) {
+    const local = path.join(CONSTANTS.MEDIAPATH, PREVIEW_DIR, `${design.uuid}.webp`);
+    try {
+      await fs.access(local);
+      return { stream: createReadStream(local), contentType: 'image/webp' };
+    } catch {
+      return null;
+    }
+  }
+  const key = remoteKey(name, PREVIEW_DIR);
+  return key ? openStoredObject(key) : null;
+}
+
+/** Local print file when it is still on disk; otherwise the object in the bucket. */
+export async function openDesignOriginal(
+  design: Pick<DesignRow, 'original_file'>
+): Promise<StoredObject | null> {
+  const local = originalFilePath(design);
+  if (local) {
+    try {
+      await fs.access(local);
+      const extension = design.original_file.split('.').pop()?.toLowerCase() || '';
+      return { stream: createReadStream(local), contentType: ORIGINAL_MIME[extension] };
+    } catch {
+      // Uploaded after file storage moved to a bucket.
+    }
+  }
+  if (getFileStorageProvider() === 'local') {
+    return null;
+  }
+  const key = remoteKey(design.original_file, CLOUD_ORIGINAL_DIR);
+  return key ? openStoredObject(key) : null;
 }
 
 export interface UploadedFile {
@@ -177,19 +309,25 @@ export async function createDesign(
   }
 
   const id = randomUUID();
-  const originalName = `${id}.${info.extension}`;
-  const previewName = `${id}.webp`;
-  const originalPath = path.join(CONSTANTS.MEDIAPATH, ORIGINAL_DIR, originalName);
-  const previewPath = path.join(CONSTANTS.MEDIAPATH, PREVIEW_DIR, previewName);
-  await fs.mkdir(path.dirname(originalPath), { recursive: true });
-  await fs.mkdir(path.dirname(previewPath), { recursive: true });
+  const previewBuffer = await sharp(file.buffer, { limitInputPixels: 30000 * 30000 })
+    .rotate()
+    .resize(PREVIEW_MAX_PX, PREVIEW_MAX_PX, { fit: 'inside', withoutEnlargement: true })
+    .webp({ quality: 82 })
+    .toBuffer();
+  let originalName = '';
+  let previewName = '';
   try {
-    await fs.writeFile(originalPath, file.buffer);
-    await sharp(file.buffer, { limitInputPixels: 30000 * 30000 })
-      .rotate()
-      .resize(PREVIEW_MAX_PX, PREVIEW_MAX_PX, { fit: 'inside', withoutEnlargement: true })
-      .webp({ quality: 82 })
-      .toFile(previewPath);
+    const stored = await storeDesignFiles(
+      id,
+      info.extension,
+      file.buffer,
+      previewBuffer,
+      file.mimetype,
+      String(file.originalname || '')
+    );
+    originalName = stored.originalName;
+    previewName = stored.previewName;
+    const imageUrl = stored.imageUrl;
     const row = await one<DesignRow>(
       `INSERT INTO "designer_design"
          ("uuid", "designer_profile_id", "name", "description", "category", "colors", "tags",
@@ -206,7 +344,7 @@ export async function createDesign(
         details.value.colors,
         details.value.tags,
         details.value.repeatType,
-        `/assets/${PREVIEW_DIR}/${previewName}`,
+        imageUrl,
         originalName,
         String(file.originalname || '').slice(0, 200) || null,
         hash,
@@ -217,8 +355,7 @@ export async function createDesign(
     );
     return row as DesignRow;
   } catch (failure) {
-    await fs.rm(originalPath, { force: true });
-    await fs.rm(previewPath, { force: true });
+    await removeStoredDesignFiles(originalName, previewName);
     if ((failure as { code?: string }).code === '23505') {
       throw new DesignerError('You have already uploaded this exact file.');
     }
@@ -328,13 +465,9 @@ export async function deleteDesign(profile: ProfileRow, uuid: string): Promise<v
     throw new DesignerError('This design is in a shopper\'s cart or order, so it is kept. Withdraw it instead.');
   }
   await one(`DELETE FROM "designer_design" WHERE "designer_design_id" = $1`, [design.designer_design_id]);
-  const files = [originalFilePath(design), previewFilePath(design.image)].filter(
-    (file): file is string => Boolean(file)
-  );
-  await Promise.all(
-    files.map((file) =>
-      fs.rm(file, { force: true }).catch((failure) => logError(failure))
-    )
+  await removeStoredDesignFiles(
+    design.original_file,
+    previewNameFromImage(design.image, design.uuid)
   );
 }
 
