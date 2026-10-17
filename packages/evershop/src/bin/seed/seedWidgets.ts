@@ -10,8 +10,8 @@ import { pool } from '../../lib/postgres/connection.js';
  *  - "Demo Main Menu" (basic_menu) on `headerMiddleLeft`, route `all`:
  *    one link per TOP-LEVEL category read from the database at seed time
  *    (the category set comes partly from categories.json and partly from
- *    the product seeder, so the DB is the only honest source), plus a
- *    Blog link to /blog.
+ *    the product seeder, so the DB is the only honest source), plus Designs
+ *    (/designs) after Fabrics, and a Blog link to /blog.
  *  - "Demo Homepage Products" (collection_products) on the homepage
  *    `content` area, showing the seeded `homepage` collection.
  *
@@ -88,6 +88,15 @@ export async function seedWidgets(): Promise<void> {
       menuNode(row.name, `/${row.url_key}`)
     );
     menus.sort((a, b) => Number(b.url === '/fabrics') - Number(a.url === '/fabrics'));
+    const fabricsAt = menus.findIndex(
+      (item) => item.url === '/fabrics' || item.name.toLowerCase() === 'fabrics'
+    );
+    const designs = menuNode('Designs', '/designs');
+    if (fabricsAt >= 0) {
+      menus.splice(fabricsAt + 1, 0, designs);
+    } else {
+      menus.unshift(designs);
+    }
     menus.push(menuNode('Blog', '/blog'));
     await insertWidget(
       MENU_WIDGET_NAME,
@@ -96,7 +105,7 @@ export async function seedWidgets(): Promise<void> {
       { route: 'all', area: 'headerMiddleLeft', sortOrder: 1 }
     );
     success(
-      `"${MENU_WIDGET_NAME}" created (${menus.length - 1} categories + Blog)`
+      `"${MENU_WIDGET_NAME}" created (${menus.length - 2} categories + Designs + Blog)`
     );
   }
 

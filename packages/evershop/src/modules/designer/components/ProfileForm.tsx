@@ -2,6 +2,7 @@ import { Button } from '@components/common/ui/Button.js';
 import { toast } from '@components/common/ui/Sonner.js';
 import React from 'react';
 import { slugify } from '../services/designerRules.js';
+import { DesignerSelect } from './DesignerSelect.js';
 import { designerApi, fieldClass, labelClass } from './designerApi.js';
 import { type DesignerTerms, SellerAgreement } from './SellerAgreement.js';
 
@@ -185,24 +186,23 @@ export function ProfileForm({
         <p className="text-xs text-muted-foreground">
           Needed before your first payout. You can add them later.
         </p>
-        <div className="flex flex-wrap gap-4 text-sm">
-          {(
-            [
-              ['', 'Add later'],
-              ['paypal', 'PayPal'],
-              ['bank', 'Indian bank transfer']
-            ] as const
-          ).map(([value, label]) => (
-            <label key={value} className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="payout-method"
-                checked={payout === value}
-                onChange={() => setPayout(value)}
-              />
-              {label}
-            </label>
-          ))}
+        <div className="max-w-sm">
+          <label className={labelClass} htmlFor="designer-payout-method">
+            Payout method
+          </label>
+          <DesignerSelect
+            id="designer-payout-method"
+            label="Payout method"
+            value={payout || '__later__'}
+            options={[
+              { value: '__later__', label: 'Add later' },
+              { value: 'paypal', label: 'PayPal' },
+              { value: 'bank', label: 'Indian bank transfer' }
+            ]}
+            onChange={(value) =>
+              setPayout(value === '__later__' ? '' : (value as PayoutChoice))
+            }
+          />
         </div>
         {payout === '' && profile?.payoutMethod && (
           <p className="text-xs text-muted-foreground">Your saved payout details are kept.</p>

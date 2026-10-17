@@ -142,7 +142,7 @@ function DesignerRow({
             }}
           >
             <label className="block text-xs">
-              Commission % (blank = store default)
+              Commission % (blank = store default from Store settings)
               <input
                 className={fieldClass}
                 type="number"

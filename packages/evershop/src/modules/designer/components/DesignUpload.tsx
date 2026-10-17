@@ -47,6 +47,7 @@ export function DesignUpload({
   const [submitNow, setSubmitNow] = React.useState(canSubmit);
   const [busy, setBusy] = React.useState(false);
   const input = React.useRef<HTMLInputElement>(null);
+  const fileInputId = React.useId();
 
   React.useEffect(() => () => {
     if (preview) {
@@ -104,6 +105,10 @@ export function DesignUpload({
       toast.error('Choose the design file to upload.');
       return;
     }
+    if (!draft.category.trim()) {
+      toast.error('Choose a category.');
+      return;
+    }
     if (draft.colors.length === 0) {
       toast.error('Pick at least one main colour.');
       return;
@@ -146,7 +151,7 @@ export function DesignUpload({
       <div className="flex flex-col gap-4 md:flex-row">
         <label
           className="flex h-40 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border border-dashed border-border text-center text-sm text-muted-foreground md:w-56"
-          htmlFor="design-file"
+          htmlFor={fileInputId}
         >
           {preview ? (
             <img src={preview} alt="" className="h-full w-full object-cover" />
@@ -162,7 +167,7 @@ export function DesignUpload({
         </label>
         <input
           ref={input}
-          id="design-file"
+          id={fileInputId}
           type="file"
           className="sr-only"
           accept={options.fileTypes.join(',')}
@@ -196,9 +201,11 @@ export function DesignUpload({
           </span>
         )}
       </label>
-      <Button type="submit" disabled={busy || !file}>
-        {busy ? 'Uploading…' : 'Upload design'}
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button type="submit" disabled={busy || !file} className="cursor-pointer">
+          {busy ? 'Saving…' : 'Save design'}
+        </Button>
+      </div>
     </form>
   );
 }

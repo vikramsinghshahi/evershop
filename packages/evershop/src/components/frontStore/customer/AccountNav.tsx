@@ -5,7 +5,8 @@ import React from 'react';
 /**
  * Sticky horizontal tab nav shared by the account pages. Pins to the top on
  * scroll (the site header is static, so top-0 is correct). Log out lives in the
- * page header, not here.
+ * page header and the header account menu, not here. "Studio" is the designer
+ * workspace (uploads, wallet, profile).
  */
 export function AccountNav({ active }: { active: 'dashboard' | 'orders' | 'designer' }) {
   const tab = (isActive: boolean) =>
@@ -25,7 +26,7 @@ export function AccountNav({ active }: { active: 'dashboard' | 'orders' | 'desig
           {_('Orders')}
         </a>
         <a href="/account/designer" className={tab(active === 'designer')}>
-          {_('Designer')}
+          {_('Studio')}
         </a>
       </div>
     </nav>

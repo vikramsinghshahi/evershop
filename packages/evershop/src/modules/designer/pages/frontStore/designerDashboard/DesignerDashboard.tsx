@@ -1,3 +1,11 @@
+import { Button } from '@components/common/ui/Button.js';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@components/common/ui/Dialog.js';
 import { AccountHeader } from '@components/frontStore/customer/AccountHeader.js';
 import { AccountNav } from '@components/frontStore/customer/AccountNav.js';
 import React from 'react';
@@ -68,6 +76,8 @@ export default function DesignerDashboard({
   const [profile, setProfile] = React.useState<OwnProfile | null>(workspace?.profile ?? null);
   const [designs, setDesigns] = React.useState<OwnDesign[]>(workspace?.designs ?? []);
   const [tab, setTab] = React.useState<Tab>('designs');
+  const [uploadOpen, setUploadOpen] = React.useState(false);
+  const [uploadKey, setUploadKey] = React.useState(0);
 
   React.useEffect(() => {
     const requested = window.location.hash.replace('#', '');
@@ -75,6 +85,11 @@ export default function DesignerDashboard({
       setTab(requested);
     }
   }, []);
+
+  const openUpload = () => {
+    setUploadKey((key) => key + 1);
+    setUploadOpen(true);
+  };
 
   if (!workspace) {
     return (
@@ -157,36 +172,65 @@ export default function DesignerDashboard({
               ))}
             </div>
             {tab === 'designs' && (
-              <div className="space-y-8">
+              <section className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-medium">Your designs</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {designs.length === 0
+                        ? 'No designs yet. Upload one to get started.'
+                        : `${designs.length} design${designs.length === 1 ? '' : 's'}`}
+                    </p>
+                  </div>
+                  {profile.status !== 'suspended' && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="cursor-pointer"
+                      onClick={openUpload}
+                    >
+                      Upload design
+                    </Button>
+                  )}
+                </div>
+                <DesignList
+                  designs={designs}
+                  base={apis.upload}
+                  options={options}
+                  canSubmit={canSubmit}
+                  onChange={(updated) =>
+                    setDesigns((list) =>
+                      list.map((design) => (design.uuid === updated.uuid ? updated : design))
+                    )
+                  }
+                  onDeleted={(uuid) =>
+                    setDesigns((list) => list.filter((design) => design.uuid !== uuid))
+                  }
+                />
                 {profile.status !== 'suspended' && (
-                  <section className="rounded-md border border-border p-4">
-                    <h3 className="mb-3 font-medium">Upload a design</h3>
-                    <DesignUpload
-                      api={apis.upload}
-                      options={options}
-                      canSubmit={canSubmit}
-                      onUploaded={(design) => setDesigns((list) => [design, ...list])}
-                    />
-                  </section>
+                  <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+                    <DialogContent className="sm:max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Upload a design</DialogTitle>
+                        <DialogDescription>
+                          Add your file and details, then save. You can send it for review now or
+                          keep it as a draft.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DesignUpload
+                        key={uploadKey}
+                        api={apis.upload}
+                        options={options}
+                        canSubmit={canSubmit}
+                        onUploaded={(design) => {
+                          setDesigns((list) => [design, ...list]);
+                          setUploadOpen(false);
+                        }}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 )}
-                <section>
-                  <h3 className="mb-3 font-medium">Your designs</h3>
-                  <DesignList
-                    designs={designs}
-                    base={apis.upload}
-                    options={options}
-                    canSubmit={canSubmit}
-                    onChange={(updated) =>
-                      setDesigns((list) =>
-                        list.map((design) => (design.uuid === updated.uuid ? updated : design))
-                      )
-                    }
-                    onDeleted={(uuid) =>
-                      setDesigns((list) => list.filter((design) => design.uuid !== uuid))
-                    }
-                  />
-                </section>
-              </div>
+              </section>
             )}
             {tab === 'wallet' && (
               <WalletPanel

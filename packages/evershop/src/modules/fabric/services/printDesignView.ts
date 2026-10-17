@@ -50,6 +50,14 @@ export function setPrintDesignSelection(selection: PrintDesignSelection): void {
   publish({ ...state, selection });
 }
 
+/** Drops the artwork. Layout, rotation, and scale stay for the next choice. */
+export function clearPrintDesignSelection(): void {
+  if (!state.selection) {
+    return;
+  }
+  publish({ ...state, selection: null });
+}
+
 export function setPrintLayout(layout: FabricLayoutId): void {
   if (layout === state.layout) {
     return;

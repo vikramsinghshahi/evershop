@@ -1,6 +1,11 @@
 extend type Query {
   """The signed-in shopper's designer workspace: profile, designs and wallet. Null when signed out."""
   designerWorkspace: JSON
+  """
+  Header account menu helper. Null for guests. For signed-in shoppers: studio URL,
+  label (Sell designs vs Designer studio), and profile status when one exists.
+  """
+  designerNav: JSON
   """Live designs by verified designers."""
   designGallery(
     category: String

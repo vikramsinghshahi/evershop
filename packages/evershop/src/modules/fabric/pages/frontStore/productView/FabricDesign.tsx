@@ -1,5 +1,7 @@
+import { Dialog, DialogContent, DialogTrigger } from '@components/common/ui/Dialog.js';
 import { toast } from '@components/common/ui/Sonner.js';
 import { useProduct } from '@components/frontStore/catalog/ProductContext.js';
+import { Trash2 } from 'lucide-react';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
@@ -19,6 +21,7 @@ import {
   subscribeFabricPurchase
 } from '../../../services/fabricPurchaseView.js';
 import {
+  clearPrintDesignSelection,
   getPrintDesignView,
   rotatePrintDesign,
   setPrintDesignSelection,
@@ -64,6 +67,9 @@ export default function FabricDesign() {
     () => 'plain' as const
   );
   const fileRef = React.useRef<HTMLInputElement>(null);
+  const uploadButtonRef = React.useRef<HTMLButtonElement>(null);
+  const chooseButtonRef = React.useRef<HTMLButtonElement>(null);
+  const uploadSeq = React.useRef(0);
   const [catalogOpen, setCatalogOpen] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
 
@@ -142,6 +148,8 @@ export default function FabricDesign() {
     }
     const body = new FormData();
     body.append('design', file);
+    const seq = uploadSeq.current + 1;
+    uploadSeq.current = seq;
     setUploading(true);
     try {
       const response = await fetch('/api/fabric/designs', { method: 'POST', body });
@@ -149,6 +157,9 @@ export default function FabricDesign() {
         data?: { url?: string; name?: string };
         error?: { message?: string };
       };
+      if (seq !== uploadSeq.current) {
+        return;
+      }
       if (!response.ok || !json.data?.url) {
         toast.error(json.error?.message || 'The design could not be uploaded.');
         return;
@@ -161,9 +172,31 @@ export default function FabricDesign() {
       });
       setCatalogOpen(false);
     } catch {
+      if (seq !== uploadSeq.current) {
+        return;
+      }
       toast.error('The design could not be uploaded.');
     } finally {
+      if (seq === uploadSeq.current) {
+        setUploading(false);
+      }
+    }
+  };
+
+  const removeDesign = () => {
+    const current = getPrintDesignView().selection;
+    if (!current) {
+      return;
+    }
+    if (current.source === 'upload') {
+      uploadSeq.current += 1;
       setUploading(false);
+    }
+    clearPrintDesignSelection();
+    if (current.source === 'upload') {
+      uploadButtonRef.current?.focus();
+    } else {
+      chooseButtonRef.current?.focus();
     }
   };
 
@@ -172,6 +205,7 @@ export default function FabricDesign() {
       <div className="text-xs font-semibold tracking-wide">DESIGN</div>
       <div className="mt-2 flex flex-wrap gap-2">
         <button
+          ref={uploadButtonRef}
           type="button"
           className="border border-neutral-300 px-3 py-2 text-sm hover:border-neutral-900"
           disabled={uploading}
@@ -179,13 +213,35 @@ export default function FabricDesign() {
         >
           {uploading ? 'Uploading…' : 'Upload design'}
         </button>
-        <button
-          type="button"
-          className="border border-neutral-300 px-3 py-2 text-sm hover:border-neutral-900"
-          onClick={() => setCatalogOpen((open) => !open)}
-        >
-          Choose design
-        </button>
+        <Dialog open={catalogOpen} onOpenChange={setCatalogOpen}>
+          <DialogTrigger
+            render={
+              <button
+                ref={chooseButtonRef}
+                type="button"
+                className="border border-neutral-300 px-3 py-2 text-sm hover:border-neutral-900"
+              >
+                Choose design
+              </button>
+            }
+          />
+          <DialogContent className="flex max-h-[min(52rem,calc(100dvh-2rem))] w-full flex-col gap-0 overflow-hidden p-0 data-closed:animate-none! sm:max-w-[min(80rem,calc(100%-2rem))]">
+            <DesignLibrary
+              applied={view.selection}
+              onUse={(selection) => {
+                const current = view.selection;
+                if (
+                  !current ||
+                  current.source !== selection.source ||
+                  current.designId !== selection.designId
+                ) {
+                  pickDesign(selection);
+                }
+                setCatalogOpen(false);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
         <input
           ref={fileRef}
           type="file"
@@ -202,22 +258,28 @@ export default function FabricDesign() {
           }}
         />
       </div>
-      {catalogOpen && (
-        <DesignLibrary
-          selectedId={view.selection?.designId ?? null}
-          onPick={(selection) => {
-            pickDesign(selection);
-            setCatalogOpen(false);
-          }}
-        />
-      )}
-      <p className="mt-2 text-sm text-neutral-600">
-        {view.selection
-          ? `${view.selection.name}${
-              view.selection.designerName ? ` by ${view.selection.designerName}` : ''
-            }`
-          : 'Upload a design or choose one from the catalog.'}
-      </p>
+      <div className="mt-2 flex min-w-0 items-center gap-1.5 text-sm text-neutral-600">
+        <span className="min-w-0 truncate">
+          {view.selection
+            ? `${view.selection.name}${
+                view.selection.designerName ? ` by ${view.selection.designerName}` : ''
+              }`
+            : 'Upload a design or choose one from the design library.'}
+        </span>
+        {view.selection && (
+          <button
+            type="button"
+            aria-label={
+              view.selection.name ? `Remove ${view.selection.name}` : 'Remove design'
+            }
+            title="Remove"
+            className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            onClick={removeDesign}
+          >
+            <Trash2 className="size-3.5" aria-hidden="true" />
+          </button>
+        )}
+      </div>
       <div className="mt-3 text-xs font-semibold tracking-wide">LAYOUT</div>
       <div className="mt-2 flex flex-wrap gap-2">
         {FABRIC_LAYOUTS.map((layout) => (

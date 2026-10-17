@@ -571,6 +571,7 @@ export default (context: { command?: string } = {}) => {
           title: 'Shop',
           links: [
             { id: 'lnk-fabrics', label: 'Fabrics', url: '/' },
+            { id: 'lnk-designs', label: 'Designs', url: '/designs' },
             {
               id: 'lnk-accessories',
               label: 'Accessories',

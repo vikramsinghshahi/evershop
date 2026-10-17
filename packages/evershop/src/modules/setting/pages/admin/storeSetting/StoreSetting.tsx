@@ -365,6 +365,9 @@ interface StoreSettingProps {
     exchangeRateAud?: string;
     exchangeRateGbp?: string;
     defaultExportMargin?: string;
+    designerCommissionRate?: string;
+    designerHoldDays?: string;
+    designerMinPayout?: string;
     weightUnit?: string;
     dimensionUnit?: string;
     shopMetafieldsApi?: string;
@@ -403,6 +406,9 @@ export default function StoreSetting({
     exchangeRateAud,
     exchangeRateGbp,
     defaultExportMargin,
+    designerCommissionRate,
+    designerHoldDays,
+    designerMinPayout,
     weightUnit,
     dimensionUnit,
     shopMetafieldsApi,
@@ -660,6 +666,60 @@ export default function StoreSetting({
                 </div>
               </CardContent>
               <CardContent className="pt-3 border-t border-border">
+                <CardTitle>{_('Designer commission')}</CardTitle>
+                <CardDescription>
+                  {_(
+                    'Store-wide defaults for designer payouts. A designer can still get their own rate on the Designers page; leave that blank to use this default.'
+                  )}
+                </CardDescription>
+                <div className="grid grid-cols-2 gap-5 mt-5">
+                  <NumberField
+                    name="designerCommissionRate"
+                    label={_('Default commission %')}
+                    defaultValue={
+                      designerCommissionRate
+                        ? Number(designerCommissionRate)
+                        : undefined
+                    }
+                    min={0}
+                    max={50}
+                    step={0.01}
+                    required
+                    helperText={_(
+                      'Percent of the design print line paid to the designer. Between 0 and 50.'
+                    )}
+                  />
+                  <NumberField
+                    name="designerHoldDays"
+                    label={_('Hold days')}
+                    defaultValue={
+                      designerHoldDays ? Number(designerHoldDays) : undefined
+                    }
+                    min={0}
+                    max={365}
+                    step={1}
+                    required
+                    helperText={_(
+                      'Days after delivery before commission becomes available for payout.'
+                    )}
+                  />
+                  <NumberField
+                    name="designerMinPayout"
+                    label={_('Minimum payout (INR)')}
+                    defaultValue={
+                      designerMinPayout ? Number(designerMinPayout) : undefined
+                    }
+                    min={0}
+                    step={1}
+                    required
+                    helperText={_(
+                      'Available balance needed before a designer can be paid out.'
+                    )}
+                    wrapperClassName="col-span-2"
+                  />
+                </div>
+              </CardContent>
+              <CardContent className="pt-3 border-t border-border">
                 <CardTitle>{_('Branding')}</CardTitle>
                 <CardDescription>
                   {_(
@@ -813,6 +873,9 @@ export const query = `
       exchangeRateAud
       exchangeRateGbp
       defaultExportMargin
+      designerCommissionRate
+      designerHoldDays
+      designerMinPayout
       weightUnit
       dimensionUnit
       shopMetafieldsApi

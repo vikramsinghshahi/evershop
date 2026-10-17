@@ -1,4 +1,5 @@
 import React from 'react';
+import { DesignerSelect } from './DesignerSelect.js';
 import { fieldClass, labelClass } from './designerApi.js';
 
 export interface DesignOptions {
@@ -57,6 +58,19 @@ export function DesignFields({
   onChange: (draft: DesignDraft) => void;
 }) {
   const set = (patch: Partial<DesignDraft>) => onChange({ ...draft, ...patch });
+  const categoryOptions = React.useMemo(
+    () => options.categories.map((category) => ({ value: category, label: category })),
+    [options.categories]
+  );
+  const repeatOptions = React.useMemo(
+    () =>
+      options.repeatTypes.map((repeat) => ({
+        value: repeat,
+        label: REPEAT_LABELS[repeat] ?? repeat
+      })),
+    [options.repeatTypes]
+  );
+
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
@@ -77,20 +91,15 @@ export function DesignFields({
           <label className={labelClass} htmlFor={`${idPrefix}-category`}>
             Category
           </label>
-          <select
+          <DesignerSelect
             id={`${idPrefix}-category`}
-            className={fieldClass}
+            label="Category"
             value={draft.category}
             required
-            onChange={(event) => set({ category: event.target.value })}
-          >
-            <option value="">Choose…</option>
-            {options.categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+            placeholder="Choose…"
+            options={categoryOptions}
+            onChange={(category) => set({ category })}
+          />
         </div>
       </div>
       <div>
@@ -103,7 +112,7 @@ export function DesignFields({
                 key={color}
                 type="button"
                 aria-pressed={on}
-                className={`rounded-full border px-3 py-1 text-xs ${
+                className={`cursor-pointer rounded-full border px-3 py-1 text-xs ${
                   on ? 'border-foreground bg-foreground text-background' : 'border-border'
                 }`}
                 onClick={() =>
@@ -125,18 +134,13 @@ export function DesignFields({
           <label className={labelClass} htmlFor={`${idPrefix}-repeat`}>
             Recommended repeat
           </label>
-          <select
+          <DesignerSelect
             id={`${idPrefix}-repeat`}
-            className={fieldClass}
-            value={draft.repeatType}
-            onChange={(event) => set({ repeatType: event.target.value })}
-          >
-            {options.repeatTypes.map((repeat) => (
-              <option key={repeat} value={repeat}>
-                {REPEAT_LABELS[repeat] ?? repeat}
-              </option>
-            ))}
-          </select>
+            label="Recommended repeat"
+            value={draft.repeatType || 'tile'}
+            options={repeatOptions}
+            onChange={(repeatType) => set({ repeatType })}
+          />
         </div>
         <div>
           <label className={labelClass} htmlFor={`${idPrefix}-tags`}>

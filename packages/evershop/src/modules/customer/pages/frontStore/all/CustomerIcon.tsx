@@ -1,6 +1,27 @@
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@components/common/ui/DropdownMenu.js';
+import { toast } from '@components/common/ui/Sonner.js';
+import {
+  useCustomer,
+  useCustomerDispatch
+} from '@components/frontStore/customer/CustomerContext.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import { MapPin, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+
+interface DesignerNav {
+  hasProfile: boolean;
+  status: 'pending' | 'verified' | 'suspended' | null;
+  label: string;
+  studioUrl: string;
+  displayName?: string;
+}
 
 interface CustomerIconProps {
   customer?: {
@@ -8,8 +29,12 @@ interface CustomerIconProps {
     fullName: string;
     email: string;
   } | null;
+  designerNav?: DesignerNav | null;
   accountUrl: string;
+  ordersUrl: string;
   loginUrl: string;
+  registerUrl: string;
+  studioUrl: string;
 }
 
 const PLACE_KEY = 'bharatTextilePlace';
@@ -105,17 +130,76 @@ async function lookupPlace(
   return typeof place === 'string' && place.trim() ? place.trim() : null;
 }
 
+const menuItemClass =
+  'cursor-pointer data-highlighted:bg-accent data-highlighted:text-accent-foreground';
+
+function AccountTrigger({
+  line,
+  place,
+  mark,
+  open
+}: {
+  line: string;
+  place: string | null;
+  mark: string;
+  open?: boolean;
+}) {
+  return (
+    <span
+      className={`flex min-w-0 items-center gap-2 rounded-md py-1 pl-1 pr-1.5 text-current sm:pr-2 ${
+        open ? 'bg-white/10' : 'hover:bg-white/10'
+      }`}
+    >
+      <span
+        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+          mark
+            ? 'bg-brand text-primary-foreground'
+            : 'border border-white/35 bg-white/10 text-current'
+        }`}
+        aria-hidden="true"
+      >
+        {mark || <User className="h-4 w-4" />}
+      </span>
+      <span className="flex min-w-0 flex-col leading-tight">
+        <span className="truncate text-xs font-medium">{line}</span>
+        <span className="flex items-center gap-1 text-[11px] opacity-65">
+          <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
+          <span className="truncate">{place ?? _('Locating…')}</span>
+        </span>
+      </span>
+    </span>
+  );
+}
+
 export default function UserIcon({
-  customer,
+  customer: pageCustomer,
+  designerNav,
   accountUrl,
-  loginUrl
+  ordersUrl,
+  loginUrl,
+  registerUrl,
+  studioUrl
 }: CustomerIconProps) {
+  const { customer: liveCustomer } = useCustomer();
+  const { logout } = useCustomerDispatch();
   const [greeting, setGreeting] = useState('Hello');
   const [place, setPlace] = useState<string | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  // Prefer live context so logout clears the menu without waiting on a prop refresh.
+  const customer = liveCustomer?.uuid ? liveCustomer : pageCustomer;
   const signedIn = Boolean(customer?.uuid);
-  const name = signedIn ? firstName(customer?.fullName ?? '') : '';
-  const mark = signedIn ? initials(customer?.fullName ?? '') : '';
+  const fullName =
+    typeof customer?.fullName === 'string' ? customer.fullName : '';
+  const email = typeof customer?.email === 'string' ? customer.email : '';
+  const name = signedIn ? firstName(fullName) : '';
+  const mark = signedIn ? initials(fullName) : '';
   const line = name ? `${greeting}, ${name}` : greeting;
+
+  const studioLabel = designerNav?.label || _('Sell designs');
+  const studioHref = designerNav?.studioUrl || studioUrl;
+  const sellAsDesignerHref = `${registerUrl}${registerUrl.includes('?') ? '&' : '?'}as=designer`;
+  const loginToStudioHref = `${loginUrl}${loginUrl.includes('?') ? '&' : '?'}redirect=${encodeURIComponent(studioUrl)}`;
 
   useEffect(() => {
     setGreeting(greetingForHour(new Date().getHours()));
@@ -140,37 +224,123 @@ export default function UserIcon({
     };
   }, []);
 
+  const handleLogout = async () => {
+    if (loggingOut) {
+      return;
+    }
+    setLoggingOut(true);
+    try {
+      await logout();
+      window.location.assign('/');
+    } catch (error) {
+      setLoggingOut(false);
+      toast.error((error as Error)?.message || _('Logout failed'));
+    }
+  };
+
+  const ariaLine = place
+    ? `${line}, ${place}. ${signedIn ? _('Account menu') : _('Sign in menu')}`
+    : `${line}. ${signedIn ? _('Account menu') : _('Sign in menu')}`;
+
   return (
     <div className="customer-icon flex min-w-0 items-center">
-      <a
-        href={signedIn ? accountUrl : loginUrl}
-        aria-label={
-          place
-            ? `${line}, ${place}. ${signedIn ? _('Account') : _('Sign in')}`
-            : `${line}. ${signedIn ? _('Account') : _('Sign in')}`
-        }
-        className="flex min-w-0 items-center gap-2 rounded-md py-1 pl-1 pr-1.5 text-current hover:bg-white/10 sm:pr-2"
-      >
-        <span
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-            mark
-              ? 'bg-brand text-primary-foreground'
-              : 'border border-white/35 bg-white/10 text-current'
-          }`}
-          aria-hidden="true"
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          aria-label={ariaLine}
+          className="cursor-pointer rounded-md outline-none focus-visible:ring-1 focus-visible:ring-white/50"
         >
-          {mark || <User className="h-4 w-4" />}
-        </span>
-        <span className="flex min-w-0 flex-col leading-tight">
-          <span className="truncate text-xs font-medium">{line}</span>
-          <span className="flex items-center gap-1 text-[11px] opacity-65">
-            <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
-            <span className="truncate">
-              {place ?? _('Locating…')}
-            </span>
-          </span>
-        </span>
-      </a>
+          <AccountTrigger line={line} place={place} mark={mark} />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          sideOffset={8}
+          className="z-100 w-auto min-w-52 max-w-[min(18rem,calc(100vw-1.5rem))]"
+        >
+          {signedIn ? (
+            <>
+              <DropdownMenuLabel className="truncate font-normal normal-case tracking-normal text-foreground">
+                {fullName || email || _('My account')}
+              </DropdownMenuLabel>
+              {email && fullName ? (
+                <div className="truncate px-2 pb-1.5 text-xs text-muted-foreground">
+                  {email}
+                </div>
+              ) : null}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className={menuItemClass}
+                render={<a href={accountUrl} />}
+              >
+                {_('My account')}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className={menuItemClass}
+                render={<a href={ordersUrl} />}
+              >
+                {_('Orders')}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className={menuItemClass}
+                render={<a href={studioHref} />}
+              >
+                <span className="flex min-w-0 flex-col">
+                  <span>{studioLabel}</span>
+                  {designerNav?.status === 'pending' && (
+                    <span className="text-xs text-muted-foreground">
+                      {_('Profile under review')}
+                    </span>
+                  )}
+                  {designerNav?.status === 'suspended' && (
+                    <span className="text-xs text-destructive">
+                      {_('Account suspended')}
+                    </span>
+                  )}
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                disabled={loggingOut}
+                className="cursor-pointer"
+                onClick={(event) => {
+                  event.preventDefault();
+                  void handleLogout();
+                }}
+              >
+                {loggingOut ? _('Signing out…') : _('Log out')}
+              </DropdownMenuItem>
+            </>
+          ) : (
+            <>
+              <DropdownMenuItem
+                className={menuItemClass}
+                render={<a href={loginUrl} />}
+              >
+                {_('Sign in')}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className={menuItemClass}
+                render={<a href={registerUrl} />}
+              >
+                {_('Create account')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className={menuItemClass}
+                render={<a href={sellAsDesignerHref} />}
+              >
+                {_('Sell designs')}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className={menuItemClass}
+                render={<a href={loginToStudioHref} />}
+              >
+                {_('Designer sign in')}
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
@@ -187,7 +357,11 @@ export const query = `
       fullName
       email
     }
+    designerNav
     accountUrl: url(routeId: "account")
+    ordersUrl: url(routeId: "orderList")
     loginUrl: url(routeId: "login")
+    registerUrl: url(routeId: "register")
+    studioUrl: url(routeId: "designerDashboard")
   }
 `;

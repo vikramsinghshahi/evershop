@@ -27,6 +27,28 @@ function text(value: unknown): string | null {
 
 export default {
   Query: {
+    designerNav: async (_root, _args, { customer }) => {
+      if (!customer?.customer_id) {
+        return null;
+      }
+      const studioUrl = buildUrl('designerDashboard');
+      const profile = await profileByCustomer(customer.customer_id);
+      if (!profile) {
+        return {
+          hasProfile: false,
+          status: null,
+          label: 'Sell designs',
+          studioUrl
+        };
+      }
+      return {
+        hasProfile: true,
+        status: profile.status,
+        label: 'Designer studio',
+        studioUrl,
+        displayName: profile.display_name
+      };
+    },
     designerWorkspace: async (_root, _args, { customer }) => {
       if (!customer?.customer_id) {
         return null;

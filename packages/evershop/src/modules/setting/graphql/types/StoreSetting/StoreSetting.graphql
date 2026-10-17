@@ -10,6 +10,12 @@ extend type Setting {
   exchangeRateAud: String
   exchangeRateGbp: String
   defaultExportMargin: String
+  """Percent paid to designers when a design prints. Used when a designer has no own rate."""
+  designerCommissionRate: String
+  """Days after delivery before a designer commission becomes available for payout."""
+  designerHoldDays: String
+  """Minimum available balance, in rupees, before a designer can be paid out."""
+  designerMinPayout: String
   storeTimeZone: String
   storePhoneNumber: String
   storeEmail: String

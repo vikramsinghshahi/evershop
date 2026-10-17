@@ -10,6 +10,11 @@ import {
   DEFAULT_EXCHANGE_RATES,
   DEFAULT_EXPORT_MARGIN
 } from '../../../../fabric/services/shopCurrency.js';
+import {
+  DEFAULT_COMMISSION_RATE,
+  DEFAULT_HOLD_DAYS,
+  DEFAULT_MIN_PAYOUT
+} from '../../../../designer/services/commission.js';
 
 export default {
   Setting: {
@@ -49,6 +54,10 @@ export default {
     exchangeRateGbp: () =>
       getSetting('exchangeRateGbp', String(DEFAULT_EXCHANGE_RATES.GBP)),
     defaultExportMargin: () => getSetting('defaultExportMargin', String(DEFAULT_EXPORT_MARGIN)),
+    designerCommissionRate: () =>
+      getSetting('designerCommissionRate', String(DEFAULT_COMMISSION_RATE)),
+    designerHoldDays: () => getSetting('designerHoldDays', String(DEFAULT_HOLD_DAYS)),
+    designerMinPayout: () => getSetting('designerMinPayout', String(DEFAULT_MIN_PAYOUT)),
     storeTimeZone: () => getStoreTimezone(),
     storePhoneNumber: (setting) => {
       const storePhoneNumber = setting.find(

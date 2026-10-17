@@ -87,6 +87,14 @@ function DesignCard({
 
   const save = (event: React.FormEvent) => {
     event.preventDefault();
+    if (!draft.category.trim()) {
+      toast.error('Choose a category.');
+      return;
+    }
+    if (draft.colors.length === 0) {
+      toast.error('Pick at least one main colour.');
+      return;
+    }
     run(async () => {
       const updated = await designerApi<OwnDesign>(url, 'PATCH', draftPayload(draft));
       onChange(updated);

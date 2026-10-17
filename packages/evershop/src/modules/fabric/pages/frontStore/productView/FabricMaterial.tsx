@@ -155,9 +155,11 @@ export default function FabricMaterial() {
     return null;
   }
 
-  const swatch = FABRIC_SWATCHES[sku] || '#e7e0d6';
   const piece = orderSizeById(orderSize);
   const printing = purchaseMode === 'print';
+  // An uploaded image is shown on white. A library design still sits on the cloth colour.
+  const uploaded = printing && designView.selection?.source === 'upload';
+  const swatch = uploaded ? '#ffffff' : FABRIC_SWATCHES[sku] || '#e7e0d6';
 
   return (
     <div className="fabric-material">
@@ -172,7 +174,7 @@ export default function FabricMaterial() {
           style={{ backgroundColor: swatch }}
           aria-label={`${piece.label}, ${piece.widthCm} centimetres down and ${piece.heightCm} centimetres across`}
         >
-          {image?.url && (
+          {image?.url && !uploaded && (
             <img
               src={image.url}
               alt={image.alt || name}
@@ -182,7 +184,10 @@ export default function FabricMaterial() {
             />
           )}
           {printing && designView.selection && (
-            <div className="absolute inset-0" style={{ mixBlendMode: 'multiply' }}>
+            <div
+              className="absolute inset-0"
+              style={uploaded ? undefined : { mixBlendMode: 'multiply' }}
+            >
               <DesignLayout
                 image={designView.selection.image}
                 layout={designView.layout}

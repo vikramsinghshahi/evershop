@@ -1,5 +1,7 @@
+import { Button } from '@components/common/ui/Button.js';
+import { Input } from '@components/common/ui/Input.js';
 import React from 'react';
-import { fieldClass } from '../../../components/designerApi.js';
+import { DesignerSelect } from '../../../components/DesignerSelect.js';
 import {
   type GalleryDesign,
   GalleryGrid,
@@ -27,6 +29,8 @@ interface FilterOptions {
   designers: { slug: string; name: string; count: number }[];
 }
 
+const ALL = '__all__';
+
 export default function DesignGallery({
   designGallery,
   designFilterOptions,
@@ -39,9 +43,64 @@ export default function DesignGallery({
   sellUrl: string;
 }) {
   const { filters } = designGallery;
+  const [q, setQ] = React.useState(filters.q ?? '');
+  const [category, setCategory] = React.useState(filters.category ?? ALL);
+  const [color, setColor] = React.useState(filters.color ?? ALL);
+  const [designer, setDesigner] = React.useState(filters.designer ?? ALL);
+  const [sort, setSort] = React.useState(filters.sort === 'best' ? 'best' : ALL);
+
   const filtered = Boolean(
     filters.category || filters.color || filters.designer || filters.q || filters.sort
   );
+
+  const categoryOptions = React.useMemo(
+    () => [
+      { value: ALL, label: 'All categories' },
+      ...designFilterOptions.categories.map((value) => ({ value, label: value }))
+    ],
+    [designFilterOptions.categories]
+  );
+  const colorOptions = React.useMemo(
+    () => [
+      { value: ALL, label: 'All colours' },
+      ...designFilterOptions.colors.map((value) => ({ value, label: value }))
+    ],
+    [designFilterOptions.colors]
+  );
+  const designerOptions = React.useMemo(
+    () => [
+      { value: ALL, label: 'All designers' },
+      ...designFilterOptions.designers.map((entry) => ({
+        value: entry.slug,
+        label: `${entry.name} (${entry.count})`
+      }))
+    ],
+    [designFilterOptions.designers]
+  );
+  const sortOptions = React.useMemo(
+    () => [
+      { value: ALL, label: 'Newest' },
+      { value: 'best', label: 'Best selling' }
+    ],
+    []
+  );
+
+  const apply = React.useCallback(
+    (event?: React.FormEvent) => {
+      event?.preventDefault();
+      const params = new URLSearchParams();
+      const query = q.trim();
+      if (query) params.set('q', query);
+      if (category !== ALL) params.set('category', category);
+      if (color !== ALL) params.set('color', color);
+      if (designer !== ALL) params.set('designer', designer);
+      if (sort !== ALL) params.set('sort', sort);
+      const search = params.toString();
+      window.location.assign(search ? `?${search}` : '?');
+    },
+    [q, category, color, designer, sort]
+  );
+
   return (
     <div className="design-gallery py-8">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
@@ -51,53 +110,52 @@ export default function DesignGallery({
             Prints by independent designers. Pick one, choose a fabric, and we print it to order.
           </p>
         </div>
-        <a className="text-sm underline" href={`${sellUrl}?as=designer`}>
+        <a className="cursor-pointer text-sm underline" href={`${sellUrl}?as=designer`}>
           Are you a designer? Sell your designs
         </a>
       </div>
 
-      <form method="get" className="mb-6 grid gap-3 md:grid-cols-6">
-        <input
+      <form
+        onSubmit={apply}
+        className="mb-6 grid gap-3 md:grid-cols-6 md:items-center"
+      >
+        <Input
           name="q"
-          className={`${fieldClass} md:col-span-2`}
+          value={q}
+          onChange={(event) => setQ(event.target.value)}
           placeholder="Search designs, designers or SKU"
-          defaultValue={filters.q ?? ''}
+          aria-label="Search designs"
+          className="h-9 md:col-span-2"
         />
-        <select name="category" className={fieldClass} defaultValue={filters.category ?? ''}>
-          <option value="">All categories</option>
-          {designFilterOptions.categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-        <select name="color" className={fieldClass} defaultValue={filters.color ?? ''}>
-          <option value="">All colours</option>
-          {designFilterOptions.colors.map((color) => (
-            <option key={color} value={color}>
-              {color}
-            </option>
-          ))}
-        </select>
-        <select name="designer" className={fieldClass} defaultValue={filters.designer ?? ''}>
-          <option value="">All designers</option>
-          {designFilterOptions.designers.map((designer) => (
-            <option key={designer.slug} value={designer.slug}>
-              {designer.name} ({designer.count})
-            </option>
-          ))}
-        </select>
+        <DesignerSelect
+          label="Category"
+          value={category}
+          onChange={setCategory}
+          options={categoryOptions}
+        />
+        <DesignerSelect
+          label="Colour"
+          value={color}
+          onChange={setColor}
+          options={colorOptions}
+        />
+        <DesignerSelect
+          label="Designer"
+          value={designer}
+          onChange={setDesigner}
+          options={designerOptions}
+        />
         <div className="flex gap-2">
-          <select name="sort" className={fieldClass} defaultValue={filters.sort ?? ''}>
-            <option value="">Newest</option>
-            <option value="best">Best selling</option>
-          </select>
-          <button
-            type="submit"
-            className="rounded-md bg-primary px-3 text-sm text-primary-foreground"
-          >
+          <DesignerSelect
+            label="Sort"
+            value={sort}
+            onChange={setSort}
+            options={sortOptions}
+            className="flex-1"
+          />
+          <Button type="submit" size="sm" className="h-9 shrink-0 cursor-pointer px-4">
             Apply
-          </button>
+          </Button>
         </div>
       </form>
 
@@ -106,7 +164,7 @@ export default function DesignGallery({
           {filtered ? (
             <>
               No designs match these filters.{' '}
-              <a className="underline" href="?">
+              <a className="cursor-pointer underline" href="?">
                 Clear filters
               </a>
             </>
