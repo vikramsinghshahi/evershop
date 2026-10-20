@@ -1,7 +1,4 @@
-import { access } from 'fs/promises';
-import path from 'path';
 import { select } from '@evershop/postgres-query-builder';
-import { CONSTANTS } from '../../../../../lib/helpers.js';
 import {
   getActiveLocale,
   getLocaleContext,
@@ -40,13 +37,9 @@ export default {
         if (fav) {
           return fav;
         }
-        // Otherwise fall back to a favicon.ico dropped in the public folder.
-        try {
-          await access(path.resolve(CONSTANTS.PUBLICPATH, 'favicon.ico'));
-          return getBaseUrl() + '/assets/favicon.ico';
-        } catch (error) {
-          return null;
-        }
+        // Built-in icon. Answered before session and locale, so a browser
+        // or a keep-alive ping does not render the storefront.
+        return `${getBaseUrl()}/favicon.ico`;
       }
     })
   },

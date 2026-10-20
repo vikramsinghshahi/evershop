@@ -15,7 +15,8 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     autoDeployTrigger: commit
-    healthCheckPath: /
+    # /health returns plain "ok" and does not render the storefront.
+    healthCheckPath: /health
     envVars:
       - key: DB_HOST
         fromDatabase:

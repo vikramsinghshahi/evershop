@@ -11,6 +11,7 @@ import {
 } from '../../lib/locale/localeResolution.js';
 import { translate } from '../../lib/locale/translate/translate.js';
 import { debug, warning } from '../../lib/log/logger.js';
+import healthProbe from '../../lib/middlewares/healthProbe.js';
 import publicStatic from '../../lib/middlewares/publicStatic.js';
 import themePublicStatic from '../../lib/middlewares/themePublicStatic.js';
 import { pool } from '../../lib/postgres/connection.js';
@@ -32,6 +33,9 @@ import { getDevMiddleware, getHotMiddleware } from './devEnvHelper.js';
 import { routeNeedsSession } from './routeNeedsSession.js';
 
 export function addDefaultMiddlewareFuncs(app) {
+  // Before the debug logger, static files, session, and locale lookup.
+  // Locale resolution queries Postgres; a storefront route then renders HTML.
+  app.use(healthProbe);
   app.use((request, response, next) => {
     response.debugMiddlewares = [];
     next();
