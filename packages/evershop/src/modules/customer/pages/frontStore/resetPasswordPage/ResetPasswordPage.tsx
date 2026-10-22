@@ -12,7 +12,7 @@ function Success({ children }: { children?: React.ReactNode }) {
     <div className="flex justify-center items-center h-full">
       <div className="reset__password__success flex justify-center items-center pt-10 md:pt-36">
         <div className="reset__password__success__inner max-w-md px-4">
-          <p className="text-center text-success">{children}</p>
+          {children}
         </div>
       </div>
     </div>
@@ -30,7 +30,9 @@ const UpdateForm: React.FC<{
 
   return success ? (
     <Success>
-      <div>{_('Your password has been updated successfully.')}</div>
+      <div className="text-center text-success">
+        {_('Your password has been updated successfully.')}
+      </div>
       <div className="flex items-center">
         <Button
           title={_('Go to Login')}
@@ -61,6 +63,7 @@ const UpdateForm: React.FC<{
                 setError(response.error.message);
               }
             }}
+            onError={(message) => setError(message)}
             submitBtn={false}
           >
             <PasswordField
@@ -76,15 +79,6 @@ const UpdateForm: React.FC<{
               <Button
                 title={_('UPDATE PASSWORD')}
                 type="submit"
-                onClick={() => {
-                  (
-                    document.getElementById(
-                      'updatePasswordForm'
-                    ) as HTMLFormElement
-                  ).dispatchEvent(
-                    new Event('submit', { cancelable: true, bubbles: true })
-                  );
-                }}
                 isLoading={form.formState.isSubmitting}
               >
                 {_('UPDATE PASSWORD')}
@@ -103,18 +97,22 @@ interface ResetFormProps {
 
 function ResetForm({ action }: ResetFormProps) {
   const [success, setSuccess] = React.useState(false);
-  const [token, setToken] = React.useState<string | undefined>('');
-
-  React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tokenParam = urlParams.get('token') as string;
-    setToken(tokenParam);
-  }, []);
+  const [emailSent, setEmailSent] = React.useState(true);
 
   return success ? (
     <Success>
-      {_(
-        'We have sent you an email with a link to reset your password. Please check your inbox.'
+      {emailSent ? (
+        <p className="text-center text-success">
+          {_(
+            'We have sent you an email with a link to reset your password. Please check your inbox.'
+          )}
+        </p>
+      ) : (
+        <p className="text-center text-destructive">
+          {_(
+            'We could not send a reset email right now. Please contact the store or try again later.'
+          )}
+        </p>
       )}
     </Success>
   ) : (
@@ -123,8 +121,9 @@ function ResetForm({ action }: ResetFormProps) {
       subtitle={_('Please enter your email to receive a reset link')}
       className="w-120 max-w-max md:max-w-[80%] bg-white rounded-3xl p-6 shadow-lg border border-divider"
       action={action}
-      onSuccess={() => {
+      onSuccess={(response) => {
         setSuccess(true);
+        setEmailSent(response?.data?.emailSent !== false);
       }}
     />
   );

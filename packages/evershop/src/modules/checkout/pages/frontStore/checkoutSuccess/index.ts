@@ -24,6 +24,9 @@ export default async (request: EvershopRequest, response, next) => {
     });
     setContextValue(request, 'orderId', order.uuid);
     setContextValue(request, 'orderCurrency', order.currency);
+    if (order.exchange_rate != null && order.exchange_rate !== '') {
+      setContextValue(request, 'orderExchangeRate', Number(order.exchange_rate));
+    }
     // The query above matched the order to this browser session (`sid`). Tell
     // the GraphQL `order` resolver, which cannot see the session itself.
     grantOrderAccess(request, order.uuid, 'session');

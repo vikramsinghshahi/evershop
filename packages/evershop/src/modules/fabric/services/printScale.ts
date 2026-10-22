@@ -186,6 +186,7 @@ export interface StoredPrintScale {
   quality: PrintQuality;
   design: StoredDesign | null;
   printFee: number;
+  printFeeCurrency?: string;
 }
 
 /** True when the line was saved as cloth with no design. */
@@ -213,6 +214,7 @@ export function parseStoredPrintOptions(
       printPpi?: unknown;
       design?: StoredDesign;
       printFee?: unknown;
+      printFeeCurrency?: unknown;
     };
     if (typeof data.printScale !== 'number' || !Number.isInteger(data.printScale)) {
       return null;
@@ -232,12 +234,17 @@ export function parseStoredPrintOptions(
         ? design
         : null;
     const printFee = readPrintFee(data.printFee) ?? 0;
+    const printFeeCurrency =
+      typeof data.printFeeCurrency === 'string' && /^[A-Z]{3}$/.test(data.printFeeCurrency)
+        ? data.printFeeCurrency
+        : undefined;
     return {
       printScale: data.printScale,
       printPpi,
       quality: qualityForPpi(printPpi),
       design: storedDesign,
-      printFee
+      printFee,
+      ...(printFeeCurrency ? { printFeeCurrency } : {})
     };
   } catch {
     return null;

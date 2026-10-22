@@ -1,7 +1,11 @@
+import { registerResendEmailService } from '../../lib/mail/resendEmailService.js';
 import { debug, error } from '../../lib/log/logger.js';
 import { refreshSetting } from './services/setting.js';
 
 export default async (context: { command?: string } = {}) => {
+  // Registered always; the API key is read from System Setting (or env) on
+  // each send, so saving a key in admin does not require a restart.
+  registerResendEmailService();
   // `evershop build` compiles the app with the module bootstraps loaded but NO
   // database attached, so warming the setting cache here can only fail with
   // ECONNREFUSED — which is not the fresh-install 42P01 handled below, so it

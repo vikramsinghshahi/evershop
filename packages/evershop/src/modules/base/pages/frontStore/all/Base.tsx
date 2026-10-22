@@ -45,17 +45,23 @@ export default function Base({
     routeId === 'categoryView' ||
     routeId === 'catalogSearch';
   const shell = (
-    <>
+    <div
+      className={
+        wideListing
+          ? 'listing-screen flex min-h-screen flex-col'
+          : 'flex min-h-screen flex-col'
+      }
+    >
       <LoadingBar />
       <Header />
       <Area
         id={isLandingPage ? 'landing_page_content' : 'content'}
-        className="page-width min-h-36"
+        className="page-width min-h-36 flex-1"
         wrapper="main"
         editableInPageBuilder
       />
       <Footer copyRight={themeConfig.copyRight} />
-    </>
+    </div>
   );
   return (
     <CustomerProvider
@@ -69,7 +75,7 @@ export default function Base({
         query={`${query}\n${fragments}`}
         addMineCartItemApi={addMineCartItemApi}
       >
-        {wideListing ? <div className="listing-screen">{shell}</div> : shell}
+        {shell}
       </CartProvider>
     </CustomerProvider>
   );

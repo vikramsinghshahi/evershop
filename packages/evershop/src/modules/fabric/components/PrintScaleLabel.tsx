@@ -1,7 +1,9 @@
+import { useAppState } from '@components/common/context/app.js';
 import {
   layoutLabel,
   type FabricLayoutId
 } from '../services/designCatalog.js';
+import { formatPrintFee } from '../services/printFee.js';
 import {
   isPlainFabricLine,
   parseStoredPrintOptions,
@@ -21,6 +23,7 @@ export function PrintScaleLabel({
 }: {
   value?: string | null;
 }): React.ReactElement | null {
+  const { shopCurrency, locale } = useAppState();
   const size = orderSizeFromOptions(value);
   const sizeText = size === 'linear' ? '' : orderSizeLabel(size);
   if (isPlainFabricLine(value)) {
@@ -34,6 +37,11 @@ export function PrintScaleLabel({
   if (!stored) {
     return null;
   }
+  const printFeeText = formatPrintFee(
+    stored.printFee,
+    stored.printFeeCurrency || shopCurrency,
+    locale
+  );
   return (
     <div className="mt-0.5 text-xs">
       <div className={toneClass[stored.quality]}>
@@ -42,7 +50,7 @@ export function PrintScaleLabel({
       </div>
       {sizeText && <div className="text-neutral-700">{sizeText}</div>}
       {stored.printFee > 0 && (
-        <div className="text-neutral-700">Printing fee {stored.printFee.toFixed(2)}</div>
+        <div className="text-neutral-700">Printing fee {printFeeText}</div>
       )}
       {stored.design && (
         <div className="mt-1 flex items-center gap-2 text-neutral-700">

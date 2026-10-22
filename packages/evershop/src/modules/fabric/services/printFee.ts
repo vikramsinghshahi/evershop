@@ -66,3 +66,25 @@ export function formatLike(sample: string, amount: number): string {
   const next = `${negative ? '-' : ''}${digits}`;
   return sample.slice(0, match.index) + next + sample.slice(match.index + match[0].length);
 }
+
+/** Print-fee amount in the shopper's currency, with the matching symbol. */
+export function formatPrintFee(
+  amount: number,
+  currency?: string | null,
+  locale?: string | null
+): string {
+  if (!Number.isFinite(amount)) {
+    return '';
+  }
+  if (currency && /^[A-Z]{3}$/.test(currency)) {
+    try {
+      return new Intl.NumberFormat(locale || undefined, {
+        style: 'currency',
+        currency
+      }).format(amount);
+    } catch {
+      // Unknown currency code; keep the digits.
+    }
+  }
+  return amount.toFixed(2);
+}

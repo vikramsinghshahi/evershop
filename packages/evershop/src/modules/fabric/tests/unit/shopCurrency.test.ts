@@ -4,6 +4,8 @@ import {
   readDefaultMargin,
   readExchangeRate
 } from '../../services/shopCurrency.js';
+import { quotePrintFeeInOptions } from '../../services/shopCurrencyRates.js';
+import { formatPrintFee } from '../../services/printFee.js';
 
 describe('shop currency', () => {
   test('keeps the India price and ignores the margin', () => {
@@ -31,5 +33,57 @@ describe('shop currency', () => {
     expect(readExchangeRate('90.5', 83)).toBe(90.5);
     expect(readDefaultMargin('')).toBe(20);
     expect(readDefaultMargin(0)).toBe(0);
+  });
+
+  test('quotes a snapshotted printing fee in the shopper currency and leaves other lines alone', () => {
+    const printed = JSON.stringify({
+      printScale: 100,
+      design: { name: 'Field Flower' },
+      printFee: 5
+    });
+    expect(
+      JSON.parse(
+        quotePrintFeeInOptions(printed, {
+          sku: 'FABRIC-COTTON-POPLIN',
+          exportMargin: 20,
+          currency: 'USD',
+          rate: 83
+        }) as string
+      )
+    ).toMatchObject({ printFee: 0.07, printFeeCurrency: 'USD' });
+    expect(
+      JSON.parse(
+        quotePrintFeeInOptions(printed, {
+          sku: 'FABRIC-COTTON-POPLIN',
+          exportMargin: 0,
+          currency: 'USD',
+          rate: 83
+        }) as string
+      )
+    ).toMatchObject({ printFee: 0.06, printFeeCurrency: 'USD' });
+    expect(
+      JSON.parse(
+        quotePrintFeeInOptions(printed, {
+          sku: 'FABRIC-COTTON-POPLIN',
+          exportMargin: 20,
+          currency: 'INR',
+          rate: 1
+        }) as string
+      )
+    ).toMatchObject({ printFee: 5, printFeeCurrency: 'INR' });
+    expect(
+      quotePrintFeeInOptions('{"mode":"plain","printFee":5}', {
+        sku: 'FABRIC-COTTON-POPLIN',
+        currency: 'USD',
+        rate: 83,
+        exportMargin: 20
+      })
+    ).toBe('{"mode":"plain","printFee":5}');
+    expect(quotePrintFeeInOptions(null, { currency: 'USD', rate: 83 })).toBeNull();
+    expect(quotePrintFeeInOptions('not-json', { currency: 'USD', rate: 83 })).toBe(
+      'not-json'
+    );
+    expect(formatPrintFee(0.07, 'USD', 'en')).toBe('$0.07');
+    expect(formatPrintFee(5, 'INR', 'en')).toBe('₹5.00');
   });
 });

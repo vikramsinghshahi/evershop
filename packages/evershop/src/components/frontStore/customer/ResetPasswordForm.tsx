@@ -11,7 +11,7 @@ export const ResetPasswordForm: React.FC<{
   subtitle: string;
   action: string;
   className: string;
-  onSuccess: () => void;
+  onSuccess: (response?: { data?: { emailSent?: boolean } }) => void;
 }> = ({ title, subtitle, action, className, onSuccess }) => {
   const [error, setError] = React.useState(null);
   const form = useForm();
@@ -41,11 +41,12 @@ export const ResetPasswordForm: React.FC<{
             method="POST"
             onSuccess={(response) => {
               if (!response.error) {
-                onSuccess();
+                onSuccess(response);
               } else {
                 setError(response.error.message);
               }
             }}
+            onError={(message) => setError(message)}
             submitBtn={false}
           >
             <EmailField
@@ -59,20 +60,7 @@ export const ResetPasswordForm: React.FC<{
               }}
             />
             <div className="reset__password__form__submit__button flex border-t border-divider mt-2 pt-2">
-              <Button
-                type="submit"
-                variant={'default'}
-                onClick={() => {
-                  (
-                    document.getElementById(
-                      'resetPasswordForm'
-                    ) as HTMLFormElement
-                  ).dispatchEvent(
-                    new Event('submit', { cancelable: true, bubbles: true })
-                  );
-                }}
-                isLoading={loading}
-              >
+              <Button type="submit" variant={'default'} isLoading={loading}>
                 {_('Reset Password')}
               </Button>
             </div>

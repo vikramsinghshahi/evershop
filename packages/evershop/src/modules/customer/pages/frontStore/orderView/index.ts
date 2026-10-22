@@ -31,12 +31,15 @@ export default async (
     return;
   }
   setContextValue(request, 'orderUuid', request.params.uuid);
-  const order = await select('currency')
+  const order = await select()
     .from('order')
     .where('uuid', '=', request.params.uuid)
     .load(pool);
   if (order?.currency) {
     setContextValue(request, 'orderCurrency', order.currency);
+  }
+  if (order?.exchange_rate != null && order.exchange_rate !== '') {
+    setContextValue(request, 'orderExchangeRate', Number(order.exchange_rate));
   }
   setPageMetaInfo(request, {
     title: translate('Order detail'),

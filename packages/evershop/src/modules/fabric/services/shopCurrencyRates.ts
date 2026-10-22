@@ -1,4 +1,5 @@
 import { getSettingSync } from '../../setting/services/setting.js';
+import { printFeeFromOptions } from './printFee.js';
 import { isFabricSku } from './printScale.js';
 import { getShopCurrency } from './shopCurrencyContext.js';
 import {
@@ -63,4 +64,49 @@ export function quoteCatalogAmount(
     return amount;
   }
   return quotePrice(amount, shop, exchangeRateFor(shop), marginForProduct(product));
+}
+
+export function quotePrintFeeInOptions(
+  raw: string | null | undefined,
+  hint?: {
+    sku?: unknown;
+    exportMargin?: unknown;
+    export_margin?: unknown;
+    currency?: ShopCurrency;
+    rate?: number;
+  }
+): string | null | undefined {
+  if (!raw || typeof raw !== 'string') {
+    return raw;
+  }
+  const fee = printFeeFromOptions(raw);
+  if (!fee) {
+    return raw;
+  }
+  const currency = hint?.currency ?? getShopCurrency();
+  if (!currency) {
+    return raw;
+  }
+  const rate =
+    hint?.rate != null && Number.isFinite(hint.rate) && hint.rate > 0
+      ? hint.rate
+      : exchangeRateFor(currency);
+  const storedMargin = hint?.exportMargin ?? hint?.export_margin;
+  const margin = exportMarginPercent(
+    storedMargin,
+    isFabricSku(hint?.sku),
+    storedMargin == null || storedMargin === '' ? storeExportMargin() : 0
+  );
+  const quoted = quotePrice(fee, currency, rate, margin);
+  try {
+    const data = JSON.parse(raw) as { printFee?: unknown; printFeeCurrency?: unknown };
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return raw;
+    }
+    data.printFee = quoted;
+    data.printFeeCurrency = currency;
+    return JSON.stringify(data);
+  } catch {
+    return raw;
+  }
 }

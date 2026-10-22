@@ -22,6 +22,9 @@ export default async (
     } else {
       setContextValue(request, 'orderId', order.uuid);
       setContextValue(request, 'orderCurrency', order.currency);
+      if (order.exchange_rate != null && order.exchange_rate !== '') {
+        setContextValue(request, 'orderExchangeRate', Number(order.exchange_rate));
+      }
       setPageMetaInfo(request, {
         title: `Order #${order.order_number}`,
         description: `Order #${order.order_number}`

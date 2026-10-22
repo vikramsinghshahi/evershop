@@ -1,8 +1,5 @@
 import crypto from 'crypto';
 import { select, del } from '@evershop/postgres-query-builder';
-import dayjs from 'dayjs';
-import timezone from 'dayjs/plugin/timezone.js';
-import utc from 'dayjs/plugin/utc.js';
 import { translate } from '../../../../lib/locale/translate/translate.js';
 import { error } from '../../../../lib/log/logger.js';
 import { pool } from '../../../../lib/postgres/connection.js';
@@ -24,24 +21,20 @@ export default async (request, response, next) => {
     // Hash the token
     const hash = crypto.createHash('sha256').update(token).digest('hex');
 
-    // Check if token is existed and created not more than 48 hours, created_at is timestamp with time zone UTC
+    // Check if token is existed and created not more than 48 hours.
+    // created_at is timestamptz — compare with an ISO instant, not a
+    // shop-timezone wall clock (that string is read as UTC by Postgres
+    // when TimeZone=UTC and can shift the window by the shop offset).
     const resetTokenLifetime = getConfig(
       'resetPasswordTokenLifetime',
       48 * 60 * 60 * 1000
     );
-
-    // Convert Date object to mysql timestamp
-    dayjs.extend(utc);
-    dayjs.extend(timezone);
-    const timezoneConfig = getConfig('shop.timezone', 'UTC');
-    const now = dayjs
-      .tz(new Date(Date.now() - resetTokenLifetime), timezoneConfig)
-      .format('YYYY-MM-DD HH:mm:ss');
+    const cutoff = new Date(Date.now() - resetTokenLifetime).toISOString();
 
     const existingToken = await select()
       .from('reset_password_token')
       .where('token', '=', hash)
-      .and('created_at', '>=', now)
+      .and('created_at', '>=', cutoff)
       .load(pool);
 
     if (!existingToken) {

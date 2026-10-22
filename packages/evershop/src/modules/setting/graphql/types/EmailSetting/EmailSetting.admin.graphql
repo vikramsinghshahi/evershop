@@ -1,0 +1,8 @@
+extend type Setting {
+  """Resend API key. Admin-only. Masked when pinned by RESEND_API_KEY."""
+  resendApiKey: String
+  """True when RESEND_API_KEY is set in the environment and the field is read-only."""
+  resendApiKeyPinned: Boolean
+  """From address for outgoing mail, e.g. Store Name <noreply@yourdomain.com>."""
+  resendFromEmail: String
+}
