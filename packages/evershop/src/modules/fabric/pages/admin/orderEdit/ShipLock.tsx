@@ -11,6 +11,7 @@ interface FabricShipLockProps {
       chargedInr?: number | null;
       exchangeRate?: number | null;
       currency?: string | null;
+      serviceName?: string | null;
       perKgRateInr?: number | null;
       extraKg?: number | null;
       charged?: number | null;
@@ -36,6 +37,31 @@ function chargedAmount(amount: number, currency: string): string {
 /** The shipping card row frozen on this order. Later card edits do not change it. */
 export default function ShipLock({ order }: FabricShipLockProps) {
   const lock = order?.fabricShipLock;
+  if (
+    lock?.serviceName &&
+    lock.weightKg != null &&
+    lock.amountInr != null &&
+    lock.charged != null &&
+    lock.currency
+  ) {
+    const extra =
+      lock.extraKg != null && lock.perKgRateInr != null
+        ? ` The 5 kg price plus ${lock.extraKg} kg at ${rupees(lock.perKgRateInr)} per kg.`
+        : '';
+    const billed =
+      lock.billedWeightKg != null && lock.billedWeightKg !== lock.weightKg
+        ? ` (billed ${lock.billedWeightKg} kg)`
+        : '';
+    const charged =
+      lock.currency === 'INR'
+        ? rupees(lock.charged)
+        : `${chargedAmount(lock.charged, lock.currency)} from ${rupees(lock.amountInr)}`;
+    return (
+      <p className="mt-1 text-sm text-muted-foreground">
+        {`${lock.serviceName}, ${lock.weightKg} kg${billed}, ${charged}.${extra}`}
+      </p>
+    );
+  }
   if (
     !lock ||
     lock.zone == null ||
@@ -86,6 +112,7 @@ export const query = `
         perKgRateInr
         extraKg
         charged
+        serviceName
       }
     }
   }

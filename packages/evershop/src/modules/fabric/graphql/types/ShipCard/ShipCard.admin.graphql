@@ -11,16 +11,29 @@ type FabricShipRate {
   amountInr: Float!
 }
 
+type FabricLocalShipRate {
+  service: String!
+  band: String!
+  weightKg: Float!
+  amountInr: Float!
+}
+
 extend type Query {
   fabricShipCountries: [FabricShipCountry!]!
   fabricShipRates: [FabricShipRate!]!
   """Percent added to the card price at checkout. Shoppers see only the total."""
   fabricShipSurcharge: Float!
+  """DTDC prices for addresses in India. Export rates are a separate list."""
+  fabricLocalShipRates: [FabricLocalShipRate!]!
 }
 
 """The zone, weight and rupee charge frozen when the order was placed."""
 type FabricShipLock {
-  zone: Int!
+  """Empty on an India order. Export orders keep the zone from the card."""
+  zone: Int
+  """DTDC service on an India order. Empty on an export order."""
+  service: String
+  serviceName: String
   weightKg: Float!
   billedWeightKg: Float!
   amountInr: Float!

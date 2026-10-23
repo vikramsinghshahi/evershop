@@ -1,3 +1,4 @@
+import { loadLocalShipRates } from '../../../services/localShipStore.js';
 import { loadShipCountries, loadShipRates } from '../../../services/shipStore.js';
 import { loadShipSurcharge } from '../../../services/shipSurchargeStore.js';
 
@@ -9,6 +10,47 @@ function readNumber(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function indiaLock(
+  order: {
+    shippingMethodData?: {
+      snapshot?: { cost?: unknown; metadata?: Record<string, unknown> };
+    } | null;
+  },
+  metadata: Record<string, unknown>
+) {
+  const amountInr = readNumber(metadata.amountInr);
+  const weightKg = readNumber(metadata.weightKg);
+  const exchangeRate = readNumber(metadata.exchangeRate);
+  const charged = readNumber(order.shippingMethodData?.snapshot?.cost);
+  const currency = metadata.currency;
+  const serviceName = typeof metadata.serviceName === 'string' ? metadata.serviceName : '';
+  if (
+    amountInr == null ||
+    weightKg == null ||
+    exchangeRate == null ||
+    charged == null ||
+    typeof currency !== 'string' ||
+    serviceName === ''
+  ) {
+    return null;
+  }
+  return {
+    zone: null,
+    service: typeof metadata.service === 'string' ? metadata.service : null,
+    serviceName,
+    weightKg,
+    billedWeightKg: readNumber(metadata.billedWeightKg) ?? weightKg,
+    amountInr,
+    surchargePercent: null,
+    chargedInr: readNumber(metadata.chargedInr),
+    exchangeRate,
+    currency,
+    perKgRateInr: readNumber(metadata.perKgRateInr),
+    extraKg: readNumber(metadata.extraKg),
+    charged
+  };
+}
+
 function shipLock(order: {
   shippingMethodData?: {
     snapshot?: { cost?: unknown; metadata?: Record<string, unknown> };
@@ -17,6 +59,9 @@ function shipLock(order: {
   const metadata = order?.shippingMethodData?.snapshot?.metadata;
   if (!metadata) {
     return null;
+  }
+  if (metadata.kind === 'india') {
+    return indiaLock(order, metadata);
   }
   const amountInr = readNumber(metadata.amountInr);
   const zone = readNumber(metadata.zone);
@@ -36,6 +81,8 @@ function shipLock(order: {
   }
   return {
     zone,
+    service: null,
+    serviceName: null,
     weightKg,
     billedWeightKg: readNumber(metadata.billedWeightKg) ?? weightKg,
     amountInr,
@@ -53,7 +100,8 @@ export default {
   Query: {
     fabricShipCountries: () => loadShipCountries(),
     fabricShipRates: () => loadShipRates(),
-    fabricShipSurcharge: () => loadShipSurcharge()
+    fabricShipSurcharge: () => loadShipSurcharge(),
+    fabricLocalShipRates: () => loadLocalShipRates()
   },
   Order: {
     fabricShipLock: shipLock
