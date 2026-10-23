@@ -150,7 +150,8 @@ describe('a product with variants', () => {
 
   it('links a fabric to its page, because the card cannot choose a scale and design', () => {
     const markup = list([{ ...product(1), sku: 'FABRIC-COTTON-LAWN' }]);
-    expect(markup).toMatch(/<a href="\/dress-1" data-slot="button" class="[^"]*">Select options<\/a>/);
+    expect(markup).toMatch(/<a href="\/dress-1" data-slot="button" class="[^"]*">Select Fabric<\/a>/);
+    expect(markup).not.toContain('Select options');
     expect(buttons(markup)).toBe(0);
     expect(markup).toContain('aspect-ratio');
     expect(markup).toContain('product__fabric__card');

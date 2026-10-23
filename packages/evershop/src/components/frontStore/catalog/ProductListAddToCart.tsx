@@ -12,7 +12,9 @@ import React from 'react';
  * filter calls it "configurable" and `Product.variantGroup` returns null for the others, both on
  * the same rule.
  */
-export function hasVariants(product: Pick<ProductData, 'variantGroupId'>): boolean {
+export function hasVariants(
+  product: Pick<ProductData, 'variantGroupId'>
+): boolean {
   return Boolean(product.variantGroupId);
 }
 
@@ -29,8 +31,8 @@ export interface ProductListAddToCartProps {
  *
  * - A simple product: "Add to Cart", which adds one to the cart. When it is out of stock the
  *   button is disabled and says "Sold out", the word the product page's own button uses.
- * - A product with variants, or a fabric: "Select options", a link to its page. A fabric needs
- *   a print scale and a design before it can be added, and a card cannot ask for those.
+ * - A fabric: "Select Fabric", a link to its page. A card cannot ask for the print scale and design.
+ * - A product with variants: "Select options", a link to its page.
  *
  * A product with variants keeps "Select options" even when the card's own variant is sold
  * out: another variant may be in stock, and the card cannot tell, so the product page decides.
@@ -44,7 +46,8 @@ export function ProductListAddToCart({
   size,
   className
 }: ProductListAddToCartProps) {
-  if (hasVariants(product) || isFabricSku(product.sku)) {
+  const fabric = isFabricSku(product.sku);
+  if (fabric || hasVariants(product)) {
     // Nothing to send the customer to without a page; adding the variant is the one thing not to do.
     if (!product.url) {
       return null;
@@ -56,7 +59,7 @@ export function ProductListAddToCart({
         data-slot="button"
         className={cn(buttonVariants({ variant, size, className }))}
       >
-        {_('Select options')}
+        {fabric ? _('Select Fabric') : _('Select options')}
       </a>
     );
   }

@@ -1,5 +1,10 @@
 import { useCategory } from '@components/frontStore/catalog/CategoryContext.js';
 import { ProductSorting } from '@components/frontStore/catalog/ProductSorting.js';
+import {
+  FabricSearch,
+  fabricNameQuery,
+  isFabricsCategoryUrl
+} from '../../../../fabric/components/FabricSearch.js';
 import React from 'react';
 
 /**
@@ -9,8 +14,18 @@ import React from 'react';
  * must stay inside the category page shell's Areas; placed elsewhere it throws.
  */
 export default function CategorySortingBlock(): React.ReactElement {
-  const { products } = useCategory();
-  return <ProductSorting className="flex justify-start" count={products.total} />;
+  const { products, url } = useCategory();
+  return (
+    <ProductSorting
+      className="flex justify-start"
+      count={products.total}
+      leading={
+        isFabricsCategoryUrl(url) ? (
+          <FabricSearch query={fabricNameQuery(products.currentFilters)} />
+        ) : undefined
+      }
+    />
+  );
 }
 
 export const layout = {

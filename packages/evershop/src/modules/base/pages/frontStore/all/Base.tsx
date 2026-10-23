@@ -56,7 +56,7 @@ export default function Base({
       <Header />
       <Area
         id={isLandingPage ? 'landing_page_content' : 'content'}
-        className="page-width min-h-36 flex-1"
+        className="page-width w-full min-h-36 flex-1"
         wrapper="main"
         editableInPageBuilder
       />

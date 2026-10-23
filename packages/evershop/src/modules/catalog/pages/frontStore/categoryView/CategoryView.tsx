@@ -68,6 +68,7 @@ export const query = `
     category: currentCategory {
       showProducts
       name
+      url
       uuid
       metafields {
         namespace

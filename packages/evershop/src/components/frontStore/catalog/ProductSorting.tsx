@@ -53,6 +53,8 @@ interface ProductSortingProps {
   className?: string;
   disabled?: boolean;
   count: number;
+  /** Rendered immediately to the left of “Sort by”. Omitted on listings that do not search. */
+  leading?: ReactNode;
 }
 
 /**
@@ -123,7 +125,8 @@ export function ProductSorting({
   renderSortDirection,
   className = '',
   disabled = false,
-  count
+  count,
+  leading
 }: ProductSortingProps) {
   const AppContextDispatch = useAppDispatch();
 
@@ -298,7 +301,13 @@ export function ProductSorting({
           count: count.toString()
         })}
       </div>
-      <div className="flex items-center gap-2">
+      <div
+        className={cn(
+          'flex items-center gap-2',
+          leading && 'flex-wrap justify-end'
+        )}
+      >
+        {leading}
         <span className="shrink-0 text-sm text-muted-foreground">
           {_('Sort by')}
         </span>

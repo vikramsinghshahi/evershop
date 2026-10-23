@@ -2,12 +2,30 @@ import { ProductListingFilter } from '@components/frontStore/catalog/ProductList
 import { ProductListingInfo } from '@components/frontStore/catalog/ProductListingInfo.js';
 import { ProductListingPagination } from '@components/frontStore/catalog/ProductListingPagination.js';
 import { ProductListingProducts } from '@components/frontStore/catalog/ProductListingProducts.js';
+import { ProductSorting } from '@components/frontStore/catalog/ProductSorting.js';
 import {
   ProductListingData,
-  ProductListingProvider
+  ProductListingProvider,
+  useProductListing
 } from '@components/frontStore/catalog/ProductListingContext.js';
-import ProductListingSorting from '../../../../catalog/pages/frontStore/productListing/ProductListingSorting.js';
+import {
+  FabricSearch,
+  fabricNameQuery
+} from '../../../components/FabricSearch.js';
 import React from 'react';
+
+function FabricListingToolbar() {
+  const { products } = useProductListing();
+  return (
+    <ProductSorting
+      className="flex justify-start"
+      count={products.total}
+      leading={
+        <FabricSearch query={fabricNameQuery(products.currentFilters)} />
+      }
+    />
+  );
+}
 
 /**
  * Store homepage. Fabrics are the catalog: the same filter sidebar, sort,
@@ -24,7 +42,7 @@ export default function FabricCatalog({
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[240px_1fr]">
         <ProductListingFilter />
         <div className="min-w-0">
-          <ProductListingSorting />
+          <FabricListingToolbar />
           <ProductListingProducts />
           <ProductListingPagination />
         </div>

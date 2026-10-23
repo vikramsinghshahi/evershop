@@ -50,7 +50,9 @@ describe('category page blocks', () => {
     const info = inShell(<CategoryInfo />);
     expect(info).toContain('category__general');
     expect(info).toContain('Women');
-    expect(inShell(<CategorySorting />).length).toBeGreaterThan(0);
+    const sorting = inShell(<CategorySorting />);
+    expect(sorting.length).toBeGreaterThan(0);
+    expect(sorting).not.toContain('Search fabric');
     expect(() => inShell(<CategoryPagination />)).not.toThrow();
   });
 
