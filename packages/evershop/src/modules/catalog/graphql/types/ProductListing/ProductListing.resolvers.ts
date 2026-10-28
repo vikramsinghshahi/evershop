@@ -1,12 +1,8 @@
 import { buildFilterFromUrl, FilterInput } from '../../../../../lib/util/buildFilterFromUrl.js';
 import { toPrice } from '../../../../checkout/services/toPrice.js';
 import { getCategoryTree } from '../../../services/getCategoryTree.js';
-import {
-  getFilterableAttributes,
-  getStoreFilterableAttributes
-} from '../../../services/getFilterableAttributes.js';
+import { getStoreFilterableAttributes } from '../../../services/getFilterableAttributes.js';
 import { getProductsBaseQuery } from '../../../services/getProductsBaseQuery.js';
-import { getProductsByCategoryBaseQuery } from '../../../services/getProductsByCategoryBaseQuery.js';
 import { getStorePriceRange } from '../../../services/getStorePriceRange.js';
 import { ProductCollection } from '../../../services/ProductCollection.js';
 
@@ -16,41 +12,11 @@ import { ProductCollection } from '../../../services/ProductCollection.js';
  * Route-gated exactly like `Query.currentCategory` and `Query.productSearch`:
  * the field only resolves on its own route, so the merged per-route query of
  * any other page cannot accidentally pull a whole store-wide collection.
- *
- * The homepage is the fabric shop. Fabrics are whatever products sit in the
- * Fabrics category (the ones a merchant adds), not a hard-coded sku prefix.
+ * The fabric shop is the Fabrics category page, not the store homepage.
  */
 
 interface ProductListingParent {
   filters: FilterInput[];
-  /** Homepage is the fabric catalog. `/products` stays the whole store. */
-  homepage: boolean;
-  /** Fabrics category id, when the homepage can find it. */
-  fabricCategoryId: number | null;
-}
-
-interface DbPool {
-  query: (
-    sql: string,
-    params?: unknown[]
-  ) => Promise<{ rows: Array<{ category_id: number }> }>;
-}
-
-const FABRICS_URL_KEY = 'fabrics';
-
-async function findFabricsCategoryId(pool: DbPool): Promise<number | null> {
-  const { rows } = await pool.query(
-    `SELECT category.category_id
-     FROM category
-     INNER JOIN category_description
-       ON category_description.category_description_category_id = category.category_id
-     WHERE category_description.url_key = $1
-       AND category.status = true
-     LIMIT 1`,
-    [FABRICS_URL_KEY]
-  );
-  const id = rows[0]?.category_id;
-  return id === undefined || id === null ? null : Number(id);
 }
 
 export default {
@@ -60,23 +26,17 @@ export default {
       __: unknown,
       {
         currentRoute,
-        currentUrl,
-        pool
+        currentUrl
       }: {
         currentRoute?: { id?: string };
         currentUrl: string;
-        pool: DbPool;
       }
     ): Promise<ProductListingParent | null> => {
-      const routeId = currentRoute?.id;
-      if (routeId !== 'productListing' && routeId !== 'homepage') {
+      if (currentRoute?.id !== 'productListing') {
         return null;
       }
-      const homepage = routeId === 'homepage';
       return {
-        filters: buildFilterFromUrl(currentUrl),
-        homepage,
-        fabricCategoryId: homepage ? await findFabricsCategoryId(pool) : null
+        filters: buildFilterFromUrl(currentUrl)
       };
     }
   },
@@ -86,49 +46,16 @@ export default {
       parent: ProductListingParent,
       { filters = [] }: { filters?: FilterInput[] }
     ) => {
-      // `/products` is the whole catalog. The homepage is the Fabrics category,
-      // including anything a merchant adds there. Status, visibility, stock,
-      // variant collapsing, keyword, price, attribute filters, sort and
-      // pagination still come from ProductCollection.
-      const query = parent.fabricCategoryId
-        ? await getProductsByCategoryBaseQuery(parent.fabricCategoryId, true)
-        : getProductsBaseQuery();
-      if (parent.homepage && !parent.fabricCategoryId) {
-        query.andWhere('product.product_id', '=', 0);
-      }
-      const root = new ProductCollection(query);
+      // Status, visibility, stock, variant collapsing, keyword, price,
+      // attribute filters, sort and pagination come from ProductCollection.
+      const root = new ProductCollection(getProductsBaseQuery());
       await root.init([...parent.filters, ...filters], false);
       return root;
     },
 
-    availableAttributes: (parent: ProductListingParent) =>
-      parent.fabricCategoryId
-        ? getFilterableAttributes(parent.fabricCategoryId)
-        : getStoreFilterableAttributes(),
+    availableAttributes: () => getStoreFilterableAttributes(),
 
-    priceRange: async (
-      parent: ProductListingParent,
-      _: unknown,
-      { pool }: { pool: DbPool }
-    ) => {
-      if (parent.fabricCategoryId) {
-        const query = await getProductsByCategoryBaseQuery(
-          parent.fabricCategoryId,
-          true
-        );
-        query
-          .select('MIN(product.price)', 'min')
-          .select('MAX(product.price)', 'max');
-        const result = await query.load(pool);
-        const min = result?.min || 0;
-        const max = result?.max || 0;
-        return {
-          min,
-          max,
-          minText: toPrice(min, true),
-          maxText: toPrice(max, true)
-        };
-      }
+    priceRange: async () => {
       const { min, max } = await getStorePriceRange();
       return {
         min,
@@ -138,10 +65,6 @@ export default {
       };
     },
 
-    // A store-wide category facet on the fabric homepage would offer
-    // Accessories and then return an empty grid. Child categories, when a
-    // merchant adds them, are reached from the Fabrics category page.
-    categories: (parent: ProductListingParent) =>
-      parent.fabricCategoryId ? [] : getCategoryTree()
+    categories: () => getCategoryTree()
   }
 };

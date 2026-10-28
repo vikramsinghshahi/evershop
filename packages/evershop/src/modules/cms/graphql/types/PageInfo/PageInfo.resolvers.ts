@@ -82,29 +82,10 @@ export default {
           urlPath = urlPath.slice(prefix.length);
         }
       }
-      // The homepage is the fabric catalog, so it gets the same trail a
-      // category page does: Home, then the Fabrics category name.
+      // The store homepage is the landing page. The fabric catalog has its
+      // own trail on /fabrics, so the landing shows no breadcrumb.
       if (urlPath === '/' || urlPath === '') {
-        const fabrics = await context.pool.query(
-          `SELECT COALESCE(NULLIF(category_description.meta_title, ''), category_description.name) AS title
-           FROM category
-           INNER JOIN category_description
-             ON category_description.category_description_category_id = category.category_id
-           WHERE category_description.url_key = $1
-             AND category.status = true
-           LIMIT 1`,
-          ['fabrics']
-        );
-        return [
-          {
-            title: translate('Home'),
-            url: localizeUrl('/')
-          },
-          {
-            title: fabrics.rows[0]?.title || translate('Fabrics'),
-            url: localizeUrl('/')
-          }
-        ];
+        return [];
       }
       // Get the current path
       const path = urlPath.replace(/^\/|\/$/g, '').replace(/\./g, '');

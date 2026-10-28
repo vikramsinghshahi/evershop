@@ -9,7 +9,7 @@ export interface StorePriceRange {
 /**
  * Lowest and highest price across the storefront-visible catalog, for the
  * `/products` price slider bounds. Pass `skuLike` to bound a slice of that
- * catalog (the homepage uses `FABRIC-%`).
+ * catalog.
  *
  * Unlike the category page's `priceRange` resolver, this applies `status` and
  * `visibility` — otherwise a disabled or hidden product silently widens the

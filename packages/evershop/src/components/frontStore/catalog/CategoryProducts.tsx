@@ -4,7 +4,13 @@ import { ProductList } from '@components/frontStore/catalog/ProductList.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import React from 'react';
 
-export function CategoryProducts() {
+export function CategoryProducts({
+  gridColumns = 3,
+  className
+}: {
+  gridColumns?: number;
+  className?: string;
+} = {}) {
   const { showProducts, products } = useCategory();
   if (!showProducts) {
     return null;
@@ -19,7 +25,8 @@ export function CategoryProducts() {
         <ProductList
           products={products.items}
           layout="grid"
-          gridColumns={3}
+          gridColumns={gridColumns}
+          className={className}
         />
         <span className="product-count mt-5 block text-sm text-muted-foreground">
           {_('${count} products', { count: products.total.toString() })}

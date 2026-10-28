@@ -574,7 +574,7 @@ export default async (context: { command?: string } = {}) => {
           id: 'col-shop',
           title: 'Shop',
           links: [
-            { id: 'lnk-fabrics', label: 'Fabrics', url: '/' },
+            { id: 'lnk-fabrics', label: 'Fabrics', url: '/fabrics' },
             { id: 'lnk-designs', label: 'Designs', url: '/designs' },
             {
               id: 'lnk-accessories',

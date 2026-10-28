@@ -151,7 +151,7 @@
  * and smaller desktops stay as they are. Card styles are not touched.
  *
  * The header and the footer always span the viewport, on every page. Product
- * listings (`.listing-screen`: home, all products, category, search) do the
+ * listings (`.listing-screen`: all products, category, search) do the
  * same so the filter sits at the left and the grid can hold four cards. The
  * grid rule is unlayered so it wins over `lg:grid-cols-3`. */
 @media screen and (min-width: 1500px) {
@@ -169,7 +169,7 @@
   }
 }
 
-/* Fabric homepage only. Wins over the four-column rule above. A phone shows
+/* Fabric category page only. Wins over the four-column rule above. A phone shows
  * two, a tablet three, and every wider screen five. */
 .listing-screen .product__grid.fabric-product-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));

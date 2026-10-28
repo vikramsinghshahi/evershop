@@ -36,11 +36,11 @@ export default function Base({
   const { config } = useAppState();
   const routeId = config?.pageMeta?.route?.id;
   const isLandingPage = routeId === 'landingPageView';
-  // Every product listing (home, all products, a category such as Accessories,
+  // Product listings (all products, a category such as Fabrics or Accessories,
   // search). On a wide desktop these drop the 1200px column so the filter and
-  // the grid use the side margins. The header does this on every page.
+  // the grid use the side margins. The homepage is the landing page and keeps
+  // the normal column. The header does this on every page.
   const wideListing =
-    routeId === 'homepage' ||
     routeId === 'productListing' ||
     routeId === 'categoryView' ||
     routeId === 'catalogSearch';

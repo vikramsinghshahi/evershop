@@ -3,6 +3,7 @@ import {
   CategoryData,
   CategoryProvider
 } from '@components/frontStore/catalog/CategoryContext.js';
+import { isFabricsCategoryUrl } from '../../../../fabric/components/FabricSearch.js';
 import React from 'react';
 
 interface CategoryViewProps {
@@ -22,6 +23,7 @@ interface CategoryViewProps {
  *   categoryView/CategoryPagination  → categoryRightColumn 30
  */
 export default function CategoryView({ category }: CategoryViewProps) {
+  const fabrics = isFabricsCategoryUrl(category.url);
   return (
     <CategoryProvider category={category}>
       <Area
@@ -37,12 +39,20 @@ export default function CategoryView({ category }: CategoryViewProps) {
         attribute nothing currently reads.
       */}
       <Area id="categoryInfo" noOuter editableInPageBuilder />
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[240px_1fr]">
-        <Area
-          id="categoryLeftColumn"
-          className="category__left__column"
-          editableInPageBuilder
-        />
+      <div
+        className={
+          fabrics
+            ? undefined
+            : 'grid grid-cols-1 gap-10 lg:grid-cols-[240px_1fr]'
+        }
+      >
+        {fabrics ? null : (
+          <Area
+            id="categoryLeftColumn"
+            className="category__left__column"
+            editableInPageBuilder
+          />
+        )}
         <Area
           id="categoryRightColumn"
           className="category__right__column min-w-0"
