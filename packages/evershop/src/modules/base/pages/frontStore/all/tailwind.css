@@ -42,6 +42,8 @@
   --color-card: var(--card);
   --color-header: var(--header);
   --color-header-foreground: var(--header-foreground);
+  --color-footer: var(--footer);
+  --color-footer-foreground: var(--footer-foreground);
   --color-brand: var(--brand);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -58,43 +60,45 @@
     Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
     monospace;
-  /* Bharat Textile — showroom ivory page, deep forest header.
-   * The two must stay far apart; sage is reserved for actions. */
-  --background: #f4f1eb;
-  --foreground: #1a1814;
-  --card: #fffcf8;
-  --card-foreground: #1a1814;
-  --popover: #fffcf8;
-  --popover-foreground: #1a1814;
-  --primary: #1f3d32;
-  --primary-foreground: #f6f1e7;
-  --secondary: #efeae2;
-  --secondary-foreground: #1a1814;
-  --muted: #ebe6de;
-  --muted-foreground: #6e675f;
-  --accent: #e7e1d6;
-  --accent-foreground: #1a1814;
+  /* Bharat Textile India (bharattextileindia.com): white page,
+   * crimson navigation, terracotta actions, black footer. */
+  --background: #ffffff;
+  --foreground: #111e2d;
+  --card: #ffffff;
+  --card-foreground: #111e2d;
+  --popover: #ffffff;
+  --popover-foreground: #111e2d;
+  --primary: #d86828;
+  --primary-foreground: #ffffff;
+  --secondary: #f0eae2;
+  --secondary-foreground: #111e2d;
+  --muted: #f1ede7;
+  --muted-foreground: #666666;
+  --accent: #f5f0e9;
+  --accent-foreground: #111e2d;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #e3dcd1;
-  --divider: #e3dcd1;
-  --input: #ddd6cb;
-  --ring: #1f3d32;
-  --header: #495651;
-  --header-foreground: #f4efe6;
-  --brand: #1f3d32;
+  --border: #e6dfd6;
+  --divider: #e6dfd6;
+  --input: #f6f6f6;
+  --ring: #cb0001;
+  --header: #b0261f;
+  --header-foreground: #ffffff;
+  --footer: #342d2d;
+  --footer-foreground: #ffffff;
+  --brand: #0c4c34;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: #f4f1eb;
-  --sidebar-foreground: #1a1814;
-  --sidebar-primary: #1f3d32;
-  --sidebar-primary-foreground: #f6f1e7;
-  --sidebar-accent: #efeae2;
-  --sidebar-accent-foreground: #1a1814;
-  --sidebar-border: #e3dcd1;
-  --sidebar-ring: #1f3d32;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #111e2d;
+  --sidebar-primary: #cb0001;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f0e9;
+  --sidebar-accent-foreground: #111e2d;
+  --sidebar-border: #e6dfd6;
+  --sidebar-ring: #cb0001;
 }
 
 /*

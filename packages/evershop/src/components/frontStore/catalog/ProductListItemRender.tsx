@@ -67,7 +67,7 @@ function ProductCardImage({
         width={imageWidth || 120}
         height={imageHeight || 120}
         loading={loading}
-        sizes="(max-width: 768px) 100vw, 33vw"
+        sizes="(max-width: 768px) 50vw, 20vw"
         className={className}
         objectFit={objectFit}
         style={style}
@@ -192,7 +192,7 @@ export const ProductListItemRender = ({
   // listing already shows. Accessory cards keep the layout below.
   if (isFabricListingCard(product)) {
     const imageBox: CSSProperties = {
-      aspectRatio: '1 / 1',
+      aspectRatio: '5 / 4',
       width: '100%',
       height: 'auto',
       objectFit: 'cover'
@@ -203,7 +203,7 @@ export const ProductListItemRender = ({
     const width = fabricSpecText(product, 'fabricWidth');
     const gsm = fabricSpecText(product, 'fabricGsm');
     return (
-      <div className="product__list__item__inner product__fabric__card group flex h-full flex-col rounded-[10px] border border-border bg-card p-4 shadow-sm transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-primary hover:shadow-lg hover:shadow-primary/30 focus-within:-translate-y-0.5 focus-within:border-primary focus-within:shadow-lg focus-within:shadow-primary/30">
+      <div className="product__list__item__inner product__fabric__card group flex h-full flex-col rounded-[10px] border border-border bg-card p-3 shadow-sm transition-[border-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-primary hover:shadow-lg hover:shadow-primary/30 focus-within:-translate-y-0.5 focus-within:border-primary focus-within:shadow-lg focus-within:shadow-primary/30">
         <a
           href={product.url}
           className="product__list__link flex flex-1 flex-col"
@@ -212,7 +212,7 @@ export const ProductListItemRender = ({
           <h3 className="product__list__name mt-1 line-clamp-2 min-h-10 text-sm font-medium leading-5">
             {product.name}
           </h3>
-          <div className="product__list__image my-4 flex w-full items-center justify-center overflow-hidden">
+          <div className="product__list__image my-2 flex w-full items-center justify-center overflow-hidden">
             <ProductCardImage
               product={product}
               imageWidth={imageWidth}
@@ -223,22 +223,16 @@ export const ProductListItemRender = ({
               style={imageBox}
             />
           </div>
-          {(color || count || cons || width) && (
-            <div className="mb-2 space-y-1 text-xs">
-              {(color || count) && (
-                <div className="flex items-baseline justify-between gap-3">
-                  <SpecHalf label="Color" value={color} />
-                  <SpecHalf label="Count" value={count} align="right" />
-                </div>
-              )}
-              {(cons || width) && (
-                <div className="flex items-baseline justify-between gap-3">
-                  <SpecHalf label="Cons" value={cons} />
-                  <SpecHalf label="Width" value={width} align="right" />
-                </div>
-              )}
+          <div className="mb-1 grid min-h-9 content-start gap-0.5 text-xs leading-4">
+            <div className="flex min-h-4 items-baseline justify-between gap-2">
+              <SpecHalf label="Color" value={color} />
+              <SpecHalf label="Count" value={count} align="right" />
             </div>
-          )}
+            <div className="flex min-h-4 items-baseline justify-between gap-2">
+              <SpecHalf label="Cons" value={cons} />
+              <SpecHalf label="Width" value={width} align="right" />
+            </div>
+          </div>
           <div className="product__list__price mt-auto text-base font-semibold text-[#8a6840]">
             {product.price.special &&
             product.price.regular < product.price.special ? (
@@ -277,7 +271,7 @@ export const ProductListItemRender = ({
           </div>
         </a>
         {showAddToCart && (
-          <div className="product__list__actions mt-3">
+          <div className="product__list__actions mt-2">
             {customAddToCartRenderer ? (
               customAddToCartRenderer(product)
             ) : (

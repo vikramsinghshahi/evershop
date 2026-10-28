@@ -1,0 +1,22 @@
+---
+description: Keep a new feature inside its own files and off shared page state
+alwaysApply: true
+---
+
+# Keep a change inside its feature
+
+New behavior goes in new files under the module that owns it. A task about one page does not edit another page, the header, the footer, global layout width, or a shared stylesheet.
+
+A control that belongs to one page keeps its state on that page. It must not write a module singleton another page reads. The apply-fabric scale slider is local state. It must not call `setPrintScaleView` or any other fabric-preview store.
+
+Read-only helpers may be imported. `printSizeCm` and `DesignLayout` are safe to call. Changing how those helpers behave is a change to every caller, so leave them as they are unless the task is about that helper.
+
+On Apply Fabric the design card and the product card are independent. Clearing, replacing, or scaling the design leaves the product selection as it is, and the reverse.
+
+```tsx
+// The apply-fabric page holds its own scale.
+const [designScale, setDesignScale] = useState(100);
+
+// Another page's store stays untouched.
+// setPrintScaleView(designScale) is never called from this page.
+```

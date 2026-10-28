@@ -1,0 +1,14 @@
+---
+description: How Apply Fabric calls OpenRouter without leaking secrets or trusting client URLs
+alwaysApply: true
+---
+
+# External services and secrets
+
+`OPENROUTER_API_KEY` comes from the environment. Never invent a key, paste one into source, print it, or log the image payload. A missing key throws `ApplyFabricError` with status 503 and does not call OpenRouter. Status 401 or 403 tells the operator to check the key.
+
+The client sends a multipart file or an id (`fabricDesignId`, `productId`) plus `designScale`. The server loads those bytes itself. Do not accept an arbitrary client URL for either image.
+
+The first image is the tiled design. The second is the product. Compress both before the request, and reject a body over 7 MB. The provider timeout stays 120 seconds.
+
+While `npm run dev` is running, compile TypeScript with `npm run compile:dev`. `npm run compile` deletes `dist` and makes the dev watcher rebuild forever.

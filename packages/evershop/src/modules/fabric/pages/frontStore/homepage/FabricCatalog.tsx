@@ -1,4 +1,3 @@
-import { ProductListingFilter } from '@components/frontStore/catalog/ProductListingFilter.js';
 import { ProductListingInfo } from '@components/frontStore/catalog/ProductListingInfo.js';
 import { ProductListingPagination } from '@components/frontStore/catalog/ProductListingPagination.js';
 import { ProductListingProducts } from '@components/frontStore/catalog/ProductListingProducts.js';
@@ -28,8 +27,9 @@ function FabricListingToolbar() {
 }
 
 /**
- * Store homepage. Fabrics are the catalog: the same filter sidebar, sort,
- * cards and pagination as `/products`, limited to the Fabrics category.
+ * Store homepage. Fabrics are the catalog. Search and sort in the toolbar
+ * are the filters; the price sidebar is not shown here. A wide screen
+ * shows five cloth cards in each row.
  */
 export default function FabricCatalog({
   listing
@@ -39,13 +39,13 @@ export default function FabricCatalog({
   return (
     <ProductListingProvider listing={listing}>
       <ProductListingInfo />
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[240px_1fr]">
-        <ProductListingFilter />
-        <div className="min-w-0">
-          <FabricListingToolbar />
-          <ProductListingProducts />
-          <ProductListingPagination />
-        </div>
+      <div className="min-w-0">
+        <FabricListingToolbar />
+        <ProductListingProducts
+          gridColumns={5}
+          className="fabric-product-grid"
+        />
+        <ProductListingPagination />
       </div>
     </ProductListingProvider>
   );

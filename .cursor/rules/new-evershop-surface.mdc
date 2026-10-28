@@ -1,0 +1,22 @@
+---
+description: Conventions for a new EverShop page, API, and its tests
+alwaysApply: true
+---
+
+# A new page or API
+
+Follow `CLAUDE.md` for the framework. These are the checks for a new surface in this repo.
+
+- New source is `.ts` or `.tsx`. Route folder names are letters only. The page route id and the API route id are different (`applyFabric` and `generateApplyFabric`).
+- A handler that sends the response declares `(request, response, next)` even when it never calls `next`. A storefront API sets `"access": "public"` in its `route.json`.
+- A new component that should not become its own route lives in `components/`, not in the route folder. Uppercase `.tsx` files inside a route folder are registered as route components.
+- Tests for the module are run from `packages/evershop/dist` after `npm run compile:dev`. Jest in this repo has no `jest.fn` under the ESM runner; pass a plain async function.
+- A storefront change is verified in the browser on that route before it is called done. Exercise the control, then check the sibling control that must stay unchanged. For Apply Fabric that means the design card can change while the product card and the fabric preview page stay as they were.
+
+```json
+{
+  "methods": ["POST"],
+  "path": "/fabric/apply",
+  "access": "public"
+}
+```

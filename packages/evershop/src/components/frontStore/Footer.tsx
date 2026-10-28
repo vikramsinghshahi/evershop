@@ -7,7 +7,7 @@ interface FooterProps {
 
 export function Footer({ copyRight }: FooterProps) {
   return (
-    <footer className="footer mt-12 bg-header pt-8 pb-6 text-header-foreground sm:mt-16 sm:pt-10">
+    <footer className="footer mt-12 bg-footer pt-8 pb-6 text-footer-foreground sm:mt-16 sm:pt-10">
       <Area
         id="footerTop"
         className="footer__top"

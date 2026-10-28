@@ -4,7 +4,14 @@ import { useProductListing } from '@components/frontStore/catalog/ProductListing
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import React from 'react';
 
-export function ProductListingProducts() {
+export function ProductListingProducts({
+  gridColumns = 3,
+  className
+}: {
+  /** Cards across the row on a wide screen. The all-products page stays at 3. */
+  gridColumns?: number;
+  className?: string;
+}) {
   const { products } = useProductListing();
   return (
     <>
@@ -16,7 +23,8 @@ export function ProductListingProducts() {
         <ProductList
           products={products.items}
           layout="grid"
-          gridColumns={3}
+          gridColumns={gridColumns}
+          className={className}
         />
         <span className="product-count mt-5 block text-sm text-muted-foreground">
           {_('${count} products', { count: products.total.toString() })}

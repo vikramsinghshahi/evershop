@@ -1,0 +1,27 @@
+---
+description: Handle empty, invalid, busy, and stale states on the page being changed
+alwaysApply: true
+---
+
+# Close the edge cases on the page you touch
+
+Every new control needs a defined result for the paths below. Add the handling in that feature's own files.
+
+- **Missing input.** A missing apply-fabric scale is 100. Do not invent another default.
+- **Invalid input.** The server accepts only whole numbers from 1 to 100. `0`, `101`, `20.5`, `20%`, and other text are rejected. The slider emits only integers in that range.
+- **Busy.** While a generate request is in flight, replace, delete, sample picks, and the scale slider stay disabled.
+- **Delete.** Deleting the design restores "Click to upload" and sets the scale back to 100. Deleting the product does not change the design.
+- **Broken preview.** Rulers and the slider stay usable when the thumbnail fails. The request still sends the original file or library id.
+- **Stale result.** Changing the scale, the design, or the product clears the previous result and error so the preview cannot disagree with the current choice.
+- **Coverage.** The design card tiles the artwork across the whole cloth. The scale is the size of each repeat. The image sent to the model is that same edge-to-edge tile, and the prompt says to print it across the whole garment.
+
+```ts
+export function parseApplyFabricScale(raw: unknown): number {
+  if (raw === undefined || raw === null || raw === '') return 100;
+  const text = typeof raw === 'number' ? String(raw) : typeof raw === 'string' ? raw.trim() : '';
+  if (!/^\d+$/.test(text)) throw new ApplyFabricError('Image scale must be a whole number from 1 to 100.');
+  const value = Number(text);
+  if (value < 1 || value > 100) throw new ApplyFabricError('Image scale must be a whole number from 1 to 100.');
+  return value;
+}
+```
