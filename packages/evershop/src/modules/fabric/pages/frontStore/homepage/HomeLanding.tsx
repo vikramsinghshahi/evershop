@@ -3,22 +3,23 @@ import React from 'react';
 const SHOP = '/fabrics';
 const DESIGNS = '/designs';
 
+/** Optimized copies of the homepage banners. Masters stay out of the page. */
 const SLIDES = [
   {
-    src: 'https://www.bharattextileindia.com/wp-content/uploads/2026/09/Gemini_Generated_Image_8yl96f8yl96f8yl9.png',
-    label: 'Our designs. Our expertise. Custom textile printing and fabric.'
+    src: '/home/banner-1.webp',
+    label: 'Your trusted partner in printed and plain fabrics.'
   },
   {
-    src: 'https://www.bharattextileindia.com/wp-content/uploads/2026/09/Gemini_Generated_Image_75l3lv75l3lv75l3.png',
-    label: 'Quality fabrics, printed for brands and designers.'
+    src: '/home/banner-2.webp',
+    label: 'Your design, our precision.'
   },
   {
-    src: 'https://www.bharattextileindia.com/wp-content/uploads/2026/09/Gemini_Generated_Image_m677cim677cim677.png',
-    label: 'Choose a base cloth. We print the design.'
+    src: '/home/banner-3.webp',
+    label: 'Your design, our print expertise.'
   },
   {
-    src: 'https://www.bharattextileindia.com/wp-content/uploads/2026/09/Gemini_Generated_Image_t4p47zt4p47zt4p4.png',
-    label: 'Colour accuracy and a consistent finish on every order.'
+    src: '/home/banner-4.webp',
+    label: 'Your ideas, our digital prints.'
   }
 ];
 
@@ -152,22 +153,35 @@ function Hero() {
     return () => window.clearInterval(timer);
   }, [paused, count]);
 
-  const slide = SLIDES[index];
-
   return (
     <section
-      className="relative overflow-hidden bg-[#f5f0e9]"
+      className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen overflow-hidden bg-[#f5f0e9]"
       aria-roledescription="carousel"
       aria-label="Featured"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <img
-        key={slide.src}
-        src={slide.src}
-        alt={slide.label}
-        className="mx-auto max-h-[32rem] w-full object-contain"
-      />
+      {/* 100vw counts the scrollbar. Clip the document so the banner can
+          reach both edges without a sideways scroll. clip keeps the
+          sticky header working; hidden would not. */}
+      <style dangerouslySetInnerHTML={{ __html: 'html,body{overflow-x:clip}' }} />
+      <div className="relative aspect-[1920/741] w-full">
+        {SLIDES.map((item, itemIndex) => (
+          <img
+            key={item.src}
+            src={item.src}
+            alt={itemIndex === index ? item.label : ''}
+            width={1920}
+            height={741}
+            decoding="async"
+            fetchPriority={itemIndex === 0 ? 'high' : 'low'}
+            aria-hidden={itemIndex === index ? undefined : true}
+            className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-700 ease-in-out motion-reduce:transition-none ${
+              itemIndex === index ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ))}
+      </div>
       <button
         type="button"
         className="absolute left-3 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/35 text-2xl text-white"
@@ -192,7 +206,7 @@ function Hero() {
             aria-label={`Show slide ${dot + 1}`}
             aria-current={dot === index ? 'true' : undefined}
             className={`size-2.5 rounded-full ${
-              dot === index ? 'bg-white' : 'bg-white/50'
+              dot === index ? 'bg-foreground' : 'bg-foreground/35'
             }`}
             onClick={() => go(dot)}
           />
