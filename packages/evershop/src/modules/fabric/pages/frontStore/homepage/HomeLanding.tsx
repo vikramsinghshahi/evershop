@@ -1,7 +1,10 @@
 import React from 'react';
 
 const SHOP = '/fabrics';
-const DESIGNS = '/designs';
+const APPLY = '/apply-fabric';
+const ABOUT = '/about-us';
+const BLEED =
+  'relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen';
 
 /** Optimized copies of the homepage banners. Masters stay out of the page. */
 const SLIDES = [
@@ -23,115 +26,116 @@ const SLIDES = [
   }
 ];
 
-const FABRICS = [
+const COLLECTIONS = [
   {
-    name: 'Cotton Fabric',
-    image:
-      'https://www.bharattextileindia.com/wp-content/uploads/2026/10/cotton-scaled.jpeg',
-    points: [
-      '100% pure and lightweight',
-      'Breathable and absorbent',
-      'Soft, for every season'
-    ]
+    name: 'Cotton',
+    note: 'Soft · Breathable · Versatile',
+    tone: 'bg-[#f4f1eb]'
   },
   {
-    name: 'Viscose Fabric',
-    image:
-      'https://www.bharattextileindia.com/wp-content/uploads/2026/10/modal.jpg',
-    points: [
-      'Silky feel and a soft drape',
-      'Light and breathable',
-      'A quiet sheen for fashion'
-    ]
+    name: 'Polyester',
+    note: 'Durable · Lightweight · Vibrant',
+    tone: 'bg-[#eef2f5]'
   },
   {
-    name: 'Rayon Fabric',
-    image:
-      'https://www.bharattextileindia.com/wp-content/uploads/2026/10/viscose.jpg',
-    points: [
-      'Smooth, and it takes colour well',
-      'Cool against the skin',
-      'Made for warm-weather clothes'
-    ]
+    name: 'Linen',
+    note: 'Natural · Elegant · Comfortable',
+    tone: 'bg-[#eadec8]'
   },
   {
-    name: 'Tencel Fabric',
-    image:
-      'https://www.bharattextileindia.com/wp-content/uploads/2026/10/tencel.jpg',
-    points: [
-      'From wood pulp',
-      'Handles moisture well',
-      'Smooth against the skin'
-    ]
+    name: 'Viscose',
+    note: 'Flowy · Soft · Luxurious',
+    tone: 'bg-[#f3e7dc]'
   },
   {
-    name: 'Linen Fabric',
-    image:
-      'https://www.bharattextileindia.com/wp-content/uploads/2026/10/linen.jpg',
-    points: [
-      'The texture of flax',
-      'Open weave, and it lasts',
-      'A plain, lasting look'
-    ]
-  },
-  {
-    name: 'Sustainable Fabric',
-    image:
-      'https://www.bharattextileindia.com/wp-content/uploads/2026/10/sustain.jpg',
-    points: [
-      'A lighter way of making cloth',
-      'Less waste in the finish',
-      'A durable, even surface'
-    ]
-  },
-  {
-    name: 'Organic Fabric',
-    image:
-      'https://www.bharattextileindia.com/wp-content/uploads/2026/10/organic.jpg',
-    points: [
-      'Grown without synthetic pesticides',
-      'Soft, and kind to skin',
-      'A certified organic cloth'
-    ]
-  },
-  {
-    name: 'Bamboo Fabric',
-    image:
-      'https://www.bharattextileindia.com/wp-content/uploads/2026/10/Bamboo.png',
-    points: [
-      'Naturally resists odour',
-      'Stays cool',
-      'Soft, from a fast-growing plant'
-    ]
+    name: 'Printed fabrics',
+    note: 'Creative · Custom · Unique',
+    image: '/home/printed.webp'
   }
 ];
 
-const REASONS = [
+const TRUST = [
   {
-    title: 'Uncompromising quality',
-    text: 'From cotton, rayon, and linen to Tencel, bamboo, and organic blends, the base cloth is a fine grade before any print goes on it.'
+    title: 'Global shipping',
+    text: 'Reach customers worldwide',
+    icon: 'globe'
   },
   {
-    title: 'Digital printing',
-    text: 'Eco-ink printing keeps the colour strong, the artwork sharp, and the cloth soft after it is finished.'
+    title: 'Sustainable practices',
+    text: 'Better for tomorrow',
+    icon: 'leaf'
   },
   {
-    title: 'For designers and wholesale',
-    text: 'Small first orders, a sample before a run, wholesale pricing, and shipping for both new labels and larger businesses.'
+    title: 'Premium quality',
+    text: 'Consistent & reliable',
+    icon: 'shield'
+  },
+  {
+    title: 'Dedicated support',
+    text: "We're here to help",
+    icon: 'support'
   }
 ];
 
-interface LiveDesign {
-  uuid: string;
-  name: string;
-  image: string;
-}
-
-function picture(src: string, width: number): string {
-  if (src.startsWith('/')) {
-    return `/images?src=${encodeURIComponent(src)}&w=${width}&q=70`;
+const WHY = [
+  {
+    title: 'Wide range of fabrics',
+    text: 'From classic solids to vibrant prints'
+  },
+  {
+    title: 'Custom printing solutions',
+    text: 'Your designs, our expertise'
+  },
+  {
+    title: 'Global export experience',
+    text: 'Trusted by brands worldwide'
+  },
+  {
+    title: 'Competitive pricing',
+    text: 'Premium quality, better value'
   }
-  return src;
+];
+
+function TrustIcon({ name }: { name: string }) {
+  const common = {
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.6,
+    className: 'size-7',
+    'aria-hidden': true as const
+  };
+  if (name === 'leaf') {
+    return (
+      <svg {...common}>
+        <path d="M5 19c8 0 14-6 14-14-8 0-14 6-14 14z" />
+        <path d="M8 14c2-1 4-3 6-6" />
+      </svg>
+    );
+  }
+  if (name === 'shield') {
+    return (
+      <svg {...common}>
+        <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
+        <path d="M9 12l2 2 4-4" />
+      </svg>
+    );
+  }
+  if (name === 'support') {
+    return (
+      <svg {...common}>
+        <path d="M4 13a8 8 0 0116 0" />
+        <path d="M4 13v4a2 2 0 002 2h1v-6H6a2 2 0 00-2 2zM20 13v4a2 2 0 01-2 2h-1v-6h1a2 2 0 012 2z" />
+        <path d="M12 19v1a2 2 0 002 2h2" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...common}>
+      <circle cx="12" cy="12" r="8" />
+      <path d="M4 12h16M12 4c2.5 2.4 2.5 13.6 0 16M12 4c-2.5 2.4-2.5 13.6 0 16" />
+    </svg>
+  );
 }
 
 function Hero() {
@@ -216,42 +220,21 @@ function Hero() {
   );
 }
 
-function FabricCards() {
+function TrustBar() {
   return (
-    <section className="mt-14" aria-labelledby="home-fabrics">
-      <div className="mx-auto max-w-2xl text-center">
-        <h2 id="home-fabrics" className="text-3xl font-semibold tracking-tight">
-          Explore our fabrics
-        </h2>
-        <p className="mt-2 text-muted-foreground">
-          Choose your base fabric. We print your design on it.
-        </p>
-      </div>
-      <ul className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {FABRICS.map((fabric) => (
-          <li
-            key={fabric.name}
-            className="overflow-hidden rounded-lg border border-border bg-card"
-          >
-            <img
-              src={fabric.image}
-              alt=""
-              className="aspect-[4/3] w-full object-cover"
-            />
-            <div className="p-4">
-              <h3 className="text-lg font-semibold">{fabric.name}</h3>
-              <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                {fabric.points.map((point) => (
-                  <li key={point}>{point}</li>
-                ))}
-              </ul>
-              <a
-                href={SHOP}
-                className="mt-3 inline-block text-sm font-medium text-primary"
-              >
-                View fabric
-              </a>
-            </div>
+    <section aria-label="Why shop here" className="border-b border-border">
+      <ul className="grid grid-cols-2 gap-6 px-5 py-8 sm:px-8 lg:grid-cols-4 lg:px-14 xl:px-20">
+        {TRUST.map((item) => (
+          <li key={item.title} className="flex items-center gap-3">
+            <span className="text-[#2f6b45]">
+              <TrustIcon name={item.icon} />
+            </span>
+            <span>
+              <span className="block text-sm font-semibold">{item.title}</span>
+              <span className="block text-xs text-muted-foreground">
+                {item.text}
+              </span>
+            </span>
           </li>
         ))}
       </ul>
@@ -259,156 +242,171 @@ function FabricCards() {
   );
 }
 
-function TrendingDesigns() {
-  const [designs, setDesigns] = React.useState<LiveDesign[] | null>(null);
-  const scroller = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    const controller = new AbortController();
-    fetch('/api/designer/catalog?limit=8&sort=new', {
-      signal: controller.signal
-    })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((json: { data?: { items?: LiveDesign[] } } | null) => {
-        const items =
-          json?.data?.items?.filter((item) => item.image && item.name) ?? [];
-        setDesigns(items);
-      })
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError') {
-          return;
-        }
-        setDesigns([]);
-      });
-    return () => controller.abort();
-  }, []);
-
-  const move = (direction: number) => {
-    scroller.current?.scrollBy({ left: direction * 280, behavior: 'smooth' });
-  };
-
+function Collections() {
   return (
-    <section className="mt-16" aria-labelledby="home-designs">
+    <section className="px-5 py-12 sm:px-8 lg:px-14 xl:px-20" aria-labelledby="home-fabrics">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h2
-            id="home-designs"
-            className="text-3xl font-semibold tracking-tight"
-          >
-            Our trending designs
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            Choose a design. We print it with the same care as the cloth.
+          <p className="text-xs font-medium tracking-[0.16em] text-muted-foreground uppercase">
+            Explore our
           </p>
+          <h2 id="home-fabrics" className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
+            Fabric collections
+          </h2>
         </div>
-        <a href={DESIGNS} className="shrink-0 text-sm font-medium text-primary">
-          All designs
+        <a href={SHOP} className="shrink-0 text-sm font-medium">
+          View all fabrics →
         </a>
       </div>
-      {designs && designs.length > 0 ? (
-        <div className="relative mt-6">
-          <div
-            ref={scroller}
-            className="flex gap-3 overflow-x-auto scroll-smooth pb-2"
-          >
-            {designs.map((design) => (
-              <a
-                key={design.uuid}
-                href={DESIGNS}
-                className="w-56 shrink-0 overflow-hidden rounded-lg border border-border bg-card"
-              >
+      <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        {COLLECTIONS.map((fabric) => (
+          <li key={fabric.name}>
+            <a href={SHOP} className="group block">
+              {fabric.image ? (
                 <img
-                  src={picture(design.image, 480)}
-                  alt={design.name}
-                  className="aspect-[3/2] w-full object-cover"
+                  src={fabric.image}
+                  alt=""
+                  width={720}
+                  height={572}
+                  decoding="async"
+                  className="aspect-[5/4] w-full rounded-md object-cover"
                 />
-              </a>
-            ))}
-          </div>
-          {designs.length > 2 && (
-            <>
-              <button
-                type="button"
-                className="absolute left-2 top-1/3 hidden size-9 -translate-y-1/2 rounded-full bg-black/40 text-xl text-white sm:block"
-                aria-label="Previous designs"
-                onClick={() => move(-1)}
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                className="absolute right-2 top-1/3 hidden size-9 -translate-y-1/2 rounded-full bg-black/40 text-xl text-white sm:block"
-                aria-label="Next designs"
-                onClick={() => move(1)}
-              >
-                ›
-              </button>
-            </>
-          )}
-        </div>
-      ) : designs ? (
-        <p className="mt-6 text-sm text-muted-foreground">
-          The design library opens from the link above.
-        </p>
-      ) : null}
+              ) : (
+                <span
+                  className={`relative block aspect-[5/4] overflow-hidden rounded-md ${fabric.tone}`}
+                >
+                  <span
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        'radial-gradient(ellipse 46% 34% at 34% 42%, rgba(255,255,255,0.9), transparent 70%), radial-gradient(ellipse 34% 26% at 66% 64%, rgba(80,60,30,0.07), transparent 72%)'
+                    }}
+                  />
+                </span>
+              )}
+              <span className="mt-3 flex items-start justify-between gap-2">
+                <span>
+                  <span className="block font-semibold">{fabric.name}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    {fabric.note}
+                  </span>
+                </span>
+                <span className="text-sm text-muted-foreground group-hover:text-foreground" aria-hidden>
+                  →
+                </span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
 
-function Why() {
+function CustomAndWhy() {
   return (
-    <section
-      className="mt-16 rounded-lg bg-[#f5f0e9] px-6 py-10"
-      aria-labelledby="home-why"
-    >
-      <h2 id="home-why" className="text-3xl font-semibold tracking-tight">
-        Why Bharat Textile stands out
-      </h2>
-      <p className="mt-3 max-w-3xl text-muted-foreground">
-        Bharat Textile prints cloth and supplies the fabric under it. A design
-        comes in, and it leaves as finished cloth for brands, designers, and
-        makers.
-      </p>
-      <div className="mt-8 grid gap-6 md:grid-cols-3">
-        {REASONS.map((reason) => (
-          <div key={reason.title}>
-            <h3 className="font-semibold">{reason.title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{reason.text}</p>
-          </div>
-        ))}
+    <section className="grid gap-4 px-5 pb-4 sm:px-8 lg:grid-cols-2 lg:px-14 xl:px-20">
+      <div className="grid overflow-hidden rounded-xl bg-[#f6f1ea] md:grid-cols-2">
+        <img
+          src="/home/print-panel.webp"
+          alt=""
+          width={720}
+          height={553}
+          decoding="async"
+          className="h-full min-h-56 w-full object-cover"
+        />
+        <div className="flex flex-col justify-center px-6 py-8">
+          <p className="text-xs font-medium tracking-[0.16em] text-primary uppercase">
+            Custom prints
+          </p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight">
+            Your design, our fabric
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Bring your ideas to life with our custom printing services. Choose
+            from a wide range of fabrics and prints, tailored to your brand's
+            vision.
+          </p>
+          <a
+            href={APPLY}
+            className="mt-6 inline-flex w-fit items-center rounded-full border border-primary px-5 py-2 text-sm font-medium text-primary"
+          >
+            Get started →
+          </a>
+        </div>
       </div>
-      <div className="mt-8 max-w-3xl">
-        <h3 className="font-semibold">What we do</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Pick a base fabric, send the artwork, and the cloth is printed,
-          finished, and sent out as a roll ready to cut.
+      <div className="rounded-xl bg-[#f7f5f2] px-6 py-8 sm:px-8" aria-labelledby="home-why">
+        <h2 id="home-why" className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          Why choose Bharat Textile India?
+        </h2>
+        <ul className="mt-6 space-y-5">
+          {WHY.map((item) => (
+            <li key={item.title} className="flex gap-3">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full border border-[#2f6b45]/40 text-xs text-[#2f6b45]">
+                ✓
+              </span>
+              <span>
+                <span className="block font-semibold">{item.title}</span>
+                <span className="block text-sm text-muted-foreground">
+                  {item.text}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function Together() {
+  return (
+    <section className="grid bg-[#f7f4ef] md:grid-cols-2">
+      <div className="flex flex-col justify-center px-5 py-12 sm:px-8 lg:px-14 xl:px-20">
+        <p className="text-xs font-medium tracking-[0.16em] text-muted-foreground uppercase">
+          Let's create
         </p>
+        <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
+          Beautiful fabrics together
+        </h2>
+        <p className="mt-3 max-w-md text-sm text-muted-foreground">
+          At Bharat Textile India, we believe in the power of fabric to tell
+          stories. From concept to creation, we partner with you to deliver
+          fabrics that inspire.
+        </p>
+        <a
+          href={ABOUT}
+          className="mt-6 inline-flex w-fit items-center rounded-full border border-primary px-5 py-2 text-sm font-medium text-primary"
+        >
+          Contact us →
+        </a>
       </div>
+      <img
+        src="/home/printed.webp"
+        alt=""
+        width={720}
+        height={572}
+        decoding="async"
+        className="h-full min-h-56 w-full object-cover"
+      />
     </section>
   );
 }
 
 /**
  * Center of the store homepage. The header, menu, and footer stay on the
- * shared storefront shell. The fabric catalog is the Fabrics category page.
+ * shared storefront shell. Sections under the slider fill the viewport width.
  */
 export default function HomeLanding() {
   return (
     <div className="home-landing">
       <Hero />
-      <section className="mx-auto mt-12 max-w-3xl text-center">
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-          Fabrics made for your vision
-        </h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          Bharat Textile prints and sources cloth for brands, designers,
-          retailers, and studios. The work is the colour, the detail, and a
-          finish that stays the same from the sample to the order.
-        </p>
-      </section>
-      <FabricCards />
-      <TrendingDesigns />
-      <Why />
+      <div className={`${BLEED} bg-white`}>
+        <TrustBar />
+        <Collections />
+        <CustomAndWhy />
+        <Together />
+      </div>
     </div>
   );
 }
