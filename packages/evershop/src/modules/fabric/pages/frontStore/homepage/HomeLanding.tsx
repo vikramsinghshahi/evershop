@@ -2,7 +2,7 @@ import React from 'react';
 
 const SHOP = '/fabrics';
 const APPLY = '/apply-fabric';
-const ABOUT = '/about-us';
+const CONTACT = '/contact-us';
 const BLEED =
   'relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen';
 
@@ -375,7 +375,7 @@ function Together() {
           fabrics that inspire.
         </p>
         <a
-          href={ABOUT}
+          href={CONTACT}
           className="mt-6 inline-flex w-fit items-center rounded-full border border-primary px-5 py-2 text-sm font-medium text-primary"
         >
           Contact us →

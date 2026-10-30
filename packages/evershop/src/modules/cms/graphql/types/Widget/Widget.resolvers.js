@@ -1,5 +1,7 @@
 import { select } from '@evershop/postgres-query-builder';
 import uniqid from 'uniqid';
+import { getCountryName } from '../../../../../lib/address/countries.js';
+import { getRegions } from '../../../../../lib/address/regions.js';
 import { error } from '../../../../../lib/log/logger.js';
 import { buildUrl } from '../../../../../lib/router/buildUrl.js';
 import {
@@ -21,9 +23,63 @@ import {
   resolveDotsStyle
 } from '../../../components/slideshowControls.js';
 import { getWidgetsBaseQuery } from '../../../services/getWidgetsBaseQuery.js';
+import { formatStoreContact } from '../../../services/storeContact.js';
 import { WidgetCollection } from '../../../services/WidgetCollection.js';
 
 const COLUMNS_AREA_PREFIX = 'columnsContainer_';
+
+function stringSettings(args) {
+  const result = {};
+  for (const [key, value] of Object.entries(args ?? {})) {
+    result[key] = typeof value === 'string' ? value : null;
+  }
+  return result;
+}
+
+const STORE_CONTACT_NAMES = [
+  'storePhoneNumber',
+  'storeEmail',
+  'storeAddress',
+  'storeCity',
+  'storeProvince',
+  'storePostalCode',
+  'storeCountry'
+];
+
+async function readStoreContact(pool) {
+  const result = await pool.query(
+    `SELECT name, value FROM setting WHERE name = ANY($1::varchar[])`,
+    [STORE_CONTACT_NAMES]
+  );
+  const map = {};
+  for (const row of result.rows) {
+    map[row.name] = row.value;
+  }
+  const country = typeof map.storeCountry === 'string' ? map.storeCountry.trim() : '';
+  const province =
+    typeof map.storeProvince === 'string' ? map.storeProvince.trim() : '';
+  let provinceName = null;
+  if (country && province) {
+    try {
+      const regions = await getRegions(country, []);
+      const match = regions.find(
+        (region) => region.key === province || region.isoCode === province
+      );
+      provinceName = match?.name ?? null;
+    } catch (e) {
+      provinceName = null;
+    }
+  }
+  return formatStoreContact({
+    phone: map.storePhoneNumber,
+    email: map.storeEmail,
+    address: map.storeAddress,
+    city: map.storeCity,
+    provinceName,
+    postalCode: map.storePostalCode,
+    countryName: country ? getCountryName(country) : null
+  });
+}
 
 /**
  * Resolve a CTA-shaped object ({ url, label, newTab, style, kind }) by
@@ -1020,6 +1076,15 @@ export default {
         consentEnabled:
           consentEnabled !== undefined ? Boolean(consentEnabled) : false,
         consentText: consentText || null
+      };
+    },
+    aboutStoryWidget(_, args) {
+      return stringSettings(args);
+    },
+    contactDetailsWidget: async (_, args, { pool }) => {
+      return {
+        ...stringSettings(args),
+        ...(await readStoreContact(pool))
       };
     },
     trustStripWidget: async (

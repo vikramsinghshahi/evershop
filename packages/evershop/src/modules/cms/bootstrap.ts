@@ -12,6 +12,8 @@ import { registerWidget } from '../../lib/widget/widgetManager.js';
 import { registerDefaultPageCollectionFilters } from '../../modules/cms/services/registerDefaultPageCollectionFilters.js';
 import { registerDefaultWidgetCollectionFilters } from '../../modules/cms/services/registerDefaultWidgetCollectionFilters.js';
 import { Route } from '../../types/route.js';
+import { ABOUT_STORY_DEFAULTS } from './services/aboutStoryDefaults.js';
+import { CONTACT_PAGE_DEFAULTS } from './services/contactPageDefaults.js';
 import { registerDefaultContactSubmissionFilters } from './services/contact/registerDefaultContactSubmissionFilters.js';
 import {
   azureFileBrowser,
@@ -35,6 +37,18 @@ import {
   s3FolderCreator
 } from './services/storage/s3/s3Storage.js';
 import { getFileStorageImageHosts } from './services/storage/storageConfig.js';
+
+function stringSettingSchema(keys: string[]) {
+  return Object.fromEntries(
+    keys.map((key) => [key, { type: ['string', 'null'] as const }])
+  );
+}
+
+function stringSettingType(typeName: string, keys: string[]): string {
+  return `type ${typeName} {\n${keys
+    .map((key) => `          ${key}: String`)
+    .join('\n')}\n        }`;
+}
 
 export default async (context: { command?: string } = {}) => {
   // The /images proxy automatically allows the host of the active cloud file
@@ -1661,6 +1675,72 @@ export default async (context: { command?: string } = {}) => {
         }
       `,
       settingsType: 'ContactFormSettings'
+    }
+  });
+
+  const aboutStoryKeys = Object.keys(ABOUT_STORY_DEFAULTS);
+  registerWidget({
+    type: 'about_story',
+    settingComponent: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/AboutStorySetting.js'
+    ),
+    component: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/AboutStory.js'
+    ),
+    previewComponent: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/AboutStoryPreview.js'
+    ),
+    name: 'About story',
+    description:
+      'The About page: photos, headline, figures, journey, and closing. Replace a photo from the file browser. Turn the page on or off under CMS → Pages.',
+    category: 'content',
+    icon: 'Type',
+    defaultSettings: ABOUT_STORY_DEFAULTS,
+    enabled: true,
+    schema: {
+      type: 'object',
+      additionalProperties: true,
+      properties: stringSettingSchema(aboutStoryKeys)
+    },
+    graphql: {
+      typeDefs: stringSettingType('AboutStorySettings', aboutStoryKeys),
+      settingsType: 'AboutStorySettings'
+    }
+  });
+
+  const contactPageKeys = Object.keys(CONTACT_PAGE_DEFAULTS);
+  registerWidget({
+    type: 'contact_details',
+    settingComponent: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/ContactDetailsSetting.js'
+    ),
+    component: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/ContactDetails.js'
+    ),
+    previewComponent: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/ContactDetailsPreview.js'
+    ),
+    name: 'Contact details',
+    description:
+      'Address, phone, and email from Store settings, plus the photos, wording, and the message form.',
+    category: 'content',
+    icon: 'Mail',
+    defaultSettings: CONTACT_PAGE_DEFAULTS,
+    enabled: true,
+    schema: {
+      type: 'object',
+      additionalProperties: true,
+      properties: stringSettingSchema(contactPageKeys)
+    },
+    graphql: {
+      typeDefs: stringSettingType('ContactDetailsSettings', contactPageKeys),
+      settingsType: 'ContactDetailsSettings'
     }
   });
 

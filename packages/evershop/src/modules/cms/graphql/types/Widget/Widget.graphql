@@ -616,6 +616,80 @@ type ContactFormWidget {
   consentText: String
 }
 
+type AboutStoryWidget {
+  headline: String
+  lede: String
+  ctaLabel: String
+  ctaUrl: String
+  stat1Value: String
+  stat1Label: String
+  stat2Value: String
+  stat2Label: String
+  stat3Value: String
+  stat3Label: String
+  thenLabel: String
+  thenText: String
+  nowLabel: String
+  nowText: String
+  journeyTitle: String
+  journeyBody: String
+  workTitle: String
+  workIntro: String
+  point1Title: String
+  point1Text: String
+  point2Title: String
+  point2Text: String
+  point3Title: String
+  point3Text: String
+  sustainTitle: String
+  sustainIntro: String
+  sustainItems: String
+  valuesTitle: String
+  value1Kicker: String
+  value1Title: String
+  value1Text: String
+  value2Kicker: String
+  value2Title: String
+  value2Text: String
+  value3Kicker: String
+  value3Title: String
+  value3Text: String
+  closeTitle: String
+  closeText: String
+  closeCtaLabel: String
+  closeCtaUrl: String
+  heroImage: String
+  thenImage: String
+  nowImage: String
+  printImage: String
+  swatchImage: String
+  materialsImage: String
+}
+
+type ContactDetailsWidget {
+  eyebrow: String
+  headline: String
+  intro: String
+  addressLabel: String
+  emailLabel: String
+  phoneLabel: String
+  secondEmail: String
+  note: String
+  highlight1Title: String
+  highlight1Text: String
+  highlight2Title: String
+  highlight2Text: String
+  highlight3Title: String
+  highlight3Text: String
+  highlight4Title: String
+  highlight4Text: String
+  heroImage: String
+  sideImage: String
+  phone: String
+  email: String
+  addressLines: [String]
+}
+
 extend type Query {
   widget(id: Int): Widget
   """
@@ -808,4 +882,73 @@ extend type Query {
     overlayTint: String
     overlayOpacity: Float
   ): SectionWidget
+  aboutStoryWidget(
+    headline: String
+    lede: String
+    ctaLabel: String
+    ctaUrl: String
+    stat1Value: String
+    stat1Label: String
+    stat2Value: String
+    stat2Label: String
+    stat3Value: String
+    stat3Label: String
+    thenLabel: String
+    thenText: String
+    nowLabel: String
+    nowText: String
+    journeyTitle: String
+    journeyBody: String
+    workTitle: String
+    workIntro: String
+    point1Title: String
+    point1Text: String
+    point2Title: String
+    point2Text: String
+    point3Title: String
+    point3Text: String
+    sustainTitle: String
+    sustainIntro: String
+    sustainItems: String
+    valuesTitle: String
+    value1Kicker: String
+    value1Title: String
+    value1Text: String
+    value2Kicker: String
+    value2Title: String
+    value2Text: String
+    value3Kicker: String
+    value3Title: String
+    value3Text: String
+    closeTitle: String
+    closeText: String
+    closeCtaLabel: String
+    closeCtaUrl: String
+    heroImage: String
+    thenImage: String
+    nowImage: String
+    printImage: String
+    swatchImage: String
+    materialsImage: String
+  ): AboutStoryWidget
+  contactDetailsWidget(
+    eyebrow: String
+    headline: String
+    intro: String
+    addressLabel: String
+    emailLabel: String
+    phoneLabel: String
+    secondEmail: String
+    note: String
+    highlight1Title: String
+    highlight1Text: String
+    highlight2Title: String
+    highlight2Text: String
+    highlight3Title: String
+    highlight3Text: String
+    highlight4Title: String
+    highlight4Text: String
+    heroImage: String
+    sideImage: String
+  ): ContactDetailsWidget
 }

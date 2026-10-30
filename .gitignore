@@ -20,6 +20,9 @@ npm-debug.log
 /media
 /public/*
 !/public/home/
+!/public/company/
+# Source photo library. The app serves the small files in public/company.
+/design/
 .DS_Store
 .log
 coverage
