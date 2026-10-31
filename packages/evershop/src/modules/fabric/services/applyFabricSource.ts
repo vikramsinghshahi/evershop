@@ -8,6 +8,10 @@ import { getActiveTheme } from '../../../lib/util/getActiveTheme.js';
 import { secureFetch } from '../../../lib/util/secureFetch.js';
 import { listLiveDesigns, openDesignPreview } from '../../designer/services/designs.js';
 import { ApplyFabricError } from './applyFabric.js';
+import {
+  applyFabricProductMessage,
+  findApplyFabricProduct
+} from './applyFabricProducts.js';
 
 async function readStream(stream: Readable): Promise<Buffer> {
   const chunks: Buffer[] = [];
@@ -87,6 +91,22 @@ export async function readDesignImage(uuid: string): Promise<Buffer> {
     return readStream(stored.stream);
   }
   return readCatalogImage(design.image);
+}
+
+/** Bytes for one of the three Apply Fabric garments. Catalog ids and uploads are not accepted. */
+export async function readApplyFabricProduct(raw: unknown): Promise<Buffer> {
+  const product = findApplyFabricProduct(raw);
+  if (!product) {
+    throw new ApplyFabricError(applyFabricProductMessage(raw));
+  }
+  try {
+    return await readCatalogImage(product.image);
+  } catch (failure) {
+    if (failure instanceof ApplyFabricError) {
+      throw new ApplyFabricError('That product image could not be loaded.');
+    }
+    throw failure;
+  }
 }
 
 export async function readProductImage(productId: number): Promise<Buffer> {

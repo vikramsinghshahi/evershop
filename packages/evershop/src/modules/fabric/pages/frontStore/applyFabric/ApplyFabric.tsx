@@ -3,6 +3,11 @@ import { Spinner } from '@components/common/ui/Spinner.js';
 import { Download, ImagePlus, Trash2 } from 'lucide-react';
 import React from 'react';
 import { ApplyFabricDesignFrame } from '../../../components/ApplyFabricDesignFrame.js';
+import { ApplyFabricProductCard } from '../../../components/ApplyFabricProductCard.js';
+import {
+  DEFAULT_APPLY_FABRIC_PRODUCT_ID,
+  type ApplyFabricProductId
+} from '../../../services/applyFabricProducts.js';
 
 const CATALOG_API = '/api/designer/catalog';
 const APPLY_API = '/api/fabric/apply';
@@ -21,18 +26,11 @@ interface LibraryDesign {
   image: string;
 }
 
-interface StockProduct {
-  productId: number;
-  name: string;
-  image?: { url?: string | null; alt?: string | null } | null;
-}
-
 interface Picked {
   preview: string;
   name: string;
   file?: File;
   designId?: string;
-  productId?: number;
   objectUrl?: string;
 }
 
@@ -215,23 +213,19 @@ function UploadCard({
   );
 }
 
-export default function ApplyFabric({
-  stockProducts
-}: {
-  stockProducts?: { items?: Array<StockProduct | null> | null } | null;
-}) {
+export default function ApplyFabric() {
   const [designs, setDesigns] = React.useState<LibraryDesign[]>([]);
   const [designsFailed, setDesignsFailed] = React.useState(false);
   const [design, setDesign] = React.useState<Picked | null>(null);
   const [designScale, setDesignScale] = React.useState(100);
-  const [product, setProduct] = React.useState<Picked | null>(null);
+  const [productId, setProductId] = React.useState<ApplyFabricProductId | null>(
+    DEFAULT_APPLY_FABRIC_PRODUCT_ID
+  );
   const [result, setResult] = React.useState<{ image: string; filename: string } | null>(null);
   const [error, setError] = React.useState('');
   const [busy, setBusy] = React.useState(false);
   const designRef = React.useRef<Picked | null>(null);
-  const productRef = React.useRef<Picked | null>(null);
   designRef.current = design;
-  productRef.current = product;
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -252,15 +246,10 @@ export default function ApplyFabric({
     return () => {
       controller.abort();
       revoke(designRef.current);
-      revoke(productRef.current);
     };
   }, []);
 
-  const products = (stockProducts?.items ?? []).filter(
-    (item): item is StockProduct => Boolean(item?.image?.url && item.productId)
-  );
-
-  const pickFile = (file: File, kind: 'design' | 'product') => {
+  const pickFile = (file: File) => {
     if (busy) {
       return;
     }
@@ -283,13 +272,8 @@ export default function ApplyFabric({
       file,
       objectUrl
     };
-    if (kind === 'design') {
-      revoke(design);
-      setDesign(picked);
-    } else {
-      revoke(product);
-      setProduct(picked);
-    }
+    revoke(design);
+    setDesign(picked);
   };
 
   const pickDesign = (item: LibraryDesign) => {
@@ -302,18 +286,13 @@ export default function ApplyFabric({
     setDesign({ preview: item.image, name: item.name, designId: item.uuid });
   };
 
-  const pickProduct = (item: StockProduct) => {
-    if (busy) {
+  const pickProduct = (id: ApplyFabricProductId) => {
+    if (busy || id === productId) {
       return;
     }
     setError('');
     setResult(null);
-    revoke(product);
-    setProduct({
-      preview: item.image?.url || '',
-      name: item.name,
-      productId: item.productId
-    });
+    setProductId(id);
   };
 
   const clearDesign = () => {
@@ -340,14 +319,13 @@ export default function ApplyFabric({
     if (busy) {
       return;
     }
-    revoke(product);
-    setProduct(null);
+    setProductId(null);
     setResult(null);
     setError('');
   };
 
   const generate = async () => {
-    if (!design || !product || busy) {
+    if (!design || !productId || busy) {
       return;
     }
     setBusy(true);
@@ -359,11 +337,7 @@ export default function ApplyFabric({
       } else if (design.designId) {
         body.append('fabricDesignId', design.designId);
       }
-      if (product.file) {
-        body.append('product', product.file);
-      } else       if (product.productId) {
-        body.append('productId', String(product.productId));
-      }
+      body.append('productKey', productId);
       body.append('designScale', String(designScale));
       const response = await fetch(APPLY_API, { method: 'POST', body });
       const json = (await response.json()) as {
@@ -384,7 +358,7 @@ export default function ApplyFabric({
     }
   };
 
-  const ready = Boolean(design && product);
+  const ready = Boolean(design && productId);
 
   return (
     <div className="apply-fabric py-6">
@@ -401,7 +375,7 @@ export default function ApplyFabric({
             title="Upload design"
             hint="PNG, JPG or WebP"
             picked={design}
-            onFile={(file) => pickFile(file, 'design')}
+            onFile={pickFile}
             onClear={clearDesign}
             clearLabel="Delete design"
             clearDisabled={busy}
@@ -429,32 +403,11 @@ export default function ApplyFabric({
             }
           />
 
-          <UploadCard
-            title="Upload product"
-            hint="PNG, JPG or WebP. A few stock products are below."
-            picked={product}
-            onFile={(file) => pickFile(file, 'product')}
+          <ApplyFabricProductCard
+            selectedId={productId}
+            disabled={busy}
+            onSelect={pickProduct}
             onClear={clearProduct}
-            clearLabel="Delete product"
-            clearDisabled={busy}
-            samples={
-              <SampleStrip label="Use a sample">
-                {products.slice(0, 8).map((item) => (
-                  <SampleButton
-                    key={item.productId}
-                    name={item.name}
-                    image={item.image?.url || ''}
-                    selected={product?.productId === item.productId}
-                    onSelect={() => pickProduct(item)}
-                  />
-                ))}
-                {products.length === 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    No stock products yet. Upload the product you want to see the design on.
-                  </p>
-                )}
-              </SampleStrip>
-            }
           />
 
           <Button
@@ -530,18 +483,3 @@ export const layout = {
   areaId: 'content',
   sortOrder: 10
 };
-
-export const query = `
-  query Query {
-    stockProducts: products(filters: [{ key: "limit", operation: eq, value: "8" }]) {
-      items {
-        productId
-        name
-        image {
-          url
-          alt
-        }
-      }
-    }
-  }
-`;

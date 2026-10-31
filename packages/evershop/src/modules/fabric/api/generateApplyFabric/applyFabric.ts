@@ -6,7 +6,7 @@ import {
 } from '../../../../lib/util/httpStatus.js';
 import { getMulter } from '../../../cms/services/getMulter.js';
 import { ApplyFabricError, applyFabric, parseApplyFabricScale } from '../../services/applyFabric.js';
-import { readDesignImage, readProductImage } from '../../services/applyFabricSource.js';
+import { readApplyFabricProduct, readDesignImage } from '../../services/applyFabricSource.js';
 
 const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
@@ -51,12 +51,9 @@ async function generate(request, response) {
   try {
     const files = request.files;
     const body = request.body ?? {};
+    const product = await readApplyFabricProduct(body.productKey);
     const fabricUpload = await imageFromUpload(firstFile(files, 'fabric'), 'design');
-    const productUpload = await imageFromUpload(firstFile(files, 'product'), 'product');
     const fabric = fabricUpload ?? (field(body.fabricDesignId) ? await readDesignImage(field(body.fabricDesignId)) : null);
-    const productId = Number(field(body.productId));
-    const product =
-      productUpload ?? (field(body.productId) ? await readProductImage(productId) : null);
 
     if (!fabric || !product) {
       throw new ApplyFabricError('Choose a design and a product first.');
@@ -82,18 +79,18 @@ async function generate(request, response) {
 }
 
 export default function applyFabricRoute(request, response, _next) {
-  getMulter().fields([
-    { name: 'fabric', maxCount: 1 },
-    { name: 'product', maxCount: 1 }
-  ])(request, response, (uploadError) => {
+  getMulter().fields([{ name: 'fabric', maxCount: 1 }])(request, response, (uploadError) => {
     if (uploadError) {
       const tooLarge = uploadError.code === 'LIMIT_FILE_SIZE';
+      const unexpectedFile = uploadError.code === 'LIMIT_UNEXPECTED_FILE';
       fail(
         response,
         INVALID_PAYLOAD,
         tooLarge
           ? 'That image is too large.'
-          : uploadError.message || 'The image could not be uploaded.'
+          : unexpectedFile
+            ? 'Choose a bag, dress, or T-shirt.'
+            : uploadError.message || 'The image could not be uploaded.'
       );
       return;
     }
