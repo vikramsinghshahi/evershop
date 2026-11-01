@@ -14,22 +14,22 @@ export function Header() {
       />
       {/* Re-skin (2026-07-10): reference layout — logo left, nav beside it,
           search / account / cart pushed right, constrained to the page width. */}
-      <div className="header__middle page-width flex flex-nowrap items-center gap-x-2 py-1.5 sm:gap-6 sm:py-0.5">
+      <div className="header__middle page-width flex w-full min-w-0 flex-nowrap items-center gap-x-2 py-1.5 sm:gap-6 sm:py-0.5">
         <Area
           id="headerMiddleLeft"
-          className="header__middle__left flex shrink-0 items-center gap-1 sm:gap-8"
+          className="header__middle__left flex min-w-0 flex-1 items-center gap-1 sm:gap-6"
           isGlobal
           editableInPageBuilder
         />
         <Area
           id="headerMiddleCenter"
-          className="header__middle__center flex min-w-0 flex-1 items-center"
+          className="header__middle__center flex min-w-0 items-center"
           isGlobal
           editableInPageBuilder
         />
         <Area
           id="headerMiddleRight"
-          className="header__middle__right ml-auto flex min-w-0 items-center justify-end gap-0.5 sm:gap-3"
+          className="header__middle__right ml-auto flex shrink-0 items-center justify-end gap-0.5 sm:gap-3"
           isGlobal
           editableInPageBuilder
         />

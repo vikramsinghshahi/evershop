@@ -4,6 +4,13 @@
   border-bottom: 1px solid rgba(196, 165, 116, 0.55);
 }
 
+/* The bar already paints the full viewport. Capping the row at the content
+   column leaves the links no room and pushes the account control past the
+   edge, which is the white strip beside the bar. */
+.header__middle.page-width {
+  max-width: none;
+}
+
 .header .evershop-basic-menu__link,
 .header .evershop-basic-menu__trigger {
   color: var(--header-foreground);
@@ -22,4 +29,21 @@
   background: transparent !important;
   border-radius: 0;
   box-shadow: inset 0 -1px 0 #c4a574;
+}
+
+/* A menu outside the store header keeps an inline list on a small screen
+   unless it is marked main. The header always uses the button, so the
+   saved flag cannot stack the links down the bar. */
+.evershop-basic-menu__mobile-toggle {
+  display: none;
+}
+
+.evershop-basic-menu--main .evershop-basic-menu__mobile-inline,
+.header .evershop-basic-menu__mobile-inline {
+  display: none;
+}
+
+.evershop-basic-menu--main .evershop-basic-menu__mobile-toggle,
+.header .evershop-basic-menu__mobile-toggle {
+  display: block;
 }

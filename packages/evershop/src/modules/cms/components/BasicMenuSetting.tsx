@@ -282,7 +282,7 @@ export default function BasicMenuSetting({
         <Toggle
           label={_('Use as main menu')}
           description={_(
-            'Primary navigation — on mobile it collapses into a hamburger menu. Turn off for a simple link list (e.g. a footer), which stays inline on mobile.'
+            'On a small screen the store header opens this menu from the menu button. Turn this on to use that button anywhere else too. Turn it off for an inline list, such as a footer.'
           )}
           checked={isMainV}
           onChange={(v) => setValue('settings.isMain', v, { shouldDirty: true })}

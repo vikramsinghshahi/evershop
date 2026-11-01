@@ -33,7 +33,7 @@ export default function Logo({ setting }: LogoProps) {
     : undefined;
   const storeName = setting?.storeName || 'Bharat Textile';
   return (
-    <div className="logo flex items-center">
+    <div className="logo flex shrink-0 items-center">
       {optimizedSrc && (
         <a href="/" className="logo-icon" aria-label={`${storeName} – home`}>
           <img

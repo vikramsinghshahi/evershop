@@ -255,19 +255,23 @@ export default function BasicMenu({
     url === '/' ? currentPath === '/' : !!url && currentPath.startsWith(url);
 
   return (
-    <div className={`evershop-basic-menu ${className ?? ''}`}>
+    <div
+      className={`evershop-basic-menu flex min-w-0 flex-1 items-center ${
+        isMain ? 'evershop-basic-menu--main' : ''
+      } ${className ?? ''}`}
+    >
       {/* Wide screens: one horizontal row. A parent with children opens a
           hover/focus dropdown. The trigger itself is a real link. */}
       <nav
         aria-label={_('Main menu')}
-        className="evershop-basic-menu__desktop hidden xl:block"
+        className="evershop-basic-menu__desktop hidden min-w-0 flex-1 xl:block"
       >
-        <NavigationMenu className="evershop-basic-menu__menu max-w-full">
-          <NavigationMenuList className="evershop-basic-menu__items flex-row flex-nowrap items-center gap-1">
+        <NavigationMenu className="evershop-basic-menu__menu w-full min-w-0 max-w-full justify-start">
+          <NavigationMenuList className="evershop-basic-menu__items w-max flex-none flex-row flex-nowrap items-center justify-start gap-1">
             {menuItems.map((item) => (
               <NavigationMenuItem
                 key={item.id}
-                className="evershop-basic-menu__item"
+                className="evershop-basic-menu__item shrink-0"
               >
                 {item.children.length > 0 ? (
                   <>
@@ -276,7 +280,7 @@ export default function BasicMenu({
                         still opens on hover. rel split into literals for
                         jsx-no-target-blank. */}
                     <NavigationMenuTrigger
-                      className="evershop-basic-menu__trigger justify-center bg-transparent hover:bg-transparent focus:bg-transparent data-open:bg-transparent data-popup-open:bg-transparent hover:font-semibold hover:text-primary"
+                      className="evershop-basic-menu__trigger whitespace-nowrap justify-center bg-transparent hover:bg-transparent focus:bg-transparent data-open:bg-transparent data-popup-open:bg-transparent hover:font-semibold hover:text-primary"
                       nativeButton={false}
                       render={
                         item.newTab ? (
@@ -331,7 +335,7 @@ export default function BasicMenu({
                     href={item.url}
                     target={item.newTab ? '_blank' : undefined}
                     rel={relFor(item)}
-                    className="evershop-basic-menu__link px-4 py-2 hover:text-primary transition-colors data-[active=true]:text-primary data-[active=true]:font-semibold hover:bg-transparent focus:bg-transparent hover:underline"
+                    className="evershop-basic-menu__link whitespace-nowrap px-2 py-2 hover:text-primary transition-colors data-[active=true]:text-primary data-[active=true]:font-semibold hover:bg-transparent focus:bg-transparent hover:underline"
                     data-active={isActive(item.url)}
                   >
                     {item.name}
@@ -343,49 +347,49 @@ export default function BasicMenu({
         </NavigationMenu>
       </nav>
 
-      {/* Smaller than xl. A main menu stays behind the hamburger and opens
-          downward. A non-main menu (a footer link list) stays inline. */}
+      {/* Smaller than xl. The store header always uses the button, so a menu
+          saved without the main-menu flag cannot stack down the bar. Anywhere
+          else, that flag still chooses the button or an inline list. */}
       <nav
         aria-label={_('Main menu')}
         className="evershop-basic-menu__mobile relative xl:hidden"
       >
-        {isMain ? (
-          menuItems.length === 0 ? null : (
+        {menuItems.length === 0 ? null : (
           <>
-            <button
-              ref={toggleRef}
-              type="button"
-              onClick={() => setMobileOpen((open) => !open)}
-              aria-expanded={mobileOpen}
-              aria-controls={panelId}
-              aria-label={mobileOpen ? _('Close menu') : _('Open menu')}
-              className="evershop-basic-menu__toggle inline-flex items-center justify-center rounded-md p-2 text-current transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-            >
-              {mobileOpen ? (
-                <X className="size-6" aria-hidden="true" />
-              ) : (
-                <Menu className="size-6" aria-hidden="true" />
-              )}
-            </button>
-            {mobileOpen && (
-              <div
-                id={panelId}
-                ref={mobilePanelRef}
-                className="evershop-basic-menu__mobile-panel absolute left-0 top-full z-40 mt-2 max-h-[70vh] w-64 max-w-[85vw] overflow-y-auto overscroll-contain rounded-lg border border-divider bg-card p-1.5 shadow-lg"
+            <div className="evershop-basic-menu__mobile-inline py-1">
+              <MobileItemList items={menuItems} isActive={isActive} />
+            </div>
+            <div className="evershop-basic-menu__mobile-toggle">
+              <button
+                ref={toggleRef}
+                type="button"
+                onClick={() => setMobileOpen((open) => !open)}
+                aria-expanded={mobileOpen}
+                aria-controls={panelId}
+                aria-label={mobileOpen ? _('Close menu') : _('Open menu')}
+                className="evershop-basic-menu__toggle inline-flex items-center justify-center rounded-md p-2 text-current transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               >
-                <MobileItemList
-                  items={menuItems}
-                  isActive={isActive}
-                  onNavigate={closeMobile}
-                />
-              </div>
-            )}
+                {mobileOpen ? (
+                  <X className="size-6" aria-hidden="true" />
+                ) : (
+                  <Menu className="size-6" aria-hidden="true" />
+                )}
+              </button>
+              {mobileOpen && (
+                <div
+                  id={panelId}
+                  ref={mobilePanelRef}
+                  className="evershop-basic-menu__mobile-panel absolute left-0 top-full z-40 mt-2 max-h-[70vh] w-64 max-w-[85vw] overflow-y-auto overscroll-contain rounded-lg border border-divider bg-card p-1.5 shadow-lg"
+                >
+                  <MobileItemList
+                    items={menuItems}
+                    isActive={isActive}
+                    onNavigate={closeMobile}
+                  />
+                </div>
+              )}
+            </div>
           </>
-          )
-        ) : (
-          <div className="evershop-basic-menu__mobile-inline py-1">
-            <MobileItemList items={menuItems} isActive={isActive} />
-          </div>
         )}
       </nav>
     </div>

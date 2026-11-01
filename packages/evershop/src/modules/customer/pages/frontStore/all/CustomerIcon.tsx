@@ -160,7 +160,7 @@ function AccountTrigger({
       >
         {mark || <User className="h-4 w-4" />}
       </span>
-      <span className="flex min-w-0 flex-col leading-tight">
+      <span className="hidden min-w-0 max-w-[9rem] flex-col leading-tight min-[1440px]:flex">
         <span className="truncate text-xs font-medium">{line}</span>
         <span className="flex items-center gap-1 text-[11px] opacity-65">
           <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />

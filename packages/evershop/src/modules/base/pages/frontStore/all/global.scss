@@ -13,6 +13,15 @@
     }
   }
 
+  html,
+  body {
+    /* A full-bleed band is 100vw, which counts the scrollbar and is wider
+       than the page. Clip both boxes or the store scrolls sideways and the
+       header and footer leave a white strip. `clip` keeps the sticky header;
+       `hidden` would not. */
+    overflow-x: clip;
+  }
+
   body {
     /* Re-skin (2026-07-10): 16px base + 1.5 line-height + token text color,
      * matching the design reference (was 14px, line-height up to 2.0, #3a3a3a).
