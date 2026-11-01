@@ -74,6 +74,9 @@ interface BasicMenuProps {
 
 type BasicMenuNode = BasicMenuProps['basicMenuWidget']['menus'][number];
 
+/** Horizontal links only once the row can hold every item. Below this, the hamburger does. */
+const WIDE_NAV_PX = 1280;
+
 /**
  * A plain anchor that applies a link's new-tab / SEO flags. Split into two
  * literal branches so `react/jsx-no-target-blank` can statically verify the
@@ -113,13 +116,23 @@ function MenuAnchor({
  */
 function MobileItemList({
   items,
-  isActive
+  isActive,
+  onNavigate
 }: {
   items: BasicMenuNode[];
   isActive: (url: string) => boolean;
+  onNavigate?: () => void;
 }) {
   return (
-    <ul className="flex flex-col">
+    <ul
+      className="flex flex-col"
+      onClick={(event) => {
+        const target = event.target;
+        if (target instanceof Element && target.closest('a')) {
+          onNavigate?.();
+        }
+      }}
+    >
       {items.map((item) => (
         <li key={item.id} className="evershop-basic-menu__mobile-group">
           <MenuAnchor
@@ -156,6 +169,8 @@ export default function BasicMenu({
 }: BasicMenuProps) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const mobilePanelRef = React.useRef<HTMLDivElement>(null);
+  const toggleRef = React.useRef<HTMLButtonElement>(null);
+  const panelId = React.useId();
   const [currentPath, setCurrentPath] = React.useState('');
 
   // The panel hangs from the toggle's left edge (`left-0`). That is right for a toggle at the page's
@@ -185,24 +200,70 @@ export default function BasicMenu({
     setCurrentPath(window.location.pathname);
   }, []);
 
-  const menuItems = toMenuArray<BasicMenuNode>(menus).map((item) => ({
-    ...item,
-    children: toMenuArray<BasicMenuNode['children'][number]>(item.children)
-  }));
+  const menuItems = toMenuArray<BasicMenuNode>(menus).flatMap((item) => {
+    if (!item || typeof item.name !== 'string' || item.name.trim() === '') {
+      return [];
+    }
+    return [
+      {
+        ...item,
+        children: toMenuArray<BasicMenuNode['children'][number]>(item.children).filter(
+          (child) => child && typeof child.name === 'string' && child.name.trim() !== ''
+        )
+      }
+    ];
+  });
+
+  const closeMobile = React.useCallback(() => {
+    setMobileOpen(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (!mobileOpen) {
+      return undefined;
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') {
+        return;
+      }
+      setMobileOpen(false);
+      toggleRef.current?.focus();
+    };
+    const onPointer = (event: PointerEvent) => {
+      const root = toggleRef.current?.closest('.evershop-basic-menu');
+      if (root && event.target instanceof Node && root.contains(event.target)) {
+        return;
+      }
+      setMobileOpen(false);
+    };
+    const onResize = () => {
+      if (window.innerWidth >= WIDE_NAV_PX) {
+        setMobileOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPointer);
+    window.addEventListener('resize', onResize);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPointer);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [mobileOpen]);
 
   const isActive = (url: string) =>
     url === '/' ? currentPath === '/' : !!url && currentPath.startsWith(url);
 
   return (
     <div className={`evershop-basic-menu ${className ?? ''}`}>
-      {/* Desktop (md+): horizontal menu; a parent with children opens a
+      {/* Wide screens: one horizontal row. A parent with children opens a
           hover/focus dropdown. The trigger itself is a real link. */}
       <nav
         aria-label={_('Main menu')}
-        className="evershop-basic-menu__desktop hidden md:block"
+        className="evershop-basic-menu__desktop hidden xl:block"
       >
         <NavigationMenu className="evershop-basic-menu__menu max-w-full">
-          <NavigationMenuList className="evershop-basic-menu__items items-center gap-1">
+          <NavigationMenuList className="evershop-basic-menu__items flex-row flex-nowrap items-center gap-1">
             {menuItems.map((item) => (
               <NavigationMenuItem
                 key={item.id}
@@ -282,20 +343,21 @@ export default function BasicMenu({
         </NavigationMenu>
       </nav>
 
-      {/* Mobile (<md). A "main" menu collapses behind a hamburger; a non-main
-          menu (e.g. a simple footer link list) renders inline with no
-          hamburger — that is the one thing `isMain` controls. Both list every
-          root + sub-item (no hover dropdowns on touch). */}
+      {/* Smaller than xl. A main menu stays behind the hamburger and opens
+          downward. A non-main menu (a footer link list) stays inline. */}
       <nav
         aria-label={_('Main menu')}
-        className="evershop-basic-menu__mobile relative md:hidden"
+        className="evershop-basic-menu__mobile relative xl:hidden"
       >
         {isMain ? (
+          menuItems.length === 0 ? null : (
           <>
             <button
+              ref={toggleRef}
               type="button"
               onClick={() => setMobileOpen((open) => !open)}
               aria-expanded={mobileOpen}
+              aria-controls={panelId}
               aria-label={mobileOpen ? _('Close menu') : _('Open menu')}
               className="evershop-basic-menu__toggle inline-flex items-center justify-center rounded-md p-2 text-current transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
             >
@@ -307,13 +369,19 @@ export default function BasicMenu({
             </button>
             {mobileOpen && (
               <div
+                id={panelId}
                 ref={mobilePanelRef}
-                className="evershop-basic-menu__mobile-panel absolute left-0 top-full z-40 mt-2 w-64 max-w-[85vw] rounded-lg border border-divider bg-card p-1.5 shadow-lg"
+                className="evershop-basic-menu__mobile-panel absolute left-0 top-full z-40 mt-2 max-h-[70vh] w-64 max-w-[85vw] overflow-y-auto overscroll-contain rounded-lg border border-divider bg-card p-1.5 shadow-lg"
               >
-                <MobileItemList items={menuItems} isActive={isActive} />
+                <MobileItemList
+                  items={menuItems}
+                  isActive={isActive}
+                  onNavigate={closeMobile}
+                />
               </div>
             )}
           </>
+          )
         ) : (
           <div className="evershop-basic-menu__mobile-inline py-1">
             <MobileItemList items={menuItems} isActive={isActive} />

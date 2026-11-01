@@ -93,7 +93,7 @@ export async function readDesignImage(uuid: string): Promise<Buffer> {
   return readCatalogImage(design.image);
 }
 
-/** Bytes for one of the three Apply Fabric garments. Catalog ids and uploads are not accepted. */
+/** Bytes for one Apply Fabric garment. Catalog ids and uploads are not accepted. */
 export async function readApplyFabricProduct(raw: unknown): Promise<Buffer> {
   const product = findApplyFabricProduct(raw);
   if (!product) {

@@ -1,6 +1,7 @@
 import { Trash2 } from 'lucide-react';
 import React from 'react';
 import {
+  APPLY_FABRIC_PRODUCT_CHOICES,
   APPLY_FABRIC_PRODUCTS,
   type ApplyFabricProduct,
   type ApplyFabricProductId,
@@ -106,7 +107,7 @@ export function ApplyFabricProductCard({
         <ProductPreview product={selected} />
       ) : (
         <div className="mt-3 flex min-h-44 w-full items-center justify-center rounded-lg border border-dashed border-border bg-background px-4 py-6 text-center">
-          <p className="text-sm text-muted-foreground">Choose a bag, dress, or T-shirt.</p>
+          <p className="text-sm text-muted-foreground">{APPLY_FABRIC_PRODUCT_CHOICES}</p>
         </div>
       )}
       {selected ? (

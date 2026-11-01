@@ -6,8 +6,12 @@
 export const APPLY_FABRIC_PRODUCTS = [
   { id: 'bag', name: 'Bag', image: '/apply-fabric/bag.webp' },
   { id: 'dress', name: 'Dress', image: '/apply-fabric/dress.webp' },
-  { id: 'tshirt', name: 'T-shirt', image: '/apply-fabric/tshirt.webp' }
+  { id: 'tshirt', name: 'T-shirt', image: '/apply-fabric/tshirt.webp' },
+  { id: 'kids', name: 'Kids', image: '/apply-fabric/kids.webp' }
 ] as const;
+
+/** Shown when the shopper sends anything other than one of the product ids. */
+export const APPLY_FABRIC_PRODUCT_CHOICES = 'Choose a bag, dress, T-shirt, or kids.';
 
 export type ApplyFabricProduct = (typeof APPLY_FABRIC_PRODUCTS)[number];
 export type ApplyFabricProductId = ApplyFabricProduct['id'];
@@ -22,16 +26,16 @@ export function findApplyFabricProduct(raw: unknown): ApplyFabricProduct | null 
   return APPLY_FABRIC_PRODUCTS.find((item) => item.id === key) ?? null;
 }
 
-/** Missing means the shopper has not chosen. Anything else is not one of the three. */
+/** Missing means the shopper has not chosen. Anything else is not one of the four. */
 export function applyFabricProductMessage(raw: unknown): string {
   if (raw === undefined || raw === null || (typeof raw === 'string' && raw.trim() === '')) {
     return 'Choose a product.';
   }
-  return 'Choose a bag, dress, or T-shirt.';
+  return APPLY_FABRIC_PRODUCT_CHOICES;
 }
 
 /**
- * A resized preview of one of the three product photos.
+ * A resized preview of one of the product photos.
  * Returns null for any other path, so the page cannot request an arbitrary image.
  */
 export function applyFabricProductPreview(image: string, width: number): string | null {

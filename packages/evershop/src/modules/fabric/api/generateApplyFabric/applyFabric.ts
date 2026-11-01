@@ -6,6 +6,7 @@ import {
 } from '../../../../lib/util/httpStatus.js';
 import { getMulter } from '../../../cms/services/getMulter.js';
 import { ApplyFabricError, applyFabric, parseApplyFabricScale } from '../../services/applyFabric.js';
+import { APPLY_FABRIC_PRODUCT_CHOICES } from '../../services/applyFabricProducts.js';
 import { readApplyFabricProduct, readDesignImage } from '../../services/applyFabricSource.js';
 
 const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
@@ -89,7 +90,7 @@ export default function applyFabricRoute(request, response, _next) {
         tooLarge
           ? 'That image is too large.'
           : unexpectedFile
-            ? 'Choose a bag, dress, or T-shirt.'
+            ? APPLY_FABRIC_PRODUCT_CHOICES
             : uploadError.message || 'The image could not be uploaded.'
       );
       return;
