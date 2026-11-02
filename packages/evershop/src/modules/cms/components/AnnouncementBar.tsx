@@ -1,11 +1,16 @@
  
 import { Editable } from '@components/common/page-builder/index.js';
 import React, { useEffect, useRef } from 'react';
+import {
+  resolveAnnouncementMotion,
+  type AnnouncementMotion
+} from '../services/announcementMotion.js';
 
 /**
- * Announcement bar — a thin row of one or more rotating announcements. A
- * single announcement renders statically; multiple announcements cycle
- * upward at the configured interval.
+ * Announcement bar — a thin row above the nav. The admin chooses whether
+ * the line stays still, scrolls as a marquee, or slides one message at a
+ * time. A single announcement renders statically; multiple announcements
+ * cycle upward at the configured interval when the motion is slide.
  *
  * Why a `useEffect` rather than an inline <script>: widgets in the
  * page-builder preview iframe mount client-side, not via the initial SSR
@@ -34,6 +39,7 @@ export interface AnnouncementBarProps {
     backgroundColor: string;
     textColor: string;
     delay: number;
+    motion: AnnouncementMotion | null;
     announcements: Announcement[];
   };
 }
@@ -81,15 +87,61 @@ const ROTATION_STYLES = `
   }
 `;
 
+const MARQUEE_STYLES = `
+  [data-evershop-announcement="marquee"] {
+    overflow: hidden;
+  }
+  [data-evershop-announcement="marquee"] .evershop-announcement-bar__track {
+    display: flex;
+    width: max-content;
+    animation: evershop-announcement-marquee var(--evershop-announcement-duration, 24s) linear infinite;
+  }
+  [data-evershop-announcement="marquee"]:hover .evershop-announcement-bar__track,
+  [data-evershop-announcement="marquee"]:focus-within .evershop-announcement-bar__track {
+    animation-play-state: paused;
+  }
+  [data-evershop-announcement="marquee"] .evershop-announcement-bar__group {
+    display: flex;
+    flex: none;
+    align-items: center;
+    padding: 0.5rem 0;
+  }
+  @keyframes evershop-announcement-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-evershop-announcement="marquee"] .evershop-announcement-bar__track {
+      animation: none;
+      width: 100%;
+      justify-content: center;
+    }
+    [data-evershop-announcement="marquee"] .evershop-announcement-bar__group[data-copy="1"] {
+      display: none;
+    }
+    [data-evershop-announcement="marquee"] .evershop-announcement-bar__group {
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding-inline: 1rem;
+    }
+  }
+`;
+
 function Inner({
   content,
   link,
-  originalIndex
-}: Announcement & { originalIndex: number }) {
+  originalIndex,
+  inline,
+  nowrap
+}: Announcement & { originalIndex: number; inline?: boolean; nowrap?: boolean }) {
   const fieldPath = `settings.announcements.${originalIndex}.content`;
+  const contentClass = inline
+    ? `evershop-announcement-bar__content text-sm${nowrap ? ' whitespace-nowrap' : ''}`
+    : 'evershop-announcement-bar__content px-4 text-center text-sm';
   if (!link || !link.url) {
     return (
-      <Editable as="span" fieldPath={fieldPath} className="evershop-announcement-bar__content px-4 text-center text-sm">
+      <Editable as="span" fieldPath={fieldPath} className={contentClass}>
         {content}
       </Editable>
     );
@@ -99,7 +151,11 @@ function Inner({
       href={link.url}
       target={link.newTab ? '_blank' : undefined}
       rel={link.newTab ? 'noopener noreferrer' : undefined}
-      className="evershop-announcement-bar__link block w-full px-4 text-center text-sm hover:opacity-80"
+      className={
+        inline
+          ? `evershop-announcement-bar__link text-sm hover:opacity-80${nowrap ? ' whitespace-nowrap' : ''}`
+          : 'evershop-announcement-bar__link block w-full px-4 text-center text-sm hover:opacity-80'
+      }
     >
       <Editable as="span" fieldPath={fieldPath} className="evershop-announcement-bar__content">
         {content}
@@ -111,6 +167,36 @@ function Inner({
   );
 }
 
+function MessageRow({
+  items,
+  copy
+}: {
+  items: Array<{ a: Announcement; originalIndex: number }>;
+  copy?: number;
+}) {
+  return (
+    <div
+      className="evershop-announcement-bar__group"
+      data-copy={copy}
+      aria-hidden={copy ? true : undefined}
+    >
+      {items.map(({ a, originalIndex }, index) => (
+        <span
+          key={`${copy ?? 0}-${a.id}`}
+          className="inline-flex items-center px-4"
+        >
+          {index > 0 && (
+            <span className="pr-4 opacity-60" aria-hidden="true">
+              ·
+            </span>
+          )}
+          <Inner {...a} originalIndex={originalIndex} inline nowrap />
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function AnnouncementBar({
   announcementBarWidget
 }: AnnouncementBarProps) {
@@ -118,12 +204,14 @@ export default function AnnouncementBar({
     backgroundColor,
     textColor,
     delay,
+    motion: motionSetting,
     announcements = []
   } = announcementBarWidget;
   // Track the source index so inline edits hit `settings.announcements.${originalIndex}.content`.
   const visible = (announcements ?? [])
     .map((a, originalIndex) => ({ a, originalIndex }))
     .filter(({ a }) => a && a.content);
+  const motion = resolveAnnouncementMotion(motionSetting, visible.length);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   // Rotation loop. Mirrors the state-machine described at the top of the
@@ -131,7 +219,7 @@ export default function AnnouncementBar({
   // when the number of slides or the delay changes so a settings edit in
   // the page-builder picks up immediately.
   useEffect(() => {
-    if (visible.length < 2) return;
+    if (motion !== 'rotate' || visible.length < 2) return;
     const root = rootRef.current;
     if (!root) return;
     const slides = Array.from(
@@ -193,31 +281,68 @@ export default function AnnouncementBar({
       if (timer) clearInterval(timer);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [visible.length, delay]);
+  }, [visible.length, delay, motion]);
 
   if (visible.length === 0) return null;
 
+  const colors = {
+    backgroundColor: backgroundColor || '#000000',
+    color: textColor || '#ffffff'
+  };
+  const marqueeSeconds = Math.min(
+    48,
+    Math.max(16, visible.reduce((sum, item) => sum + item.a.content.length, 0) / 3)
+  );
+
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: ROTATION_STYLES }} />
+      {motion !== 'fixed' && (
+        <style
+          dangerouslySetInnerHTML={{
+            __html: motion === 'rotate' ? ROTATION_STYLES : MARQUEE_STYLES
+          }}
+        />
+      )}
       <div
         ref={rootRef}
-        data-evershop-announcement
-        className="evershop-announcement-bar w-full"
+        data-evershop-announcement={motion}
+        className="evershop-announcement-bar w-full text-sm"
         style={{
-          backgroundColor: backgroundColor || '#000000',
-          color: textColor || '#ffffff'
+          ...colors,
+          ['--evershop-announcement-duration' as string]: `${marqueeSeconds}s`
         }}
+        role="region"
+        aria-label="Announcement"
       >
-        {visible.map(({ a, originalIndex }, i) => (
-          <div
-            key={a.id}
-            data-evershop-announcement-slide
-            className={`evershop-announcement-bar__item${i === 0 ? ' is-active' : ''}`}
-          >
-            <Inner {...a} originalIndex={originalIndex} />
+        {motion === 'rotate' ? (
+          visible.map(({ a, originalIndex }, i) => (
+            <div
+              key={a.id}
+              data-evershop-announcement-slide
+              className={`evershop-announcement-bar__item${i === 0 ? ' is-active' : ''}`}
+            >
+              <Inner {...a} originalIndex={originalIndex} />
+            </div>
+          ))
+        ) : motion === 'marquee' ? (
+          <div className="evershop-announcement-bar__track">
+            <MessageRow items={visible} />
+            <MessageRow items={visible} copy={1} />
           </div>
-        ))}
+        ) : (
+          <div className="flex flex-wrap items-center justify-center px-4 py-2 text-center">
+            {visible.map(({ a, originalIndex }, index) => (
+              <span key={a.id} className="inline-flex items-center">
+                {index > 0 && (
+                  <span className="px-2 opacity-60" aria-hidden="true">
+                    ·
+                  </span>
+                )}
+                <Inner {...a} originalIndex={originalIndex} inline />
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
@@ -228,17 +353,20 @@ export const query = `
     $backgroundColor: String
     $textColor: String
     $delay: Float
+    $motion: String
     $announcements: JSON
   ) {
     announcementBarWidget(
       backgroundColor: $backgroundColor
       textColor: $textColor
       delay: $delay
+      motion: $motion
       announcements: $announcements
     ) {
       backgroundColor
       textColor
       delay
+      motion
       announcements
     }
   }
@@ -248,5 +376,6 @@ export const variables = `{
   backgroundColor: getWidgetSetting("backgroundColor", "#000000"),
   textColor: getWidgetSetting("textColor", "#ffffff"),
   delay: getWidgetSetting("delay", 4000),
+  motion: getWidgetSetting("motion", null),
   announcements: getWidgetSetting("announcements", [])
 }`;

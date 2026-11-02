@@ -556,15 +556,17 @@ type SplitFeatureWidget {
 }
 
 """
-Announcement bar widget — a thin top-of-page bar that cycles through one
-or more short messages. `announcements` is a JSON array of
-`{ id, content, link? }`. The storefront renders all of them upfront and
-rotates client-side, respecting prefers-reduced-motion.
+Announcement bar widget — a thin bar above the nav. `motion` is `fixed`
+(the line stays still), `marquee` (it scrolls), or `rotate` (one message
+at a time). A bar saved before this choice leaves `motion` empty: one
+message stays still, and several messages slide. `announcements` is a
+JSON array of `{ id, content, link? }`.
 """
 type AnnouncementBarWidget {
   backgroundColor: String!
   textColor: String!
   delay: Int!
+  motion: String
   announcements: JSON!
 }
 
@@ -821,6 +823,7 @@ extend type Query {
     backgroundColor: String
     textColor: String
     delay: Float
+    motion: String
     announcements: JSON
   ): AnnouncementBarWidget
   brandStoryWidget(

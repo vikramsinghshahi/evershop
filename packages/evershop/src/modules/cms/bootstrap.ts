@@ -1371,7 +1371,7 @@ export default async (context: { command?: string } = {}) => {
     ),
     name: 'Announcement bar',
     description:
-      'A thin top-of-page bar with one or more rotating announcements.',
+      'A thin bar above the nav. The text can sit still, scroll, or slide one message at a time.',
     category: 'marketing',
     // Distinct from the `banner` widget which already owns `Megaphone`.
     // `PanelTop` reads as a thin top-of-page bar at palette size.
@@ -1380,6 +1380,7 @@ export default async (context: { command?: string } = {}) => {
       backgroundColor: '#000000',
       textColor: '#ffffff',
       delay: 4000,
+      motion: 'fixed',
       announcements: [
         {
           id: 'a-1',
@@ -1396,6 +1397,7 @@ export default async (context: { command?: string } = {}) => {
         backgroundColor: { type: 'string' },
         textColor: { type: 'string' },
         delay: { type: 'integer', minimum: 1000 },
+        motion: { type: 'string', enum: ['fixed', 'marquee', 'rotate'] },
         announcements: { type: 'array', items: { type: 'object' } as any }
       }
     },
@@ -1405,6 +1407,7 @@ export default async (context: { command?: string } = {}) => {
           backgroundColor: String
           textColor: String
           delay: Float
+          motion: String
           announcements: JSON
         }
       `,

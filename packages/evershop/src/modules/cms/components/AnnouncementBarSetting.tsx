@@ -5,6 +5,7 @@ import {
   Field,
   RepeatableAccordion,
   Section,
+  Segmented,
   Slider,
   Toggle,
   useArraySetting,
@@ -14,15 +15,29 @@ import { LinkPicker } from '@components/common/page-builder/pickers/LinkPicker.j
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import React from 'react';
 import type { Announcement } from './AnnouncementBar.js';
+import {
+  resolveAnnouncementMotion,
+  type AnnouncementMotion
+} from '../services/announcementMotion.js';
 
 interface AnnouncementBarSettingProps {
   announcementBarWidget?: {
     backgroundColor?: string;
     textColor?: string;
     delay?: number;
+    motion?: AnnouncementMotion | null;
     announcements?: Announcement[];
   };
 }
+
+const MOTION_OPTIONS: ReadonlyArray<{
+  value: AnnouncementMotion;
+  label: string;
+}> = [
+  { value: 'fixed', label: _('Fixed') },
+  { value: 'marquee', label: _('Marquee') },
+  { value: 'rotate', label: _('Slide') }
+];
 
 function makeBlankAnnouncement(): Announcement {
   return {
@@ -42,6 +57,7 @@ export default function AnnouncementBarSetting({
     backgroundColor,
     textColor,
     delay,
+    motion: initialMotion = null,
     announcements: initialAnnouncements = []
   } = announcementBarWidget ?? {};
 
@@ -55,6 +71,11 @@ export default function AnnouncementBarSetting({
   const announcements = useArraySetting<Announcement>(
     'settings.announcements',
     initialAnnouncements
+  );
+  const motionV = resolveAnnouncementMotion(
+    (watch('settings.motion') as AnnouncementMotion | null | undefined) ??
+      initialMotion,
+    announcements.length
   );
 
   // Read live form state inside mutation helpers — prevents back-to-back
@@ -124,6 +145,21 @@ export default function AnnouncementBarSetting({
           />
         </Field>
         <Field
+          label={_('Motion')}
+          hint={_(
+            'Fixed holds the text still. Marquee scrolls it across the bar. Slide shows one message at a time.'
+          )}
+        >
+          <Segmented<AnnouncementMotion>
+            value={motionV}
+            options={MOTION_OPTIONS}
+            onChange={(v) =>
+              setValue('settings.motion', v, { shouldDirty: true })
+            }
+          />
+        </Field>
+        {motionV === 'rotate' && (
+        <Field
           label={_('Dwell time')}
           hint={_(
             'Time each announcement stays visible (in addition to the 400ms slide transition).'
@@ -138,8 +174,9 @@ export default function AnnouncementBarSetting({
             onCommit={(v) =>
               setValue('settings.delay', v, { shouldDirty: true })
             }
-          />
-        </Field>
+            />
+          </Field>
+        )}
       </Section>
 
       <Section title={_('Announcements')}>
@@ -227,6 +264,11 @@ export default function AnnouncementBarSetting({
       />
       <input
         type="hidden"
+        {...register('settings.motion')}
+        defaultValue={initialMotion ?? 'fixed'}
+      />
+      <input
+        type="hidden"
         {...register('settings.delay', { valueAsNumber: true })}
         defaultValue={delay ?? 4000}
       />
@@ -239,17 +281,20 @@ export const query = `
     $backgroundColor: String
     $textColor: String
     $delay: Float
+    $motion: String
     $announcements: JSON
   ) {
     announcementBarWidget(
       backgroundColor: $backgroundColor
       textColor: $textColor
       delay: $delay
+      motion: $motion
       announcements: $announcements
     ) {
       backgroundColor
       textColor
       delay
+      motion
       announcements
     }
   }
@@ -259,5 +304,6 @@ export const variables = `{
   backgroundColor: getWidgetSetting("backgroundColor", "#000000"),
   textColor: getWidgetSetting("textColor", "#ffffff"),
   delay: getWidgetSetting("delay", 4000),
+  motion: getWidgetSetting("motion", null),
   announcements: getWidgetSetting("announcements", [])
 }`;

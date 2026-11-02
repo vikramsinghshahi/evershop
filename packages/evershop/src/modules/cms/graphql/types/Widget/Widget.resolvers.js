@@ -931,7 +931,7 @@ export default {
     },
     announcementBarWidget: async (
       _,
-      { backgroundColor, textColor, delay, announcements },
+      { backgroundColor, textColor, delay, announcements, motion },
       { linkLoaders }
     ) => {
       const filtered = (Array.isArray(announcements) ? announcements : [])
@@ -966,6 +966,10 @@ export default {
             ? textColor
             : '#ffffff',
         delay: Number.isFinite(d) ? Math.round(Math.max(1000, d)) : 4000,
+        motion:
+          motion === 'fixed' || motion === 'marquee' || motion === 'rotate'
+            ? motion
+            : null,
         announcements: safeAnnouncements
       };
     },
