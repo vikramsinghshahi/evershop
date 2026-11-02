@@ -13,9 +13,10 @@ import {
   hookAfter
 } from '../../../../lib/util/hookable.js';
 import { getValue, getValueSync } from '../../../../lib/util/registry.js';
-import { getWidgetSchemaValidator } from '../../../../lib/widget/widgetManager.js';
+import { getWidget, getWidgetSchemaValidator } from '../../../../lib/widget/widgetManager.js';
 import { getAjv } from '../../../base/services/getAjv.js';
 import { assertWidgetSettingsMatchSchema } from './assertWidgetSettings.js';
+import { coerceWidgetSettingValues } from './coerceWidgetSettingValues.js';
 import widgetDataSchema from './widgetDataSchema.json' with { type: 'json' };
 
 export type WidgetData = {
@@ -128,6 +129,11 @@ async function createWidget(data: WidgetData, context: Record<string, any>) {
     // Phase 2b — validate settings against the widget's registered JSON Schema.
     // Widgets registered without a schema have no validator and skip this step.
     if (widgetData.type) {
+      const settings = (widgetData.settings ?? {}) as Record<string, unknown>;
+      widgetData.settings = coerceWidgetSettingValues(
+        settings,
+        getWidget(widgetData.type as string)?.schema?.properties
+      );
       const validator = getWidgetSchemaValidator(widgetData.type as string);
       if (validator) {
         const ok = validator(widgetData.settings ?? {});

@@ -259,11 +259,6 @@ export default function AnnouncementBarSetting({
 
       <input
         type="hidden"
-        {...register('settings.announcements')}
-        defaultValue={JSON.stringify(initialAnnouncements)}
-      />
-      <input
-        type="hidden"
         {...register('settings.motion')}
         defaultValue={initialMotion ?? 'fixed'}
       />

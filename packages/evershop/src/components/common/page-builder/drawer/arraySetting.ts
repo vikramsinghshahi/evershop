@@ -36,7 +36,7 @@ export function useArraySetting<T>(name: string, fallback: T[]): T[] {
   const { watch, getValues, setValue } = useScopedFormContext();
   React.useEffect(() => {
     const current = getValues(name);
-    if (typeof current === 'string') {
+    if (!Array.isArray(current)) {
       setValue(name, asArray(current, fallback), { shouldDirty: false });
     }
     // Mount-only: seed once; later edits flow through the caller's mutators.

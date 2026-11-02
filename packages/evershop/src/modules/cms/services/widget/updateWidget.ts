@@ -14,9 +14,10 @@ import {
   hookAfter
 } from '../../../../lib/util/hookable.js';
 import { getValue, getValueSync } from '../../../../lib/util/registry.js';
-import { getWidgetSchemaValidator } from '../../../../lib/widget/widgetManager.js';
+import { getWidget, getWidgetSchemaValidator } from '../../../../lib/widget/widgetManager.js';
 import { getAjv } from '../../../base/services/getAjv.js';
 import { assertWidgetSettingsMatchSchema } from './assertWidgetSettings.js';
+import { coerceWidgetSettingValues } from './coerceWidgetSettingValues.js';
 import { WidgetData } from './createWidget.js';
 import widgetDataSchema from './widgetDataSchema.json' with { type: 'json' };
 
@@ -169,6 +170,11 @@ async function updateWidget(
         .where('uuid', '=', uuid)
         .load(connection);
       if (existing) {
+        const settings = widgetData.settings as Record<string, unknown>;
+        coerceWidgetSettingValues(
+          settings,
+          getWidget(existing.type as string)?.schema?.properties
+        );
         const validator = getWidgetSchemaValidator(existing.type as string);
         if (validator) {
           const ok = validator(widgetData.settings);
