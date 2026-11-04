@@ -9,8 +9,10 @@ import { warning } from '../../../../lib/log/logger.js';
 import { getConnection } from '../../../../lib/postgres/connection.js';
 import {
   INTERNAL_SERVER_ERROR,
+  INVALID_PAYLOAD,
   OK
 } from '../../../../lib/util/httpStatus.js';
+import { sanitizeNazarBattuSvg } from '../../services/nazarBattuSvg.js';
 import { refreshSetting } from '../../services/setting.js';
 
 /**
@@ -49,6 +51,26 @@ function validateLanguageSettings(body) {
 
 export default async (request, response, next) => {
   const { body } = request;
+  if (Object.prototype.hasOwnProperty.call(body, 'nazarBattuSvg')) {
+    const raw = body.nazarBattuSvg;
+    if (raw === null || raw === undefined || String(raw).trim() === '') {
+      body.nazarBattuSvg = '';
+    } else {
+      const clean = sanitizeNazarBattuSvg(String(raw));
+      if (!clean) {
+        response.status(INVALID_PAYLOAD);
+        response.json({
+          error: {
+            status: INVALID_PAYLOAD,
+            message:
+              'Nazar battu SVG must be one graphic under 2 KB, using only basic shapes. Scripts, links, and styles are not allowed.'
+          }
+        });
+        return;
+      }
+      body.nazarBattuSvg = clean;
+    }
+  }
   const { warnings } = validateLanguageSettings(body);
   const connection = await getConnection();
   try {

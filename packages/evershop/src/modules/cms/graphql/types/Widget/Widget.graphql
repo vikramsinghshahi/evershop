@@ -618,6 +618,40 @@ type ContactFormWidget {
   consentText: String
 }
 
+type TermsPageWidget {
+  eyebrow: String
+  title: String
+  intro: String
+  heroImage: String
+  heroCaption: String
+  section1Title: String
+  section1Body: String
+  section2Title: String
+  section2Body: String
+  section3Title: String
+  section3Body: String
+  section4Title: String
+  section4Body: String
+  section5Title: String
+  section5Body: String
+  section6Title: String
+  section6Body: String
+  section7Title: String
+  section7Body: String
+  section8Title: String
+  section8Body: String
+  section9Title: String
+  section9Body: String
+  section10Title: String
+  section10Body: String
+  closeKicker: String
+  closeBrand: String
+  value1: String
+  value2: String
+  value3: String
+  value4: String
+}
+
 type AboutStoryWidget {
   headline: String
   lede: String
@@ -954,4 +988,37 @@ extend type Query {
     heroImage: String
     sideImage: String
   ): ContactDetailsWidget
+  termsPageWidget(
+    eyebrow: String
+    title: String
+    intro: String
+    heroImage: String
+    heroCaption: String
+    section1Title: String
+    section1Body: String
+    section2Title: String
+    section2Body: String
+    section3Title: String
+    section3Body: String
+    section4Title: String
+    section4Body: String
+    section5Title: String
+    section5Body: String
+    section6Title: String
+    section6Body: String
+    section7Title: String
+    section7Body: String
+    section8Title: String
+    section8Body: String
+    section9Title: String
+    section9Body: String
+    section10Title: String
+    section10Body: String
+    closeKicker: String
+    closeBrand: String
+    value1: String
+    value2: String
+    value3: String
+    value4: String
+  ): TermsPageWidget
 }

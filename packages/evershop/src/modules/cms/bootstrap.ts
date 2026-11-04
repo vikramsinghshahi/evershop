@@ -14,6 +14,7 @@ import { registerDefaultWidgetCollectionFilters } from '../../modules/cms/servic
 import { Route } from '../../types/route.js';
 import { ABOUT_STORY_DEFAULTS } from './services/aboutStoryDefaults.js';
 import { CONTACT_PAGE_DEFAULTS } from './services/contactPageDefaults.js';
+import { TERMS_PAGE_DEFAULTS } from './services/termsPageDefaults.js';
 import { registerDefaultContactSubmissionFilters } from './services/contact/registerDefaultContactSubmissionFilters.js';
 import {
   azureFileBrowser,
@@ -619,6 +620,11 @@ export default async (context: { command?: string } = {}) => {
           title: 'Policies',
           links: [
             { id: 'lnk-about', label: 'About us', url: '/about-us' },
+            {
+              id: 'lnk-terms',
+              label: 'Terms & Conditions',
+              url: '/terms-and-conditions'
+            },
             {
               id: 'lnk-cut',
               label: 'Cut fabric is not returnable',
@@ -1744,6 +1750,39 @@ export default async (context: { command?: string } = {}) => {
     graphql: {
       typeDefs: stringSettingType('ContactDetailsSettings', contactPageKeys),
       settingsType: 'ContactDetailsSettings'
+    }
+  });
+
+  const termsPageKeys = Object.keys(TERMS_PAGE_DEFAULTS);
+  registerWidget({
+    type: 'terms_page',
+    settingComponent: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/TermsPageSetting.js'
+    ),
+    component: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/TermsPage.js'
+    ),
+    previewComponent: path.resolve(
+      CONSTANTS.MODULESPATH,
+      'cms/components/TermsPagePreview.js'
+    ),
+    name: 'Terms and conditions',
+    description:
+      'The Terms & Conditions page. Edit the wording here. Turn the page on or off under CMS → Pages.',
+    category: 'content',
+    icon: 'BookOpen',
+    defaultSettings: TERMS_PAGE_DEFAULTS,
+    enabled: true,
+    schema: {
+      type: 'object',
+      additionalProperties: true,
+      properties: stringSettingSchema(termsPageKeys)
+    },
+    graphql: {
+      typeDefs: stringSettingType('TermsPageSettings', termsPageKeys),
+      settingsType: 'TermsPageSettings'
     }
   });
 

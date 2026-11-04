@@ -378,6 +378,8 @@ interface StoreSettingProps {
     socialSharingImage?: string;
     gaMeasurementId?: string;
     allowGuestCheckout?: boolean;
+    nazarBattuVisible?: boolean;
+    nazarBattuSvg?: string | null;
   };
 }
 
@@ -418,7 +420,9 @@ export default function StoreSetting({
     favicon,
     socialSharingImage,
     gaMeasurementId,
-    allowGuestCheckout
+    allowGuestCheckout,
+    nazarBattuVisible,
+    nazarBattuSvg
   }
 }: StoreSettingProps) {
   const [selectedCountry, setSelectedCountry] = React.useState(() => {
@@ -745,6 +749,31 @@ export default function StoreSetting({
                     />
                   </div>
                   <div>
+                    <div className="font-medium mb-1">{_('Nazar battu')}</div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {_(
+                        'A small charm on a thread under the logo, on the left of the navigation bar. Clicking it makes the charm bounce.'
+                      )}
+                    </p>
+                    <ToggleField
+                      name="nazarBattuVisible"
+                      label={_('Show on the storefront')}
+                      defaultValue={nazarBattuVisible !== false}
+                    />
+                    <TextareaField
+                      name="nazarBattuSvg"
+                      label={_('Replacement SVG')}
+                      rows={4}
+                      maxLength={2048}
+                      placeholder={'<svg viewBox="0 0 48 48">...</svg>'}
+                      defaultValue={nazarBattuSvg || ''}
+                      helperText={_(
+                        'Leave empty to keep the built-in charm. A replacement is one SVG under 2 KB, made of basic shapes only.'
+                      )}
+                      wrapperClassName="mt-4"
+                    />
+                  </div>
+                  <div>
                     <div className="font-medium mb-1">{_('Favicon')}</div>
                     <p className="text-sm text-muted-foreground mb-3">
                       {_(
@@ -885,6 +914,8 @@ export const query = `
       favicon
       socialSharingImage
       gaMeasurementId
+      nazarBattuVisible
+      nazarBattuSvg
       allowGuestCheckout
     }
   }

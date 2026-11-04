@@ -17,12 +17,12 @@ function ProductPreview({ product }: { product: ApplyFabricProduct }) {
   const src = applyFabricProductPreview(product.image, 640);
 
   return (
-    <div className="mt-3 flex min-h-44 w-full items-center justify-center rounded-lg border border-border bg-background px-4 py-6">
+    <div className="mt-3 flex min-h-44 w-full min-w-0 items-center justify-center rounded-lg border border-border bg-background px-4 py-6 lg:min-h-0 lg:flex-1 lg:py-3">
       {src && !broken ? (
         <img
           src={src}
           alt={product.name}
-          className="max-h-40 max-w-full object-contain"
+          className="max-h-40 max-w-full object-contain lg:max-h-full"
           onError={() => setBroken(true)}
         />
       ) : (
@@ -87,8 +87,8 @@ export function ApplyFabricProductCard({
   const locked = Boolean(disabled);
 
   return (
-    <section className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-center justify-between gap-3">
+    <section className="flex min-w-0 max-w-full flex-col rounded-lg border border-border bg-card p-4 lg:min-h-0 lg:flex-1 lg:p-3">
+      <div className="flex shrink-0 items-center justify-between gap-3">
         <h2 className="text-base font-semibold tracking-tight">Product</h2>
         {selected ? (
           <button
@@ -106,16 +106,16 @@ export function ApplyFabricProductCard({
       {selected ? (
         <ProductPreview product={selected} />
       ) : (
-        <div className="mt-3 flex min-h-44 w-full items-center justify-center rounded-lg border border-dashed border-border bg-background px-4 py-6 text-center">
+        <div className="mt-3 flex min-h-44 w-full min-w-0 items-center justify-center rounded-lg border border-dashed border-border bg-background px-4 py-6 text-center lg:min-h-0 lg:flex-1 lg:py-3">
           <p className="text-sm text-muted-foreground">{APPLY_FABRIC_PRODUCT_CHOICES}</p>
         </div>
       )}
       {selected ? (
-        <p className="mt-2 truncate text-xs text-muted-foreground">{selected.name}</p>
+        <p className="mt-2 shrink-0 truncate text-xs text-muted-foreground">{selected.name}</p>
       ) : null}
-      <div className="mt-3">
+      <div className="mt-3 shrink-0">
         <p className="mb-2 text-xs text-muted-foreground">Choose a product</p>
-        <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Products">
+        <div className="flex w-full min-w-0 flex-wrap gap-2 pb-1" role="group" aria-label="Products">
           {APPLY_FABRIC_PRODUCTS.map((item) => (
             <ProductChoice
               key={item.id}

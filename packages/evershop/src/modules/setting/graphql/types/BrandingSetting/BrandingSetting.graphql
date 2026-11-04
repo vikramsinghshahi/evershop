@@ -26,4 +26,12 @@ extend type Setting {
   Google Analytics 4 Measurement ID (e.g. `G-XXXXXXXXXX`). Empty disables it.
   """
   gaMeasurementId: String
+  """
+  When false, the charm under the logo is hidden. Unset shows it.
+  """
+  nazarBattuVisible: Boolean
+  """
+  Optional replacement for the hanging charm. Empty uses the built-in mark.
+  """
+  nazarBattuSvg: String
 }

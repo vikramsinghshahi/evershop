@@ -37,11 +37,47 @@ function centimetreMarks(spanCm: number) {
   return { marks, labels };
 }
 
+function useRulerSize(axis: 'width' | 'height') {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [size, setSize] = React.useState(0);
+  React.useLayoutEffect(() => {
+    const node = ref.current;
+    if (!node) {
+      return undefined;
+    }
+    const measure = () => setSize(axis === 'width' ? node.clientWidth : node.clientHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [axis]);
+  return { ref, size };
+}
+
+/** Drop labels that would land on the end mark or on each other. */
+function labelsThatFit(labels: number[], spanCm: number, sizePx: number) {
+  if (sizePx <= 0) {
+    return labels;
+  }
+  const gap = 34;
+  const kept: number[] = [];
+  labels.forEach((cm) => {
+    const px = (cm / spanCm) * sizePx;
+    const previous = kept.length === 0 ? -gap : (kept[kept.length - 1] / spanCm) * sizePx;
+    if (px - previous >= gap && sizePx - px >= gap) {
+      kept.push(cm);
+    }
+  });
+  return kept;
+}
+
 function VerticalRuler({ spanCm }: { spanCm: number }) {
   const { marks, labels } = centimetreMarks(spanCm);
+  const { ref, size } = useRulerSize('height');
+  const fitted = labelsThatFit(labels, spanCm, size);
 
   return (
-    <div className="relative h-full w-full bg-neutral-50" aria-hidden="true">
+    <div ref={ref} className="relative h-full w-full overflow-hidden bg-neutral-50" aria-hidden="true">
       <span className="absolute bottom-0 right-0 top-0 w-px bg-neutral-400" />
       {marks.map(({ cm, major }) => (
         <span
@@ -51,7 +87,7 @@ function VerticalRuler({ spanCm }: { spanCm: number }) {
         />
       ))}
       <span className="absolute bottom-0 right-0 h-px w-2.5 bg-neutral-500" />
-      {labels.map((cm) => (
+      {fitted.map((cm) => (
         <span
           key={`label-${cm}`}
           className="absolute right-3.5 text-[11px] leading-none tabular-nums text-neutral-600"
@@ -72,9 +108,11 @@ function VerticalRuler({ spanCm }: { spanCm: number }) {
 
 function HorizontalRuler({ spanCm }: { spanCm: number }) {
   const { marks, labels } = centimetreMarks(spanCm);
+  const { ref, size } = useRulerSize('width');
+  const fitted = labelsThatFit(labels, spanCm, size);
 
   return (
-    <div className="relative h-9 min-w-0 bg-neutral-50" aria-hidden="true">
+    <div ref={ref} className="relative h-9 min-w-0 overflow-hidden bg-neutral-50" aria-hidden="true">
       <span className="absolute bottom-0 left-0 right-0 h-px bg-neutral-400" />
       {marks.map(({ cm, major }) => (
         <span
@@ -84,7 +122,7 @@ function HorizontalRuler({ spanCm }: { spanCm: number }) {
         />
       ))}
       <span className="absolute bottom-0 right-0 h-2.5 w-px bg-neutral-500" />
-      {labels.map((cm) => (
+      {fitted.map((cm) => (
         <span
           key={`label-${cm}`}
           className="absolute bottom-3.5 text-[11px] leading-none tabular-nums text-neutral-600"
@@ -132,8 +170,8 @@ export function ApplyFabricDesignFrame({
   const sizeCm = printSizeCm(scale);
 
   return (
-    <div className="min-w-0">
-      <div className="grid w-full grid-cols-[2.75rem_minmax(0,1fr)] border border-border">
+    <div className="flex min-h-0 min-w-0 flex-col lg:h-full lg:flex-1">
+      <div className="grid w-full min-w-0 grid-cols-[2.75rem_minmax(0,1fr)] border border-border lg:min-h-0 lg:flex-1 lg:grid-rows-[2.25rem_minmax(0,1fr)]">
         <div className="relative h-9 bg-neutral-50">
           <span className="absolute left-1.5 top-1 text-[11px] leading-none text-neutral-500">cm</span>
         </div>
@@ -141,7 +179,7 @@ export function ApplyFabricDesignFrame({
         <VerticalRuler spanCm={DOWN_CM} />
         <button
           type="button"
-          className="relative aspect-square min-w-0 cursor-pointer overflow-hidden bg-white text-left"
+          className="relative aspect-square min-h-0 min-w-0 cursor-pointer overflow-hidden bg-white text-left lg:aspect-auto lg:h-full"
           aria-label={`Replace ${name}`}
           disabled={disabled}
           onClick={onReplace}
@@ -160,7 +198,7 @@ export function ApplyFabricDesignFrame({
           </span>
         </button>
       </div>
-      <div className="mt-3 min-w-0">
+      <div className="mt-3 min-w-0 shrink-0">
         <div className="mb-2 flex items-baseline justify-between gap-3">
           <span className="text-xs font-semibold tracking-wide">IMAGE SCALE</span>
           <span className="text-sm font-semibold tabular-nums">{scale}%</span>

@@ -1085,6 +1085,9 @@ export default {
     aboutStoryWidget(_, args) {
       return stringSettings(args);
     },
+    termsPageWidget(_, args) {
+      return stringSettings(args);
+    },
     contactDetailsWidget: async (_, args, { pool }) => {
       return {
         ...stringSettings(args),

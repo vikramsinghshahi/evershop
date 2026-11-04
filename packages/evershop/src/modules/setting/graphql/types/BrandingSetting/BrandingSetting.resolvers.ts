@@ -1,4 +1,6 @@
-import { Setting } from '../../../services/setting.js';
+import { toBoolean } from '../../../../../lib/util/coerce.js';
+import { sanitizeNazarBattuSvg } from '../../../services/nazarBattuSvg.js';
+import type { Setting } from '../../../services/setting.js';
 
 /**
  * Read a single `setting` row value from the rows array resolved by
@@ -20,6 +22,20 @@ export default {
     socialSharingImage: (setting: Setting[]) =>
       readValue(setting, 'socialSharingImage'),
     gaMeasurementId: (setting: Setting[]) =>
-      readValue(setting, 'gaMeasurementId')
+      readValue(setting, 'gaMeasurementId'),
+    nazarBattuVisible: (setting: Setting[]) => {
+      const row = setting.find((s) => s.name === 'nazarBattuVisible');
+      if (
+        !row ||
+        row.value === null ||
+        row.value === undefined ||
+        row.value === ''
+      ) {
+        return true;
+      }
+      return toBoolean(row.value);
+    },
+    nazarBattuSvg: (setting: Setting[]) =>
+      sanitizeNazarBattuSvg(readValue(setting, 'nazarBattuSvg') ?? '')
   }
 };

@@ -1,4 +1,5 @@
 import { BharatLogo } from '@components/frontStore/BharatLogo.js';
+import { NazarBattu } from '@components/frontStore/NazarBattu.js';
 import React from 'react';
 
 interface LogoProps {
@@ -7,6 +8,8 @@ interface LogoProps {
     logoWidth?: string | null;
     logoHeight?: string | null;
     storeName?: string | null;
+    nazarBattuVisible?: boolean | null;
+    nazarBattuSvg?: string | null;
   };
 }
 
@@ -32,8 +35,9 @@ export default function Logo({ setting }: LogoProps) {
     ? `/images?src=${encodeURIComponent(logo)}&w=${requestWidth}&q=85&f=webp`
     : undefined;
   const storeName = setting?.storeName || 'Bharat Textile';
+  const showCharm = setting?.nazarBattuVisible !== false;
   return (
-    <div className="logo flex shrink-0 items-center">
+    <div className="logo relative flex shrink-0 items-center overflow-visible">
       {optimizedSrc && (
         <a href="/" className="logo-icon" aria-label={`${storeName} – home`}>
           <img
@@ -50,6 +54,7 @@ export default function Logo({ setting }: LogoProps) {
           <BharatLogo />
         </a>
       )}
+      {showCharm && <NazarBattu svg={setting?.nazarBattuSvg} />}
     </div>
   );
 }
@@ -66,6 +71,8 @@ export const query = `
       logoWidth
       logoHeight
       storeName
+      nazarBattuVisible
+      nazarBattuSvg
     }
   }
 `;

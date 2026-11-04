@@ -66,9 +66,9 @@ function SampleStrip({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mt-3">
+    <div className="mt-3 min-w-0 shrink-0">
       <p className="mb-2 text-xs text-muted-foreground">{label}</p>
-      <div className="flex gap-2 overflow-x-auto pb-1">{children}</div>
+      <div className="flex w-full min-w-0 gap-2 overflow-x-auto pb-1">{children}</div>
     </div>
   );
 }
@@ -140,8 +140,8 @@ function UploadCard({
   };
   const framed = Boolean(picked && onScale && typeof scale === 'number');
   return (
-    <section className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-center justify-between gap-3">
+    <section className="flex min-w-0 max-w-full flex-col rounded-lg border border-border bg-card p-4 lg:h-full lg:min-h-0 lg:p-3">
+      <div className="flex shrink-0 items-center justify-between gap-3">
         <h2 className="text-base font-semibold tracking-tight">{title}</h2>
         {picked ? (
           <button
@@ -157,7 +157,7 @@ function UploadCard({
         ) : null}
       </div>
       {framed && picked && onScale && typeof scale === 'number' ? (
-        <div className="mt-3">
+        <div className="mt-3 flex min-h-0 min-w-0 flex-col lg:min-h-0 lg:flex-1">
           <ApplyFabricDesignFrame
             image={picked.objectUrl ? picked.preview : thumb(picked.preview, 800)}
             name={picked.name}
@@ -171,7 +171,7 @@ function UploadCard({
       <button
         type="button"
         aria-label={title}
-        className="mt-3 flex min-h-44 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border bg-background px-4 py-6 text-center hover:border-foreground/40"
+        className="mt-3 flex min-h-44 w-full min-w-0 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border bg-background px-4 py-6 text-center hover:border-foreground/40 lg:min-h-0 lg:flex-1"
         onClick={openFile}
       >
         {picked ? (
@@ -206,7 +206,7 @@ function UploadCard({
         }}
       />
       {picked ? (
-        <p className="mt-2 truncate text-xs text-muted-foreground">{picked.name}</p>
+        <p className="mt-2 shrink-0 truncate text-xs text-muted-foreground">{picked.name}</p>
       ) : null}
       {samples}
     </section>
@@ -361,16 +361,16 @@ export default function ApplyFabric() {
   const ready = Boolean(design && productId);
 
   return (
-    <div className="apply-fabric py-6">
-      <div className="mb-5">
-        <h1 className="text-3xl font-semibold tracking-tight">Apply fabric</h1>
+    <div className="apply-fabric flex min-w-0 max-w-full flex-col py-4 lg:h-[calc(100dvh-12rem)] lg:py-3">
+      <div className="mb-3 shrink-0 lg:mb-2">
+        <h1 className="text-2xl font-semibold tracking-tight lg:text-3xl">Apply fabric</h1>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
           Choose a design and a product. The finished image appears on the right, ready to download.
         </p>
       </div>
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
-        <div className="flex flex-col gap-4">
+      <div className="grid min-w-0 max-w-full items-start gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-3 lg:items-stretch lg:gap-3">
+        <div className="flex min-w-0 max-w-full flex-col lg:h-full lg:min-h-0">
           <UploadCard
             title="Upload design"
             hint="PNG, JPG or WebP"
@@ -402,7 +402,9 @@ export default function ApplyFabric() {
               </SampleStrip>
             }
           />
+        </div>
 
+        <div className="flex min-w-0 max-w-full flex-col gap-3 lg:h-full lg:min-h-0">
           <ApplyFabricProductCard
             selectedId={productId}
             disabled={busy}
@@ -413,7 +415,7 @@ export default function ApplyFabric() {
           <Button
             type="button"
             size="xl"
-            className="w-full cursor-pointer"
+            className="w-full shrink-0 cursor-pointer"
             disabled={!ready || busy}
             onClick={generate}
           >
@@ -423,7 +425,7 @@ export default function ApplyFabric() {
         </div>
 
         <section
-          className="flex min-h-[32rem] flex-col rounded-lg border border-border bg-card p-4"
+          className="flex min-h-72 min-w-0 max-w-full flex-col rounded-lg border border-border bg-card p-4 lg:h-full lg:min-h-0 lg:p-3"
           aria-busy={busy}
         >
           <div className="mb-3 flex items-center justify-between gap-3">
@@ -440,7 +442,7 @@ export default function ApplyFabric() {
               </Button>
             ) : null}
           </div>
-          <div className="flex flex-1 items-center justify-center rounded-lg bg-background p-4">
+          <div className="flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden rounded-lg bg-background p-4">
             {busy ? (
               <div className="w-full max-w-sm text-center" role="status">
                 <Spinner className="mx-auto size-10 text-primary" />
@@ -462,7 +464,7 @@ export default function ApplyFabric() {
               <img
                 src={result.image}
                 alt="Design applied to the product"
-                className="max-h-[40rem] w-full object-contain"
+                className="max-h-full max-w-full object-contain"
               />
             ) : (
               <div className="max-w-sm text-center">
