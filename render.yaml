@@ -40,11 +40,11 @@ services:
           property: password
       - key: DB_SSLMODE
         value: disable
+      # RENDER_EXTERNAL_URL stays the onrender.com host after a custom
+      # domain is added. Login and other API links are absolute, so they
+      # must use the public domain or the browser blocks them as cross-origin.
       - key: EVERSHOP_HOME_URL
-        fromService:
-          name: evershop
-          type: web
-          envVarKey: RENDER_EXTERNAL_URL
+        value: https://bharattextileindia.com
       - key: JWT_ADMIN_SECRET
         generateValue: true
       - key: JWT_ADMIN_REFRESH_SECRET
