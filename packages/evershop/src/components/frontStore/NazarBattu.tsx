@@ -57,12 +57,12 @@ const CSS = `
 }
 `;
 
-/** Built-in charm: a thread, a dark face, and a tongue. No image file. */
+/** Built-in charm: a thread and a blue evil eye with a black center. No image file. */
 function NazarBattuMark() {
   return (
     <svg
       className="nazar-battu__mark"
-      viewBox="0 0 48 78"
+      viewBox="0 0 48 72"
       fill="none"
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
@@ -71,49 +71,16 @@ function NazarBattuMark() {
         x1="24"
         y1="0.5"
         x2="24"
-        y2="15"
+        y2="14"
         stroke="#e07068"
         strokeWidth="1.25"
         strokeLinecap="round"
       />
-      <circle cx="24" cy="15.6" r="1.35" fill="#c4564c" />
-      <path
-        fill="#1c1614"
-        d="M19.2 20.6c.6-3.8 2.5-5.8 4.8-6.4 2.3.6 4.2 2.6 4.8 6.4-1.4-1.1-3-1.6-4.8-1.6s-3.4.5-4.8 1.6z"
-      />
-      <path
-        fill="#1c1614"
-        stroke="#c4a574"
-        strokeWidth="1.15"
-        d="M24 20.2c-9 .2-14.6 7-14.6 15.8 0 8.4 6 14.8 14.6 16.2 8.6-1.4 14.6-7.8 14.6-16.2 0-8.8-5.6-15.6-14.6-15.8z"
-      />
-      <path
-        d="M12.2 27.2c2.3-1.7 5.8-1.5 8 .4"
-        stroke="#e7d3ae"
-        strokeWidth="1"
-        strokeLinecap="round"
-      />
-      <path
-        d="M27.6 27.6c2.1-1.7 5.2-1.4 7.3.5"
-        stroke="#e7d3ae"
-        strokeWidth="1"
-        strokeLinecap="round"
-      />
-      <ellipse cx="17.4" cy="34" rx="5.3" ry="5.8" fill="#f7f3ea" />
-      <ellipse cx="30.5" cy="34.4" rx="4.9" ry="5.4" fill="#f7f3ea" />
-      <circle cx="18" cy="34.6" r="2.4" fill="#161311" />
-      <circle cx="30.9" cy="35" r="2.25" fill="#161311" />
-      <circle cx="18.9" cy="33.5" r="0.8" fill="#fff" />
-      <circle cx="31.7" cy="33.9" r="0.7" fill="#fff" />
-      <circle cx="11.4" cy="40" r="0.75" fill="#c4a574" />
-      <circle cx="36.4" cy="40.4" r="0.75" fill="#c4a574" />
-      <path
-        d="M18.6 43.8c1.7 1.9 3.4 2.8 5.4 2.8s3.7-.9 5.4-2.8"
-        stroke="#f7f3ea"
-        strokeWidth="1.05"
-        strokeLinecap="round"
-      />
-      <ellipse cx="24" cy="49.2" rx="2.2" ry="3.2" fill="#d24b3a" />
+      <circle cx="24" cy="14.6" r="1.35" fill="#c4564c" />
+      <circle cx="24" cy="36" r="16.5" fill="#1a4fbf" />
+      <circle cx="24" cy="36" r="11.2" fill="#3d8ef0" />
+      <circle cx="24" cy="36" r="6.6" fill="#f4f8ff" />
+      <circle cx="24" cy="36" r="3.4" fill="#111111" />
     </svg>
   );
 }
