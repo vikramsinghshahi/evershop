@@ -36,7 +36,7 @@ const CSS = `
 .nazar-battu__mark,
 .nazar-battu__custom svg {
   display: block;
-  width: 2.4rem;
+  width: 1.4rem;
   height: auto;
 }
 .nazar-battu__thread {
