@@ -1,9 +1,19 @@
 import { Button } from '@components/common/ui/Button.js';
 import { Spinner } from '@components/common/ui/Spinner.js';
+import { useCustomer } from '@components/frontStore/customer/CustomerContext.js';
 import { Download, ImagePlus, Trash2 } from 'lucide-react';
 import React from 'react';
 import { ApplyFabricDesignFrame } from '../../../components/ApplyFabricDesignFrame.js';
 import { ApplyFabricProductCard } from '../../../components/ApplyFabricProductCard.js';
+import { ApplyFabricSignIn } from '../../../components/ApplyFabricSignIn.js';
+import {
+  canShowApplyFabricResult,
+  holdApplyFabricResult,
+  readApplyFabricResult,
+  readHeldApplyFabricResult,
+  readStoredApplyFabricResult,
+  type ApplyFabricResult
+} from '../../../services/applyFabricGate.js';
 import {
   DEFAULT_APPLY_FABRIC_PRODUCT_ID,
   type ApplyFabricProductId
@@ -40,22 +50,28 @@ function revoke(picked: Picked | null) {
   }
 }
 
-function saveDataUrl(dataUrl: string, filename: string) {
-  const comma = dataUrl.indexOf(',');
-  const header = dataUrl.slice(0, comma);
-  const encoded = dataUrl.slice(comma + 1);
-  const mime = header.match(/data:([^;]+)/)?.[1] || 'image/png';
-  const binary = atob(encoded);
-  const bytes = new Uint8Array(binary.length);
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
+function saveDataUrl(dataUrl: string, filename: string): boolean {
+  try {
+    const comma = dataUrl.indexOf(',');
+    if (comma < 0) return false;
+    const header = dataUrl.slice(0, comma);
+    const encoded = dataUrl.slice(comma + 1);
+    const mime = header.match(/data:([^;]+)/)?.[1] || 'image/png';
+    const binary = atob(encoded);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+    return true;
+  } catch {
+    return false;
   }
-  const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
 }
 
 function SampleStrip({
@@ -68,7 +84,9 @@ function SampleStrip({
   return (
     <div className="mt-3 min-w-0 shrink-0">
       <p className="mb-2 text-xs text-muted-foreground">{label}</p>
-      <div className="flex w-full min-w-0 gap-2 overflow-x-auto pb-1">{children}</div>
+      <div className="flex w-full min-w-0 gap-2 overflow-x-auto pb-1">
+        {children}
+      </div>
     </div>
   );
 }
@@ -95,7 +113,9 @@ function SampleButton({
       aria-label={name}
       aria-pressed={selected}
       className={`size-16 shrink-0 cursor-pointer overflow-hidden rounded-md border bg-muted ${
-        selected ? 'border-primary ring-2 ring-primary' : 'border-border hover:border-foreground/40'
+        selected
+          ? 'border-primary ring-2 ring-primary'
+          : 'border-border hover:border-foreground/40'
       }`}
       onClick={onSelect}
     >
@@ -159,7 +179,9 @@ function UploadCard({
       {framed && picked && onScale && typeof scale === 'number' ? (
         <div className="mt-3 flex min-h-0 min-w-0 flex-col lg:min-h-0 lg:flex-1">
           <ApplyFabricDesignFrame
-            image={picked.objectUrl ? picked.preview : thumb(picked.preview, 800)}
+            image={
+              picked.objectUrl ? picked.preview : thumb(picked.preview, 800)
+            }
             name={picked.name}
             scale={scale}
             disabled={clearDisabled}
@@ -168,28 +190,30 @@ function UploadCard({
           />
         </div>
       ) : (
-      <button
-        type="button"
-        aria-label={title}
-        className="mt-3 flex min-h-44 w-full min-w-0 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border bg-background px-4 py-6 text-center hover:border-foreground/40 lg:min-h-0 lg:flex-1"
-        onClick={openFile}
-      >
-        {picked ? (
-          <img
-            src={picked.objectUrl ? picked.preview : thumb(picked.preview, 640)}
-            alt=""
-            className="max-h-40 max-w-full object-contain"
-          />
-        ) : (
-          <>
-            <span className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
-              <ImagePlus className="size-6" aria-hidden="true" />
-            </span>
-            <span className="mt-3 text-sm font-medium">Click to upload</span>
-            <span className="mt-1 text-xs text-muted-foreground">{hint}</span>
-          </>
-        )}
-      </button>
+        <button
+          type="button"
+          aria-label={title}
+          className="mt-3 flex min-h-44 w-full min-w-0 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border bg-background px-4 py-6 text-center hover:border-foreground/40 lg:min-h-0 lg:flex-1"
+          onClick={openFile}
+        >
+          {picked ? (
+            <img
+              src={
+                picked.objectUrl ? picked.preview : thumb(picked.preview, 640)
+              }
+              alt=""
+              className="max-h-40 max-w-full object-contain"
+            />
+          ) : (
+            <>
+              <span className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                <ImagePlus className="size-6" aria-hidden="true" />
+              </span>
+              <span className="mt-3 text-sm font-medium">Click to upload</span>
+              <span className="mt-1 text-xs text-muted-foreground">{hint}</span>
+            </>
+          )}
+        </button>
       )}
       <input
         ref={inputRef}
@@ -206,7 +230,9 @@ function UploadCard({
         }}
       />
       {picked ? (
-        <p className="mt-2 shrink-0 truncate text-xs text-muted-foreground">{picked.name}</p>
+        <p className="mt-2 shrink-0 truncate text-xs text-muted-foreground">
+          {picked.name}
+        </p>
       ) : null}
       {samples}
     </section>
@@ -214,6 +240,8 @@ function UploadCard({
 }
 
 export default function ApplyFabric() {
+  const { customer } = useCustomer();
+  const signedIn = Boolean(customer?.uuid);
   const [designs, setDesigns] = React.useState<LibraryDesign[]>([]);
   const [designsFailed, setDesignsFailed] = React.useState(false);
   const [design, setDesign] = React.useState<Picked | null>(null);
@@ -221,17 +249,49 @@ export default function ApplyFabric() {
   const [productId, setProductId] = React.useState<ApplyFabricProductId | null>(
     DEFAULT_APPLY_FABRIC_PRODUCT_ID
   );
-  const [result, setResult] = React.useState<{ image: string; filename: string } | null>(null);
+  const [result, setResult] = React.useState<ApplyFabricResult | null>(
+    readHeldApplyFabricResult
+  );
   const [error, setError] = React.useState('');
   const [busy, setBusy] = React.useState(false);
+  const [gateOpen, setGateOpen] = React.useState(false);
+  const [gateDismissed, setGateDismissed] = React.useState(false);
   const designRef = React.useRef<Picked | null>(null);
   designRef.current = design;
+
+  const keepResult = (next: ApplyFabricResult | null) => {
+    holdApplyFabricResult(next);
+    setResult(next);
+    setGateDismissed(false);
+    if (!next) setGateOpen(false);
+  };
+
+  const closeGate = React.useCallback(() => {
+    setGateOpen(false);
+    setGateDismissed(true);
+  }, []);
+
+  React.useEffect(() => {
+    const stored = readStoredApplyFabricResult();
+    if (stored) setResult(stored);
+  }, []);
+
+  React.useEffect(() => {
+    if (signedIn) {
+      setGateOpen(false);
+      return;
+    }
+    if (busy || !result || gateDismissed) return;
+    setGateOpen(true);
+  }, [signedIn, busy, result, gateDismissed]);
 
   React.useEffect(() => {
     const controller = new AbortController();
     fetch(`${CATALOG_API}?limit=12&sort=new`, { signal: controller.signal })
       .then(async (response) => {
-        const json = (await response.json()) as { data?: { items?: LibraryDesign[] } };
+        const json = (await response.json()) as {
+          data?: { items?: LibraryDesign[] };
+        };
         if (!response.ok || !json.data?.items) {
           throw new Error('catalog');
         }
@@ -254,7 +314,8 @@ export default function ApplyFabric() {
       return;
     }
     const allowed =
-      ACCEPT.split(',').includes(file.type) || /\.(png|jpe?g|webp)$/i.test(file.name);
+      ACCEPT.split(',').includes(file.type) ||
+      /\.(png|jpe?g|webp)$/i.test(file.name);
     if (!allowed) {
       setError('Upload a PNG, JPG, or WebP image.');
       return;
@@ -264,7 +325,7 @@ export default function ApplyFabric() {
       return;
     }
     setError('');
-    setResult(null);
+    keepResult(null);
     const objectUrl = URL.createObjectURL(file);
     const picked: Picked = {
       preview: objectUrl,
@@ -281,7 +342,7 @@ export default function ApplyFabric() {
       return;
     }
     setError('');
-    setResult(null);
+    keepResult(null);
     revoke(design);
     setDesign({ preview: item.image, name: item.name, designId: item.uuid });
   };
@@ -291,7 +352,7 @@ export default function ApplyFabric() {
       return;
     }
     setError('');
-    setResult(null);
+    keepResult(null);
     setProductId(id);
   };
 
@@ -302,7 +363,7 @@ export default function ApplyFabric() {
     revoke(design);
     setDesign(null);
     setDesignScale(100);
-    setResult(null);
+    keepResult(null);
     setError('');
   };
 
@@ -311,7 +372,7 @@ export default function ApplyFabric() {
       return;
     }
     setDesignScale(next);
-    setResult(null);
+    keepResult(null);
     setError('');
   };
 
@@ -320,7 +381,7 @@ export default function ApplyFabric() {
       return;
     }
     setProductId(null);
-    setResult(null);
+    keepResult(null);
     setError('');
   };
 
@@ -344,28 +405,39 @@ export default function ApplyFabric() {
         data?: { image?: string; filename?: string };
         error?: { message?: string };
       };
-      if (!response.ok || !json.data?.image) {
-        throw new Error(json.error?.message || 'The design could not be applied.');
-      }
-      setResult({
-        image: json.data.image,
-        filename: json.data.filename || 'applied-fabric.png'
+      const next = readApplyFabricResult({
+        image: json.data?.image,
+        filename: json.data?.filename || 'applied-fabric.png'
       });
+      if (!response.ok || !next) {
+        throw new Error(
+          json.error?.message || 'The design could not be applied.'
+        );
+      }
+      keepResult(next);
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : 'The design could not be applied.');
+      setError(
+        failure instanceof Error
+          ? failure.message
+          : 'The design could not be applied.'
+      );
     } finally {
       setBusy(false);
     }
   };
 
   const ready = Boolean(design && productId);
+  const reveal = canShowApplyFabricResult(signedIn, result);
 
   return (
     <div className="apply-fabric flex min-w-0 max-w-full flex-col py-4 lg:h-[calc(100dvh-12rem)] lg:py-3">
       <div className="mb-3 shrink-0 lg:mb-2">
-        <h1 className="text-2xl font-semibold tracking-tight lg:text-3xl">Apply fabric</h1>
+        <h1 className="text-2xl font-semibold tracking-tight lg:text-3xl">
+          Apply fabric
+        </h1>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Choose a design and a product. The finished image appears on the right, ready to download.
+          Choose a design and a product. Sign in to see the finished image and
+          download it.
         </p>
       </div>
 
@@ -430,12 +502,17 @@ export default function ApplyFabric() {
         >
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-base font-semibold tracking-tight">Result</h2>
-            {result && !busy ? (
+            {reveal && result && !busy ? (
               <Button
                 type="button"
                 variant="outline"
                 className="cursor-pointer"
-                onClick={() => saveDataUrl(result.image, result.filename)}
+                onClick={() => {
+                  if (!canShowApplyFabricResult(signedIn, result)) return;
+                  const saved = saveDataUrl(result.image, result.filename);
+                  if (!saved)
+                    setError('The image could not be downloaded. Try again.');
+                }}
               >
                 <Download className="size-4" aria-hidden="true" />
                 Download
@@ -446,29 +523,55 @@ export default function ApplyFabric() {
             {busy ? (
               <div className="w-full max-w-sm text-center" role="status">
                 <Spinner className="mx-auto size-10 text-primary" />
-                <p className="mt-4 text-lg font-semibold tracking-tight">Applying the design</p>
+                <p className="mt-4 text-lg font-semibold tracking-tight">
+                  Applying the design
+                </p>
                 <p className="mt-2 text-sm text-muted-foreground">
                   The result will show up here. This can take a minute.
                 </p>
                 <div className="relative mt-6 h-1.5 overflow-hidden rounded-full bg-muted">
                   <div
                     className="absolute inset-y-0 w-1/3 rounded-full bg-primary"
-                    style={{ animation: 'apply-fabric-slide 1.2s ease-in-out infinite' }}
+                    style={{
+                      animation: 'apply-fabric-slide 1.2s ease-in-out infinite'
+                    }}
                   />
                 </div>
                 <style>
                   {`@keyframes apply-fabric-slide { 0% { left: -35%; } 100% { left: 100%; } }`}
                 </style>
               </div>
-            ) : result ? (
+            ) : reveal && result ? (
               <img
                 src={result.image}
                 alt="Design applied to the product"
                 className="max-h-full max-w-full object-contain"
               />
+            ) : result ? (
+              <div className="max-w-sm text-center">
+                <p className="text-lg font-semibold tracking-tight">
+                  Sign in to see this design
+                </p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  The image stays here. Sign in or create an account and it
+                  shows up right away.
+                </p>
+                <Button
+                  type="button"
+                  className="mt-4 cursor-pointer"
+                  onClick={() => {
+                    setGateDismissed(false);
+                    setGateOpen(true);
+                  }}
+                >
+                  Sign in
+                </Button>
+              </div>
             ) : (
               <div className="max-w-sm text-center">
-                <p className="text-lg font-semibold tracking-tight">Apply fabric</p>
+                <p className="text-lg font-semibold tracking-tight">
+                  Apply fabric
+                </p>
                 <p className="mt-2 text-sm text-muted-foreground">
                   Apply a design to a product. The result shows up here.
                 </p>
@@ -477,6 +580,9 @@ export default function ApplyFabric() {
           </div>
         </section>
       </div>
+      {gateOpen && !busy && !signedIn ? (
+        <ApplyFabricSignIn onClose={closeGate} />
+      ) : null}
     </div>
   );
 }
