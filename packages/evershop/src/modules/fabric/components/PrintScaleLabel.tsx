@@ -1,8 +1,5 @@
 import { useAppState } from '@components/common/context/app.js';
-import {
-  layoutLabel,
-  type FabricLayoutId
-} from '../services/designCatalog.js';
+import { layoutLabel, type FabricLayoutId } from '../services/designCatalog.js';
 import { formatPrintFee } from '../services/printFee.js';
 import {
   isPlainFabricLine,
@@ -19,9 +16,15 @@ const toneClass = {
 } as const;
 
 export function PrintScaleLabel({
-  value
+  value,
+  showDesignImage = true,
+  showPrintingFee = true
 }: {
   value?: string | null;
+  /** Cart draws the design on the fabric photo, so the extra thumb is omitted there. */
+  showDesignImage?: boolean;
+  /** Storefront hides the fee words. The amount stays inside the line price. */
+  showPrintingFee?: boolean;
 }): React.ReactElement | null {
   const { shopCurrency, locale } = useAppState();
   const size = orderSizeFromOptions(value);
@@ -49,23 +52,26 @@ export function PrintScaleLabel({
         {qualityLabel(stored.quality)}
       </div>
       {sizeText && <div className="text-neutral-700">{sizeText}</div>}
-      {stored.printFee > 0 && (
+      {showPrintingFee && stored.printFee > 0 && (
         <div className="text-neutral-700">Printing fee {printFeeText}</div>
       )}
       {stored.design && (
         <div className="mt-1 flex items-center gap-2 text-neutral-700">
-          <img
-            src={stored.design.image}
-            alt=""
-            className="h-8 w-8 border border-neutral-200 bg-white object-contain"
-          />
+          {showDesignImage && (
+            <img
+              src={stored.design.image}
+              alt=""
+              className="h-8 w-8 border border-neutral-200 bg-white object-contain"
+            />
+          )}
           <span>
             {stored.design.name}
             {stored.design.source === 'designer' && stored.design.designerName
               ? ` by ${stored.design.designerName}`
               : ''}
             {stored.design.designSku ? ` (${stored.design.designSku})` : ''} ·{' '}
-            {layoutLabel(stored.design.layout as FabricLayoutId)} · {stored.design.rotation}°
+            {layoutLabel(stored.design.layout as FabricLayoutId)} ·{' '}
+            {stored.design.rotation}°
           </span>
         </div>
       )}

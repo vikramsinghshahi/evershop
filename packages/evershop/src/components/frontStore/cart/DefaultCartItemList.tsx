@@ -3,6 +3,7 @@ import { Image } from '@components/common/Image.js';
 import { ProductNoThumbnail } from '@components/common/ProductNoThumbnail.js';
 import { useCatalogImageDimensions } from '@components/common/useCatalogImageDimensions.js';
 import { CartItem } from '@components/frontStore/cart/CartContext.js';
+import { FabricCartThumb } from '../../../modules/fabric/components/FabricCartThumb.js';
 import { PrintScaleLabel } from '../../../modules/fabric/components/PrintScaleLabel.js';
 import { ItemQuantity } from '@components/frontStore/cart/ItemQuantity.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
@@ -44,19 +45,30 @@ export const DefaultCartItemList: React.FC<CartItemsTableProps> = ({
           return (
             <div key={row.cartItemId} className="cart__item flex gap-4 py-5">
               <div className="shrink-0">
-                {row.thumbnail ? (
-                  <Image
-                    src={row.thumbnail}
-                    alt={row.productName}
-                    width={thumbSize.width}
-                    height={thumbSize.height}
-                    sizes="100px"
-                    objectFit="cover"
-                    className="h-24 w-24 rounded-lg border border-border"
-                  />
-                ) : (
-                  <ProductNoThumbnail width={96} height={96} />
-                )}
+                <FabricCartThumb
+                  src={row.thumbnail}
+                  alt={row.productName}
+                  width={thumbSize.width}
+                  height={thumbSize.height}
+                  frameClassName="h-24 w-24 rounded-lg border border-border"
+                  options={row.productCustomOptions}
+                  sku={row.productSku}
+                  plain={
+                    row.thumbnail ? (
+                      <Image
+                        src={row.thumbnail}
+                        alt={row.productName}
+                        width={thumbSize.width}
+                        height={thumbSize.height}
+                        sizes="100px"
+                        objectFit="cover"
+                        className="h-24 w-24 rounded-lg border border-border"
+                      />
+                    ) : (
+                      <ProductNoThumbnail width={96} height={96} />
+                    )
+                  }
+                />
               </div>
               <div className="flex flex-1 flex-col">
                 <div className="flex justify-between gap-4">
@@ -78,9 +90,16 @@ export const DefaultCartItemList: React.FC<CartItemsTableProps> = ({
                         {option.attributeName}: {option.optionText}
                       </div>
                     ))}
-                    <PrintScaleLabel value={row.productCustomOptions} />
+                    <PrintScaleLabel
+                      value={row.productCustomOptions}
+                      showDesignImage={false}
+                      showPrintingFee={false}
+                    />
                     {row.errors?.map((error, index) => (
-                      <div key={index} className="mt-0.5 text-xs text-destructive">
+                      <div
+                        key={index}
+                        className="mt-0.5 text-xs text-destructive"
+                      >
                         {error}
                       </div>
                     ))}

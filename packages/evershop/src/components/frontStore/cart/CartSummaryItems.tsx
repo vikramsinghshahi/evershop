@@ -3,6 +3,7 @@ import { ProductNoThumbnail } from '@components/common/ProductNoThumbnail.js';
 import { Skeleton } from '@components/common/ui/Skeleton.js';
 import { useCatalogImageDimensions } from '@components/common/useCatalogImageDimensions.js';
 import { CartItem } from '@components/frontStore/cart/CartContext.js';
+import { FabricCartThumb } from '../../../modules/fabric/components/FabricCartThumb.js';
 import { PrintScaleLabel } from '../../../modules/fabric/components/PrintScaleLabel.js';
 import { _ } from '@evershop/evershop/lib/locale/translate/_';
 import { deriveProductImageSize } from '@evershop/evershop/lib/util/deriveProductImageSize';
@@ -56,19 +57,29 @@ const CartSummaryItemsList: React.FC<{
       {items.map((item) => (
         <li key={item.uuid} className="flex items-start py-3">
           <div className="relative mr-4 self-center">
-            {item.thumbnail && (
-              <Image
-                width={thumbSize.width}
-                height={thumbSize.height}
-                sizes="100px"
-                src={item.thumbnail}
-                alt={item.productName}
-                className="w-16 h-16 object-cover rounded-md border border-border"
-              />
-            )}
-            {!item.thumbnail && (
-              <ProductNoThumbnail className="w-16 h-16 rounded-md border border-border" />
-            )}
+            <FabricCartThumb
+              src={item.thumbnail}
+              alt={item.productName}
+              width={thumbSize.width}
+              height={thumbSize.height}
+              frameClassName="h-16 w-16 rounded-md border border-border"
+              options={item.productCustomOptions}
+              sku={item.productSku}
+              plain={
+                item.thumbnail ? (
+                  <Image
+                    width={thumbSize.width}
+                    height={thumbSize.height}
+                    sizes="100px"
+                    src={item.thumbnail}
+                    alt={item.productName}
+                    className="w-16 h-16 object-cover rounded-md border border-border"
+                  />
+                ) : (
+                  <ProductNoThumbnail className="w-16 h-16 rounded-md border border-border" />
+                )
+              }
+            />
             <span className="absolute -top-2 -right-2 bg-muted-foreground text-white rounded-full h-5 w-5 flex items-center justify-center text-[10px]">
               {item.qty}
             </span>
@@ -87,7 +98,11 @@ const CartSummaryItemsList: React.FC<{
                 ))}
               </div>
             )}
-            <PrintScaleLabel value={item.productCustomOptions} />
+            <PrintScaleLabel
+              value={item.productCustomOptions}
+              showDesignImage={false}
+              showPrintingFee={false}
+            />
           </div>
           <div className="ml-auto text-right self-center">
             <div className="text-sm font-medium tabular-nums">

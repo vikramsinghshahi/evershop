@@ -76,12 +76,6 @@ export function ProductSinglePrice() {
       {swatch != null && (
         <p className="mt-1 text-sm text-muted-foreground">{orderSizeLabel(piece.id)}</p>
       )}
-      {printingFee > 0 && (
-        <p className="mt-1 text-sm text-muted-foreground">
-          Includes printing {formatLike(price.regular.text, printingFee)}
-          {unit ? ` / ${unit}` : ''}
-        </p>
-      )}
     </div>
   );
 }

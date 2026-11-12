@@ -64,7 +64,7 @@ const OrderSummaryItems: React.FC<{
                 ))}
               </div>
             )}
-            <PrintScaleLabel value={item.productCustomOptions} />
+            <PrintScaleLabel value={item.productCustomOptions} showPrintingFee={false} />
           </div>
           <div className="ml-auto text-right self-center">
             <div className="text-sm font-medium">
