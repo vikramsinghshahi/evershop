@@ -23,6 +23,7 @@ npm-debug.log
 !/public/company/
 !/public/apply-fabric/
 !/public/how-to-order/
+!/public/sell-your-design/
 !/public/terms/
 # Source photo library. The app serves the small files in public/company.
 /design/
