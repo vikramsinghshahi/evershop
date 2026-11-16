@@ -1,0 +1,5 @@
+{
+  "methods": ["POST"],
+  "path": "/razorpay/webhook",
+  "access": "public"
+}

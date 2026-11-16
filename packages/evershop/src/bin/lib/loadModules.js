@@ -77,6 +77,11 @@ const coreModules = [
     path: path.resolve(__dirname, '../../modules/stripe')
   },
   {
+    name: 'razorpay',
+    resolve: path.resolve(__dirname, '../../modules/razorpay'),
+    path: path.resolve(__dirname, '../../modules/razorpay')
+  },
+  {
     name: 'tax',
     resolve: path.resolve(__dirname, '../../modules/tax'),
     path: path.resolve(__dirname, '../../modules/tax')

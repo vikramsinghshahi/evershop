@@ -1,0 +1,5 @@
+extend type Setting {
+  razorpayPaymentStatus: Int
+  razorpayDisplayName: String
+  razorpayKeyId: String
+}

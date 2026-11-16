@@ -1,0 +1,5 @@
+{
+  "methods": ["POST"],
+  "path": "/razorpay/orders",
+  "access": "public"
+}

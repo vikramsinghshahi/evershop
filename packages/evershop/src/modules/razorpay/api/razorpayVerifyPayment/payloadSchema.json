@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "properties": {
+    "order_id": { "type": "string" },
+    "razorpay_order_id": { "type": "string" },
+    "razorpay_payment_id": { "type": "string" },
+    "razorpay_signature": { "type": "string" }
+  },
+  "required": [
+    "order_id",
+    "razorpay_order_id",
+    "razorpay_payment_id",
+    "razorpay_signature"
+  ],
+  "additionalProperties": false
+}

@@ -108,6 +108,13 @@ type ConfigStructure = {
       publishableKey?: string;
       [key: string]: unknown;
     };
+    razorpay?: {
+      keyId?: string;
+      keySecret?: string;
+      webhookSecret?: string;
+      status?: number | string;
+      [key: string]: unknown;
+    };
     paypal?: {
       [key: string]: unknown;
     };
