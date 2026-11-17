@@ -38,19 +38,11 @@ export default async (
     }
 
     const credentials = await requireRazorpayKeys();
-    let amount: number;
-    try {
-      amount = toRazorpayMinorUnit(order.grand_total, order.currency);
-    } catch (err) {
-      throw new RazorpayPaymentError(
-        err instanceof Error
-          ? err.message
-          : 'Razorpay accepts payments in INR only.'
-      );
-    }
+    const amount = toRazorpayMinorUnit(order.grand_total, order.currency);
     const razorpayOrder = await createRazorpayOrder(
       credentials,
       amount,
+      order.currency,
       String(order.uuid).slice(0, 40),
       order.uuid
     );

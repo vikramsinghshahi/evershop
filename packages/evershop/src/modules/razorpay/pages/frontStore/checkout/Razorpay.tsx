@@ -61,17 +61,12 @@ interface RazorpayMethodProps {
     razorpayDisplayName: string;
     razorpayKeyId: string;
   };
-  cart: {
-    grandTotal: { value: number };
-    currency: string;
-  };
   createRazorpayOrderApi: string;
   verifyRazorpayPaymentApi: string;
 }
 
 export default function RazorpayMethod({
   setting,
-  cart,
   createRazorpayOrderApi,
   verifyRazorpayPaymentApi
 }: RazorpayMethodProps) {
@@ -89,7 +84,6 @@ export default function RazorpayMethod({
   const [canRetry, setCanRetry] = useState(false);
   const opening = useRef(false);
   const autoStarted = useRef(false);
-  const acceptsInr = String(cart.currency).toUpperCase() === 'INR';
 
   const startPayment = useCallback(async () => {
     if (opening.current || !orderId) {
@@ -216,26 +210,22 @@ export default function RazorpayMethod({
       ),
       formRenderer: () => (
         <div className="py-3 text-sm text-muted-foreground">
-          {acceptsInr ? (
-            <div className="grid gap-2">
-              <p>
-                {_(
-                  'UPI, cards, and netbanking open in a Razorpay window after you place the order.'
-                )}
-              </p>
-              {setting.razorpayKeyId?.startsWith('rzp_test_') && (
-                <div className="rounded border border-border p-3 text-xs">
-                  <div className="font-medium text-foreground">
-                    {_('Test payment')}
-                  </div>
-                  <div>{_('Card: 4111 1111 1111 1111, any future expiry, any CVV.')}</div>
-                  <div>{_('UPI: success@razorpay')}</div>
-                </div>
+          <div className="grid gap-2">
+            <p>
+              {_(
+                'Cards, UPI, and netbanking open in a Razorpay window after you place the order. The charge uses the currency selected in the header.'
               )}
-            </div>
-          ) : (
-            <p>{_('Razorpay accepts payments in INR only.')}</p>
-          )}
+            </p>
+            {setting.razorpayKeyId?.startsWith('rzp_test_') && (
+              <div className="rounded border border-border p-3 text-xs">
+                <div className="font-medium text-foreground">
+                  {_('Test payment')}
+                </div>
+                <div>{_('Card: 4111 1111 1111 1111, any future expiry, any CVV.')}</div>
+                <div>{_('UPI: success@razorpay')}</div>
+              </div>
+            )}
+          </div>
         </div>
       ),
       checkoutButtonRenderer: () => {
@@ -243,10 +233,6 @@ export default function RazorpayMethod({
         const { loadingStates, orderPlaced: placed } = useCheckout();
         const handleClick = async (event: React.MouseEvent) => {
           event.preventDefault();
-          if (!acceptsInr) {
-            toast.error(_('Razorpay accepts payments in INR only.'));
-            return;
-          }
           try {
             if (placed || canRetry) {
               await startPayment();
@@ -261,7 +247,7 @@ export default function RazorpayMethod({
             );
           }
         };
-        const isDisabled = loadingStates.placingOrder || busy || !acceptsInr;
+        const isDisabled = loadingStates.placingOrder || busy;
         return (
           <Button
             variant="default"
@@ -281,7 +267,6 @@ export default function RazorpayMethod({
       }
     });
   }, [
-    acceptsInr,
     busy,
     canRetry,
     registerPaymentComponent,
@@ -303,12 +288,6 @@ export const query = `
     setting {
       razorpayDisplayName
       razorpayKeyId
-    }
-    cart: myCart {
-      grandTotal {
-        value
-      }
-      currency
     }
     createRazorpayOrderApi: url(routeId: "razorpayCreateOrder")
     verifyRazorpayPaymentApi: url(routeId: "razorpayVerifyPayment")

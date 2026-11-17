@@ -105,6 +105,7 @@ export async function razorpayRequest<T>({
 export async function createRazorpayOrder(
   credentials: RazorpayCredentials,
   amount: number,
+  currency: string,
   receipt: string,
   evershopOrderId: string
 ): Promise<RazorpayOrder> {
@@ -115,7 +116,7 @@ export async function createRazorpayOrder(
     keySecret: credentials.keySecret,
     body: {
       amount,
-      currency: 'INR',
+      currency: currency.toUpperCase(),
       receipt,
       notes: { evershop_order_id: evershopOrderId }
     }
