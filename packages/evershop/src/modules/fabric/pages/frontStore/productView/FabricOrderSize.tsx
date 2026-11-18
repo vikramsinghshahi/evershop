@@ -16,7 +16,7 @@ const SHOWN_SIZES: OrderSizeId[] = [
 ];
 
 /**
- * Cut of cloth, directly above quantity. Linear meter is the start.
+ * Cut of cloth, directly above quantity. Linear metre is the start.
  * The preview rulers and the price follow this choice.
  */
 export default function FabricOrderSize() {

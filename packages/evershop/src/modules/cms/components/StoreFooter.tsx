@@ -74,9 +74,7 @@ function FooterAnchor({ link }: { link: StoreFooterLink }) {
         href={link.url}
         target="_blank"
         rel={
-          link.nofollow
-            ? 'noopener noreferrer nofollow'
-            : 'noopener noreferrer'
+          link.nofollow ? 'noopener noreferrer nofollow' : 'noopener noreferrer'
         }
         className={LINK_CLASS}
       >

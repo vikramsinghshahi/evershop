@@ -2,7 +2,7 @@ import React from 'react';
 import { printSizeCm } from '../services/printScale.js';
 import { DesignLayout } from './DesignLayout.js';
 
-/** Same cloth marks as the fabric page's linear meter, the size that page opens on. */
+/** Same cloth marks as the fabric page's linear metre, the size that page opens on. */
 const DOWN_CM = 100;
 const ACROSS_CM = 140;
 

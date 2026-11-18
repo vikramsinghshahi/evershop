@@ -34,7 +34,7 @@ export default function SaleUnit({ product }: SaleUnitProps) {
         <CardTitle>{_('Selling unit')}</CardTitle>
         <CardDescription>
           {_(
-            'The product price is the India price, in rupees. Meter, kilogram, and the store weight units. Minimum order starts at 1 in that unit.'
+            'The product price is the India price, in rupees. Metre, kilogram, and the store weight units. Minimum order starts at 1 in that unit.'
           )}
         </CardDescription>
       </CardHeader>
@@ -87,7 +87,7 @@ export default function SaleUnit({ product }: SaleUnitProps) {
             defaultValue={product?.priceBigSwatch ?? undefined}
             min={0}
             step={0.01}
-            helperText={_('75×100 cm. Blank uses 80% of the product price. Linear meter uses the product price, and its ruler is 100×140 cm.')}
+            helperText={_('75×100 cm. Blank uses 80% of the product price. Linear metre uses the product price, and its ruler is 100×140 cm.')}
           />
           <NumberField
             name="export_margin"

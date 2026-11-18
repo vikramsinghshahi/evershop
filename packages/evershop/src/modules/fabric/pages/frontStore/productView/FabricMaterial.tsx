@@ -25,8 +25,8 @@ import { DesignLayout } from '../../../components/DesignLayout.js';
 import { orderSizeById } from '../../../services/orderSize.js';
 
 /**
- * Centimetre marks for the cloth being ordered. A short swatch is marked
- * every centimetre. A meter-long piece is marked every 10 centimetres.
+ * Centimeter marks for the cloth being ordered. A short swatch is marked
+ * every centimeter. A metre-long piece is marked every 10 centimeters.
  */
 function rulerStep(spanCm: number): { minor: number; major: number } {
   if (spanCm <= 25) {
@@ -68,7 +68,9 @@ function VerticalRuler({ spanCm }: { spanCm: number }) {
       {marks.map(({ cm, major }) => (
         <span
           key={cm}
-          className={`absolute right-0 h-px ${major ? 'w-2.5 bg-neutral-500' : 'w-1.5 bg-neutral-400'}`}
+          className={`absolute right-0 h-px ${
+            major ? 'w-2.5 bg-neutral-500' : 'w-1.5 bg-neutral-400'
+          }`}
           style={{ top: `${(cm / spanCm) * 100}%` }}
         />
       ))}
@@ -101,7 +103,9 @@ function HorizontalRuler({ spanCm }: { spanCm: number }) {
       {marks.map(({ cm, major }) => (
         <span
           key={cm}
-          className={`absolute bottom-0 w-px ${major ? 'h-2.5 bg-neutral-500' : 'h-1.5 bg-neutral-400'}`}
+          className={`absolute bottom-0 w-px ${
+            major ? 'h-2.5 bg-neutral-500' : 'h-1.5 bg-neutral-400'
+          }`}
           style={{ left: `${(cm / spanCm) * 100}%` }}
         />
       ))}
@@ -127,7 +131,11 @@ function HorizontalRuler({ spanCm }: { spanCm: number }) {
 
 export default function FabricMaterial() {
   const { sku, name, image } = useProduct();
-  const scale = React.useSyncExternalStore(subscribePrintScale, getPrintScale, () => 100);
+  const scale = React.useSyncExternalStore(
+    subscribePrintScale,
+    getPrintScale,
+    () => 100
+  );
   const designView = React.useSyncExternalStore(
     subscribePrintDesign,
     getPrintDesignView,
@@ -165,21 +173,25 @@ export default function FabricMaterial() {
     <div className="fabric-material">
       <div className="grid grid-cols-[2.75rem_minmax(0,1fr)] border border-border">
         <div className="relative h-9 bg-neutral-50">
-          <span className="absolute left-1.5 top-1 text-[11px] leading-none text-neutral-500">cm</span>
+          <span className="absolute left-1.5 top-1 text-[11px] leading-none text-neutral-500">
+            cm
+          </span>
         </div>
         <HorizontalRuler spanCm={piece.heightCm} />
         <VerticalRuler spanCm={piece.widthCm} />
         <div
           className="relative aspect-square min-w-0 overflow-hidden"
           style={{ backgroundColor: swatch }}
-          aria-label={`${piece.label}, ${piece.widthCm} centimetres down and ${piece.heightCm} centimetres across`}
+          aria-label={`${piece.label}, ${piece.widthCm} centimeters down and ${piece.heightCm} centimeters across`}
         >
           {image?.url && !uploaded && (
             <img
               src={image.url}
               alt={image.alt || name}
               className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-                printing && designView.selection ? 'opacity-[0.14]' : 'opacity-100'
+                printing && designView.selection
+                  ? 'opacity-[0.14]'
+                  : 'opacity-100'
               }`}
             />
           )}

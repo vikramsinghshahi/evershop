@@ -1,10 +1,12 @@
 import { useCategory } from '@components/frontStore/catalog/CategoryContext.js';
 import { ProductSorting } from '@components/frontStore/catalog/ProductSorting.js';
+import { FabricKindFilter } from '../../../../fabric/components/FabricKindFilter.js';
 import {
   FabricSearch,
   fabricNameQuery,
   isFabricsCategoryUrl
 } from '../../../../fabric/components/FabricSearch.js';
+import { fabricKindQuery } from '../../../../fabric/services/fabricKind.js';
 import React from 'react';
 
 /**
@@ -21,7 +23,10 @@ export default function CategorySortingBlock(): React.ReactElement {
       count={products.total}
       leading={
         isFabricsCategoryUrl(url) ? (
-          <FabricSearch query={fabricNameQuery(products.currentFilters)} />
+          <div className="flex items-center gap-2">
+            <FabricSearch query={fabricNameQuery(products.currentFilters)} />
+            <FabricKindFilter kind={fabricKindQuery(products.currentFilters)} />
+          </div>
         ) : undefined
       }
     />

@@ -47,12 +47,12 @@ export function printPpiForScale(scale: number): number {
   return Math.round((REFERENCE_PPI * 100) / scale);
 }
 
-/** Centimetres across the artwork when it is printed at 100% scale. */
+/** Centimeters across the artwork when it is printed at 100% scale. */
 export function printSpanCm(): number {
   return (ARTWORK_PX / REFERENCE_PPI) * CM_PER_INCH;
 }
 
-/** Printed size of the artwork at the given scale, in centimetres. */
+/** Printed size of the artwork at the given scale, in centimeters. */
 export function printSizeCm(scale: number): number {
   return (printSpanCm() * scale) / 100;
 }
@@ -86,7 +86,11 @@ function parseScaleInput(raw: unknown): ScaleInput {
   if (typeof raw === 'string' && raw.trim() === '') {
     return 'absent';
   }
-  if (typeof raw === 'boolean' || Array.isArray(raw) || (typeof raw === 'object' && raw !== null)) {
+  if (
+    typeof raw === 'boolean' ||
+    Array.isArray(raw) ||
+    (typeof raw === 'object' && raw !== null)
+  ) {
     return 'invalid';
   }
   const value = typeof raw === 'number' ? raw : Number(raw);
@@ -97,7 +101,12 @@ function parseScaleInput(raw: unknown): ScaleInput {
 }
 
 function scaleFromInput(raw: unknown): unknown {
-  if (raw !== null && typeof raw === 'object' && !Array.isArray(raw) && 'scale' in raw) {
+  if (
+    raw !== null &&
+    typeof raw === 'object' &&
+    !Array.isArray(raw) &&
+    'scale' in raw
+  ) {
     return (raw as { scale?: unknown }).scale;
   }
   return raw;
@@ -143,7 +152,9 @@ export function resolvePrintConfiguration(
     );
   }
   if (scale === 'invalid') {
-    throw new PrintScaleError('Print scale must be a whole number from 1 to 100.');
+    throw new PrintScaleError(
+      'Print scale must be a whole number from 1 to 100.'
+    );
   }
   if (scale === 0) {
     throw new PrintScaleError(
@@ -216,7 +227,10 @@ export function parseStoredPrintOptions(
       printFee?: unknown;
       printFeeCurrency?: unknown;
     };
-    if (typeof data.printScale !== 'number' || !Number.isInteger(data.printScale)) {
+    if (
+      typeof data.printScale !== 'number' ||
+      !Number.isInteger(data.printScale)
+    ) {
       return null;
     }
     const printPpi =
@@ -226,7 +240,9 @@ export function parseStoredPrintOptions(
     const design = data.design;
     const storedDesign =
       design &&
-      (design.source === 'catalog' || design.source === 'upload' || design.source === 'designer') &&
+      (design.source === 'catalog' ||
+        design.source === 'upload' ||
+        design.source === 'designer') &&
       typeof design.name === 'string' &&
       typeof design.image === 'string' &&
       typeof design.layout === 'string' &&
@@ -235,7 +251,8 @@ export function parseStoredPrintOptions(
         : null;
     const printFee = readPrintFee(data.printFee) ?? 0;
     const printFeeCurrency =
-      typeof data.printFeeCurrency === 'string' && /^[A-Z]{3}$/.test(data.printFeeCurrency)
+      typeof data.printFeeCurrency === 'string' &&
+      /^[A-Z]{3}$/.test(data.printFeeCurrency)
         ? data.printFeeCurrency
         : undefined;
     return {

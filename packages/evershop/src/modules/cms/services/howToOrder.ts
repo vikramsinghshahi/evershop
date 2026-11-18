@@ -52,7 +52,7 @@ export const HOW_TO_ORDER_STEPS: readonly HowToOrderStep[] = [
   {
     id: 'quantity',
     title: 'Set the metres',
-    text: 'The size starts on Linear meter. Set the quantity and add it to the cart.',
+    text: 'The size starts on Linear metre. Set the quantity and add it to the cart.',
     image: '/how-to-order/step-5.webp',
     alt: 'A quantity field in metres next to fabric details'
   },
@@ -129,7 +129,11 @@ export function insertHowToOrderMenu(
   };
   const afterApply = menus.findIndex((item) => item?.url === '/apply-fabric');
   if (afterApply >= 0) {
-    return [...menus.slice(0, afterApply + 1), node, ...menus.slice(afterApply + 1)];
+    return [
+      ...menus.slice(0, afterApply + 1),
+      node,
+      ...menus.slice(afterApply + 1)
+    ];
   }
   const beforeAbout = menus.findIndex((item) => item?.url === '/about-us');
   if (beforeAbout >= 0) {

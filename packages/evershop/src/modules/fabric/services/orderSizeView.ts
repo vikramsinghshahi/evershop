@@ -2,7 +2,7 @@ import type { OrderSizeId } from './orderSize.js';
 
 /**
  * The cloth preview and the buy box sit in different page areas, so they
- * share the cut the shopper is ordering. Linear meter is the start.
+ * share the cut the shopper is ordering. Linear metre is the start.
  * Nothing here is the order snapshot.
  */
 let size: OrderSizeId = 'linear';

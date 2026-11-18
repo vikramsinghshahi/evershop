@@ -160,7 +160,7 @@
       "enum": ["m", "kg", "g", "lb", "oz", "piece", "none", "", null],
       "errorMessage": {
         "type": "Selling unit must be a string",
-        "enum": "Selling unit must be meter, kilogram, gram, pound, ounce, or piece"
+        "enum": "Selling unit must be metre, kilogram, gram, pound, ounce, or piece"
       }
     },
     "moq": {

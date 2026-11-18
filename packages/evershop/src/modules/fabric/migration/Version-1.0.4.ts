@@ -2,7 +2,7 @@ import { execute } from '@evershop/postgres-query-builder';
 import type { PoolClient } from 'pg';
 
 /**
- * Swatch prices for a fabric. Linear meter keeps using `product.price`.
+ * Swatch prices for a fabric. Linear metre keeps using `product.price`.
  * Existing cloths start at 40% (test, 20×20 cm) and 80% (big, 75×100 cm)
  * of that price. An admin can replace either amount.
  */

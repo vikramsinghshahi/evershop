@@ -3,7 +3,7 @@ import type { PoolClient } from 'pg';
 
 /**
  * Selling unit and minimum order quantity. Blank on accessories. Existing
- * cloths in the Fabrics category start at 1 meter.
+ * cloths in the Fabrics category start at 1 metre.
  */
 export default async (connection: PoolClient) => {
   await execute(

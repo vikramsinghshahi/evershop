@@ -89,8 +89,8 @@ const WEIGHT_UNITS = [
 ];
 
 const DIMENSION_UNITS = [
-  { value: 'cm', label: 'Centimeter (cm)' },
-  { value: 'mm', label: 'Millimeter (mm)' },
+  { value: 'cm', label: 'Centimetre (cm)' },
+  { value: 'mm', label: 'Millimetre (mm)' },
   { value: 'in', label: 'Inch (in)' }
 ];
 

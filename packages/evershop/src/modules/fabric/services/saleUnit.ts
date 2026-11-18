@@ -1,6 +1,6 @@
-/** Selling units a fabric price can be quoted in. Meter is the cloth default. */
+/** Selling units a fabric price can be quoted in. Metre is the cloth default. */
 export const SALE_UNITS = [
-  { value: 'm', label: 'Meter' },
+  { value: 'm', label: 'Metre' },
   { value: 'kg', label: 'Kilogram' },
   { value: 'g', label: 'Gram' },
   { value: 'lb', label: 'Pound' },

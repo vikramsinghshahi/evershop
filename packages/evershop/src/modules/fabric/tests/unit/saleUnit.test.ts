@@ -1,8 +1,8 @@
 import { normalizeSaleFields, saleUnitLabel } from '../../services/saleUnit.js';
 
 describe('sale unit', () => {
-  it('labels a meter and ignores an unknown unit', () => {
-    expect(saleUnitLabel('m')).toBe('Meter');
+  it('labels a metre and ignores an unknown unit', () => {
+    expect(saleUnitLabel('m')).toBe('Metre');
     expect(saleUnitLabel('crate')).toBe('');
   });
 

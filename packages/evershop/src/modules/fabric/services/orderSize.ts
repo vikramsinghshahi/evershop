@@ -2,10 +2,10 @@ import { readPrintFee } from './printFee.js';
 
 /**
  * The three cuts Tex India sells on a fabric page. The first number is the
- * vertical ruler, the second the horizontal ruler. Linear meter is the start.
+ * vertical ruler, the second the horizontal ruler. Linear metre is the start.
  */
 export const ORDER_SIZES = [
-  { id: 'linear', label: 'Linear meter', widthCm: 100, heightCm: 140 },
+  { id: 'linear', label: 'Linear metre', widthCm: 100, heightCm: 140 },
   { id: 'test', label: 'Test swatch', widthCm: 20, heightCm: 20 },
   { id: 'big', label: 'Big swatch', widthCm: 75, heightCm: 100 }
 ] as const;
@@ -33,7 +33,7 @@ export function orderSizeLabel(id: OrderSizeId): string {
 
 /**
  * Price of one test or big swatch. An admin amount wins. A blank amount is
- * a share of the linear meter price, which is the product price.
+ * a share of the linear metre price, which is the product price.
  */
 export function swatchUnitPrice(
   id: 'test' | 'big',
@@ -63,7 +63,7 @@ function sizePayload(raw: unknown): SizePayload {
 }
 
 /**
- * Fields stored on a swatch line. Linear meter adds nothing, so a plain
+ * Fields stored on a swatch line. Linear metre adds nothing, so a plain
  * linear line stays `{ mode: 'plain' }` and keeps the product price.
  * Throws when the shopper sends a size this shop does not sell.
  */
@@ -81,7 +81,7 @@ export function orderSizeSnapshot(raw: unknown): {
     return null;
   }
   if (body.orderSize !== 'test' && body.orderSize !== 'big') {
-    throw new Error('Choose Linear meter, Test swatch, or Big swatch.');
+    throw new Error('Choose Linear metre, Test swatch, or Big swatch.');
   }
   const size = orderSizeById(body.orderSize);
   const stored = body.orderSize === 'test' ? body.priceTestSwatch : body.priceBigSwatch;

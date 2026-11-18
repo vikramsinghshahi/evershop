@@ -110,7 +110,7 @@ describe('fabric print scale', () => {
         mode: 'plain',
         orderSize: 'roll'
       })
-    ).toThrow(/Linear meter/);
+    ).toThrow(/Linear metre/);
     expect(isPlainFabricLine(stored)).toBe(true);
     expect(parseStoredPrintOptions(stored)).toBeNull();
     expect(isPlainFabricLine('{"printScale":80}')).toBe(false);

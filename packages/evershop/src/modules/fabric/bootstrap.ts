@@ -7,6 +7,7 @@ import { registerCurrencyOnCart, registerCurrencyOnCartItem } from './services/s
 import { normalizeExportMargin } from './services/shopCurrency.js';
 import { registerPrintFeeOnCartItem } from './services/printFeeCart.js';
 import { registerFabricShipping } from './services/fabricShipping.js';
+import { appendFabricKindFilter } from './services/fabricKindFilter.js';
 import { normalizeSaleFields } from './services/saleUnit.js';
 
 function normalizeProductFields(data: Record<string, unknown>): void {
@@ -28,4 +29,5 @@ export default function bootstrap() {
   addProcessor('cartItemFields', registerCurrencyOnCartItem, 20);
   addProcessor('cartFields', registerCurrencyOnCart, 10);
   registerFabricShipping();
+  addProcessor('productCollectionFilters', appendFabricKindFilter, 10);
 }

@@ -29,6 +29,16 @@ describe('applyFabricSearchToUrl', () => {
     expect(url.searchParams.get('ob')).toBe('price');
   });
 
+  it('keeps a kind filter when the name search changes', () => {
+    const url = applyFabricSearchToUrl(
+      `${base}?kind=Cotton&page=2`,
+      'poplin'
+    );
+    expect(url.searchParams.get('kind')).toBe('Cotton');
+    expect(url.searchParams.get('name[value]')).toBe('poplin');
+    expect(url.searchParams.get('page')).toBeNull();
+  });
+
   it('clears the filter when the box is empty and keeps the sort', () => {
     const url = applyFabricSearchToUrl(
       `${base}?name[operation]=like&name[value]=lawn&od=desc`,

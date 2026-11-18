@@ -70,7 +70,10 @@ export default async (context: { command?: string } = {}) => {
       // module reports a real database failure. A cold cache leaves the
       // warning below in place.
     }
-    if (!process.env.IMAGE_ALLOWED_HOSTS?.trim() && getFileStorageImageHosts().length === 0) {
+    if (
+      !process.env.IMAGE_ALLOWED_HOSTS?.trim() &&
+      getFileStorageImageHosts().length === 0
+    ) {
       warning(
         'IMAGE_ALLOWED_HOSTS is not set. The /images endpoint will not optimize external images — only local media/public/theme images are processed. Set IMAGE_ALLOWED_HOSTS to a comma-separated list of trusted hosts (e.g. "cdn.example.com,images.internal") to allow fetching external images. (When S3/Azure/GCS file storage is configured, its host is allowed automatically.)'
       );
